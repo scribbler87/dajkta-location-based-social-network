@@ -5,8 +5,17 @@
     android:orientation="vertical" >
 
     <TextView
+        android:id="@+id/textView01"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/hello" />
+
+    <EditText
+        android:id="@+id/editText1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <requestFocus />
+    </EditText>
 
 </LinearLayout>
