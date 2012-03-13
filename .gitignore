@@ -1,3 +1,4 @@
 .metadata
 *.class
 R.java
+bin/
