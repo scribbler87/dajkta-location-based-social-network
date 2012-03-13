@@ -1,0 +1,156 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Einstellungen																															%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[
+		11pt,				 % 11 Punkt Schrift verwenden (auch 10pt, 12pt moeglich)
+		a4paper,			% Dokumentgroesse A4
+		oneside,			% einseitiger Druck (auch twoside moeglich)
+		titlepage,		% Titelblatt generieren
+		headsepline,	% Kopfzeile duch Linie vom text getrennt
+		DIV11,				% Groesse des Satzspiegels (z. B. auch DIV10 ist Standart)
+		abstracton,	 % zeigt die Abstractueberschrift (abstracton oder abtractoff)
+		BCOR0cm,			% Groesse des Bindungsrandes (z. B.: BCOR2.5cm)
+		pointlessnumbers, % Keinen Punkt hinter der letzten Zahl in der Überschrift
+		bibtotoc			% Literaturverzeichnis kommt ins Inhaltsverzeichnis
+]{scrreprt}			% Dokumentenklasse (hier KomaScript - Report)
+%]{report}			% Dokumentenklasse (Report)
+
+%\usepackage[ngerman]{babel}				% deutschsprachige Anpassungen
+\usepackage[english]{babel}				 % englischsprachige Anpassungen
+\usepackage[utf8]{inputenc}				 % direkte Eingabe von Umlauten
+%\usepackage[T1]{fontenc}					 % Trennvorschriften bei Umlauten
+\usepackage{graphicx}							 % Packet zu Einbindung von Graphiken
+\usepackage{float}
+\usepackage{parskip}								% besseres Absatzlayout
+																		%(Leerzeile statt Einrückung)
+\usepackage[official,right]{eurosym}% für ein \euro{} Symbol
+\usepackage{hyperref}							% entfernen um links los zu werden
+%\usepackage{helvet}								% Helvetica als serifenlose Schrift
+%\usepackage{mathpazo}							% Palatino Schrift mit Serifen
+%\usepackage{courier}								% Courier als Festbreitenschrift
+%\usepackage{supertabular}
+%\usepackage{longtable}
+%\usepackage{amsmath}								% besser als standard math
+%\usepackage{amssymb} 
+%\usepackage{multirow}
+%\usepackage{listings}
+\usepackage{algorithmic, algorithm}
+\usepackage{url}										% fuer URLs als Literaturverzeichnis
+\usepackage{subfig}									% fuer die Erstellung von Unterabbildungen
+%\usepackage{tabto}									% tabulatoren verwenden
+%\usepackage{pdflscape}							% einzelne Teile des Dokuments in landscape
+%\usepackage{syntonly}							% debug paket
+\usepackage{fancyhdr}
+%\usepackage{textcomp}
+%\usepackage{sidecap}
+\usepackage{color}
+\usepackage{setspace}
+%\usepackage{rotating}
+\usepackage{rotfloat}
+\usepackage{verbatim}							 % multiline comments
+\usepackage{nextpage}
+\usepackage{pgf}
+\usepackage{tikz}
+\usepackage[numbers]{natbib}
+\usepackage{setspace}
+
+
+\usetikzlibrary{arrows,automata,shapes.multipart,trees}
+\onehalfspacing						 % anderthalbzeilig (oder auch \doublespace)
+\pagestyle{headings}				 % Überschrift in der Kopfzeile und Seitenzahlen
+
+
+\setcapindent{0mm}
+\addtokomafont{caption}{\small}
+
+%\definecolor{figureBlue}{cmyk}{0.19,0.13,0.0,0.18}
+
+\hyphenation{Plan-Se-lec-tor Task-A-ssign-ment}
+
+% KOMA: Smaller caption font; Looks better, thanks fh!
+%\addtokomafont{caption}{\small}
+%\setkomafont{captionlabel}{\sffamily\bfseries}
+%\setcapindent{1em}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Adding lines above and below the chapter head
+\newcommand*{\ORIGchapterheadstartvskip}{}
+\let\ORIGchapterheadstartvskip=\chapterheadstartvskip
+\renewcommand*{\chapterheadstartvskip}{
+	 \ORIGchapterheadstartvskip{
+			 \setlength{\parskip}{-40pt}
+			 \noindent\rule{.3\textwidth}{3pt}\rule[2.5pt]{.7\linewidth}{.5pt}\par
+	 }
+}
+
+\newcommand*{\ORIGchapterheadendvskip}{}
+\let\ORIGchapterheadendvskip=\chapterheadendvskip
+\renewcommand*{\chapterheadendvskip}{
+	 {
+			 \setlength{\parskip}{0pt}
+			 \noindent\rule{.3\textwidth}{.5pt}\par
+	 }
+	 \ORIGchapterheadendvskip
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% formatierung fuer source code
+% \lstloadlanguages{Java}
+% \lstset{numbers=left, numberstyle=\tiny, numbersep=5pt, basicstyle=\small}	
+% \lstset{language=Java, captionpos=b, float, frame=single}
+
+\definecolor{todo}{rgb}{1.0,0.0,0.0}
+\newcommand{\todo}[1]{\textcolor{todo}{TODO: #1}}
+\newcommand{\todob}[2]{\todo{#1} \marginpar{\textcolor{todo}{#2}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%DOCUMENT%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+%\begin{doublespace}
+% Cover
+	\thispagestyle{empty}
+	
+	\begin{center}
+		\begin{LARGE}\bfseries Location based social network\end{LARGE}\\
+		[2cm]
+		\Large{University of Aalto}\\
+		[1cm]
+		\large{Documentation from }\\
+		\Large{dajkta}\\
+		[1cm]
+		\large{At}\\ \Large{Mobile System Programming}\\
+		[1cm]
+	\end{center}
+
+	
+
+	\begin{center}\today \end{center}%\in progress: \today
+
+	\newpage
+	\include{Abstract}
+	
+	\tableofcontents
+
+
+	\newpage
+	\include{Introduction}
+	
+	\include{Foundations}
+	
+	\include{GeneralExplanation}
+
+	\include{Implementation}
+
+	\include{Evaluation}
+
+	\include{FutureWork}
+
+	\include{Summary}
+%\end{doublespace}
+	\nocite{*}
+%	\bibliographystyle{unsrt}
+	\bibliographystyle{plainnat}
+	\bibliography{bibtexfile}
+	\appendix
+\end{document}
+

@@ -1,0 +1,8 @@
+some really short informations:
+
+- we decided to make a location based social network
+more information on: https://docs.google.com/document/d/18pKrZvOF-SHedmX-5n6U8CgX8idMV0cCviI5ZLvmss0/edit?pli=1
+- for doucmentation we are using latex
+- github as our repository
+- main communcication channel will be the facebook group
+- so please be aware and check it frequently
