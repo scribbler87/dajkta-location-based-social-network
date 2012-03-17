@@ -1,5 +1,6 @@
-package fi.kalleranki.intentsample;
+package fi.local.social.network;
 
+import fi.local.social.network.R;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;

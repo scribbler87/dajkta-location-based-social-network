@@ -2,6 +2,6 @@
 <resources>
 
     <string name="hello">Hello World, IntentSampleActivity!</string>
-    <string name="app_name">IntentSample</string>
+    <string name="app_name">Mobile neighbour</string>
 
 </resources>

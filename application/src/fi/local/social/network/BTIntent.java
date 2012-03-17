@@ -1,4 +1,4 @@
-package fi.kalleranki.intentsample;
+package fi.local.social.network;
 
 import android.content.Intent;
 
