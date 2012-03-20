@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class IntentSampleActivity extends Activity implements OnClickListener {
+public class MobileNeighbourActivity extends Activity implements OnClickListener {
 	private BroadcastReceiver mReceiver;
 
 	/** Called when the activity is first created. */
