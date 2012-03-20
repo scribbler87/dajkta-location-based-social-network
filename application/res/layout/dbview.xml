@@ -4,22 +4,29 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    
-    <TextView
+    <EditText
+        android:id="@+id/dbTest1"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/hello" />
+        android:layout_height="wrap_content" >
+
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/dbTest1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
 
     <Button
-        android:id="@+id/sendIntent"
+        android:id="@+id/buttonDBbTestConf1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Send intent" />
+        android:text="Confirm data to DB" />
 
     <Button
-        android:id="@+id/goToDBView"
+        android:id="@+id/buttonDBgoBack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Go to DB View" />
+        android:text="Go Back To Main" />
 
 </LinearLayout>

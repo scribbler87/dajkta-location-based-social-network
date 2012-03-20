@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class IntentSampleActivity extends Activity implements OnClickListener {
+public class MainView extends Activity {
 	private BroadcastReceiver mReceiver;
 
 	/** Called when the activity is first created. */
@@ -20,15 +20,33 @@ public class IntentSampleActivity extends Activity implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		Button button = (Button) findViewById(R.id.button1);
-		button.setOnClickListener(this);
+		
+		
+		Button siButton = (Button) findViewById(R.id.sendIntent);
+		siButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+
+					getApplicationContext().sendBroadcast(new BTIntent());
+			}
+		});
+		
+		Button dbBbutton = (Button) findViewById(R.id.goToDBView);
+		dbBbutton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+			     startActivity(new Intent(getApplicationContext(),  DBView.class));
+				
+			}
+		});
+		
 
 		this.mReceiver = new BroadcastReceiver() {
 
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				Log.i("IntentSampleActivity", "Received intent");
-
+				
 				
 			}
 		};
@@ -43,8 +61,5 @@ public class IntentSampleActivity extends Activity implements OnClickListener {
 		unregisterReceiver(mReceiver);
 	}
 
-	@Override
-	public void onClick(View button) {
-		getApplicationContext().sendBroadcast(new BTIntent());
-	}
+	
 }

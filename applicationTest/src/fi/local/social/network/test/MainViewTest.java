@@ -3,17 +3,17 @@ package fi.local.social.network.test;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.TextView;
 import fi.local.social.network.*;
-import android.widget.TextView;
-public class MainViewTest extends ActivityInstrumentationTestCase2<IntentSampleActivity> 
+
+public class MainViewTest extends ActivityInstrumentationTestCase2<MainView> 
 {
 
 	public MainViewTest()
 	{
-		super("fi.local.social.network", IntentSampleActivity.class);
+		super("fi.local.social.network", MainView.class);
 		//super("fi.local.social.network.IntentSampleActivity", IntentSampleActivity.class);
 	}
 	
-	private IntentSampleActivity mActivity;
+	private MainView mActivity;
 	private TextView mView;
 	private String ressourceString;
 	
