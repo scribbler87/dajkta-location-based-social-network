@@ -29,6 +29,7 @@ public class IntentSampleActivity extends Activity implements OnClickListener {
 			public void onReceive(Context context, Intent intent) {
 				Log.i("IntentSampleActivity", "Received intent");
 
+				
 			}
 		};
 

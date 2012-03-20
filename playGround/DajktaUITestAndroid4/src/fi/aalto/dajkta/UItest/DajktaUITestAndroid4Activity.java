@@ -13,6 +13,9 @@ public class DajktaUITestAndroid4Activity extends Activity {
         setContentView(R.layout.main);
     }
     
+    
+    
+  
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
