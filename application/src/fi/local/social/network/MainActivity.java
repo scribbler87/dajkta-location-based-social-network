@@ -13,18 +13,13 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 public class MainActivity extends BTServiceConnectedActivity {
-	private BroadcastReceiver mReceiver;
-	
-	public MainActivity() {
-		super();
-		this.mReceiver = new BroadcastReceiver() {
+	private BroadcastReceiver mReceiver= new BroadcastReceiver() {
 
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				Log.i("IntentSampleActivity", "Received intent");
-			}
-		};
-	}
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Log.i("IntentSampleActivity", "Received intent");
+		}
+	};
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -32,22 +27,13 @@ public class MainActivity extends BTServiceConnectedActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		Button siButton = (Button) findViewById(R.id.sendIntent);
-		siButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-
-				getApplicationContext().sendBroadcast(new BTIntent());
-			}
-		});
-
-		bindDbButton();
-
-		
+		bindSendIntentButton(); // button for sending BTI intents
+		bindDbButton(); // Button for testing db.
 
 		IntentFilter filter = new IntentFilter(BTIntent.BT_INTENT);
 		registerReceiver(mReceiver, filter);
 	}
+
 
 	@Override
 	protected void onDestroy() {
@@ -55,6 +41,19 @@ public class MainActivity extends BTServiceConnectedActivity {
 		unregisterReceiver(mReceiver);
 	}
 
+	// helper methods
+	
+	private void bindSendIntentButton() {
+		Button sendIntentButton = (Button) findViewById(R.id.sendIntent);
+		sendIntentButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+
+				getApplicationContext().sendBroadcast(new BTIntent());
+			}
+		});
+	}
+	
 	private void bindDbButton() {
 		Button dbBbutton = (Button) findViewById(R.id.goToDBView);
 		dbBbutton.setOnClickListener(new OnClickListener() {
