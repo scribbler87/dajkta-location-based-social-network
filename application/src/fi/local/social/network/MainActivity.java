@@ -15,6 +15,17 @@ import android.widget.Button;
 public class MainActivity extends BTServiceConnectedActivity {
 	private BroadcastReceiver mReceiver;
 	
+	public MainActivity() {
+		super();
+		this.mReceiver = new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				Log.i("IntentSampleActivity", "Received intent");
+			}
+		};
+	}
+	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -32,13 +43,7 @@ public class MainActivity extends BTServiceConnectedActivity {
 
 		bindDbButton();
 
-		this.mReceiver = new BroadcastReceiver() {
-
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				Log.i("IntentSampleActivity", "Received intent");
-			}
-		};
+		
 
 		IntentFilter filter = new IntentFilter(BTIntent.BT_INTENT);
 		registerReceiver(mReceiver, filter);
