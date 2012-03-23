@@ -1,4 +1,4 @@
-package fi.local.social.network;
+package fi.local.social.network.btservice;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import fi.local.social.network.BTService.BTServiceBinder;
+import fi.local.social.network.btservice.BTService.BTServiceBinder;
 
 /**
  * Adds connection to the bluetooth service.

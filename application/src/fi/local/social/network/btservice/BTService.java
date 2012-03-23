@@ -1,4 +1,4 @@
-package fi.local.social.network;
+package fi.local.social.network.btservice;
 
 import android.app.Service;
 import android.content.Intent;

@@ -1,6 +1,7 @@
 package fi.local.social.network;
 
 import fi.local.social.network.R;
+import fi.local.social.network.btservice.BTServiceConnectedActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
