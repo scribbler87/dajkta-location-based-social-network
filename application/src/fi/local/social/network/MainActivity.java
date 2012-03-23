@@ -14,7 +14,7 @@ import android.widget.Button;
 
 public class MainActivity extends BTServiceConnectedActivity {
 	private BroadcastReceiver mReceiver;
-
+	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -30,14 +30,7 @@ public class MainActivity extends BTServiceConnectedActivity {
 			}
 		});
 
-		Button dbBbutton = (Button) findViewById(R.id.goToDBView);
-		dbBbutton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				startActivity(new Intent(getApplicationContext(), DBView.class));
-				
-			}
-		});
+		bindDbButton();
 
 		this.mReceiver = new BroadcastReceiver() {
 
@@ -55,6 +48,17 @@ public class MainActivity extends BTServiceConnectedActivity {
 	protected void onDestroy() {
 		super.onDestroy();
 		unregisterReceiver(mReceiver);
+	}
+
+	private void bindDbButton() {
+		Button dbBbutton = (Button) findViewById(R.id.goToDBView);
+		dbBbutton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startActivity(new Intent(getApplicationContext(), DBView.class));
+
+			}
+		});
 	}
 
 }
