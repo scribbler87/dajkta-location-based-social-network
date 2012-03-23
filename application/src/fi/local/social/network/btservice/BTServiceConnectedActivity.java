@@ -16,6 +16,7 @@ import fi.local.social.network.btservice.BTService.BTServiceBinder;
  */
 public class BTServiceConnectedActivity extends Activity {
 
+	
 	protected BTService mBTService;
 	private ServiceConnection mServiceConnection = new ServiceConnection() {
 
