@@ -13,14 +13,14 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 public class MainActivity extends BTServiceConnectedActivity {
-	private BroadcastReceiver mReceiver= new BroadcastReceiver() {
+	private BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			Log.i("IntentSampleActivity", "Received intent");
 		}
 	};
-	
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -34,7 +34,6 @@ public class MainActivity extends BTServiceConnectedActivity {
 		registerReceiver(mReceiver, filter);
 	}
 
-
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
@@ -42,25 +41,23 @@ public class MainActivity extends BTServiceConnectedActivity {
 	}
 
 	// helper methods
-	
+
 	private void bindSendIntentButton() {
 		Button sendIntentButton = (Button) findViewById(R.id.sendIntent);
 		sendIntentButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-
 				getApplicationContext().sendBroadcast(new BTIntent());
 			}
 		});
 	}
-	
+
 	private void bindDbButton() {
 		Button dbBbutton = (Button) findViewById(R.id.goToDBView);
 		dbBbutton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				startActivity(new Intent(getApplicationContext(), DBView.class));
-
 			}
 		});
 	}
