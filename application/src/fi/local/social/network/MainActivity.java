@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class MainView extends Activity {
+public class MainActivity extends Activity {
 	private BroadcastReceiver mReceiver;
 
 	/** Called when the activity is first created. */
