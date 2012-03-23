@@ -9,15 +9,15 @@ import android.os.IBinder;
 import fi.local.social.network.btservice.BTService.BTServiceBinder;
 
 /**
- * Adds connection to the bluetooth service.
+ * Adds protected field mService for communicating with the bluetooth service.
  * 
  * @author kranki
  * 
  */
 public class BTServiceConnectedActivity extends Activity {
 
-	
-	protected BTService mBTService;
+	protected BTServiceInterface mService;
+
 	private ServiceConnection mServiceConnection = new ServiceConnection() {
 
 		@Override
@@ -28,7 +28,7 @@ public class BTServiceConnectedActivity extends Activity {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			BTServiceBinder binder = (BTServiceBinder) service;
-			mBTService = binder.getService();
+			mService = (BTServiceInterface) binder.getService();
 			mBound = true;
 		}
 	};

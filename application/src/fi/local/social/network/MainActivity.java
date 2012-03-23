@@ -35,7 +35,7 @@ public class MainActivity extends BTServiceConnectedActivity {
 			@Override
 			public void onClick(View v) {
 				startActivity(new Intent(getApplicationContext(), DBView.class));
-
+				
 			}
 		});
 
@@ -44,7 +44,6 @@ public class MainActivity extends BTServiceConnectedActivity {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				Log.i("IntentSampleActivity", "Received intent");
-
 			}
 		};
 
