@@ -4,10 +4,10 @@ import android.test.ActivityInstrumentationTestCase2;
 import android.widget.TextView;
 import fi.local.social.network.activities.*;
 
-public class MainViewTest extends ActivityInstrumentationTestCase2<MainActivity> 
+public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActivity> 
 {
 
-	public MainViewTest()
+	public MainActivityTest()
 	{
 		super("fi.local.social.network", MainActivity.class);
 		//super("fi.local.social.network.IntentSampleActivity", IntentSampleActivity.class);
