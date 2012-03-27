@@ -4,6 +4,7 @@ import android.app.ListActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -27,13 +28,13 @@ public class PeopleNearby extends ListActivity {
 				listView.setTextFilterEnabled(true);
 				
 				listView.setOnItemClickListener(new OnItemClickListener() {
-				@Override
-				public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-					// When clicked, show a toast with the TextView text
-					Toast.makeText(getApplicationContext(),
-					((TextView) view).getText(), Toast.LENGTH_SHORT).show();
-					}
+					//When a name is clicked, a notification pops up with the name
+					@Override
+					public void onItemClick(AdapterView<?> parent, View view,
+						int position, long id) {
+						Toast.makeText(getApplicationContext(),
+						((TextView) view).getText(), Toast.LENGTH_SHORT).show();
+						}
 					});
 			}//end onCreate
 			
@@ -42,5 +43,32 @@ public class PeopleNearby extends ListActivity {
 				MenuInflater inflater=getMenuInflater();
 				inflater.inflate(R.layout.menu_people_nearby, menu);
 				return true;
+			}
+			
+			//When a user clicks on an option menu item, a toast with the item title shows up
+			@Override
+			public boolean onOptionsItemSelected(MenuItem item) {
+				super.onOptionsItemSelected(item);
+				// Handle item selection
+			    switch (item.getItemId()) {
+			        case R.id.friends:
+			            Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
+			            return true;
+			        case R.id.notifications:
+			        	Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
+			            return true;
+			        case R.id.groups:
+			        	Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
+			        	return true;
+			        case R.id.settings:
+			        	Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
+			        	return true;
+			        case R.id.events:
+			        	Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
+			        	return true;
+			        default:
+			        	break;
+			    }
+			    return false;
 			}
 }
