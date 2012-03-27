@@ -1,4 +1,4 @@
-package fi.local.social.network;
+package fi.local.social.network.views;
 
 import fi.local.social.network.R;
 import android.app.Activity;

@@ -2,7 +2,7 @@ package fi.local.social.network.test;
 
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.TextView;
-import fi.local.social.network.*;
+import fi.local.social.network.views.*;
 
 public class MainViewTest extends ActivityInstrumentationTestCase2<MainView> 
 {
@@ -21,7 +21,7 @@ public class MainViewTest extends ActivityInstrumentationTestCase2<MainView>
 	protected void setUp() throws Exception {
 		super.setUp();
 		mActivity = this.getActivity();
-		mView = (TextView) mActivity.findViewById(fi.local.social.network.R.id.button1 );
+		mView = (TextView) mActivity.findViewById(fi.local.social.network.R.id.sendIntent );
 		//ressourceString = mActivity.getString(fi.local.social.network.R.string.hello );
 		ressourceString = "Send intent";
 	}
