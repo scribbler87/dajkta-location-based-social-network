@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 	<item android:id="@+id/events"
-		  android:title="Events"/>
+		  android:title="Events"
+		  android:icon="@drawable/events"/>
  	<item android:id="@+id/friends"
- 		  android:title="Friends"/>
+ 		  android:title="Friends"
+ 		  android:icon="@drawable/friends"/>
     <item android:id="@+id/groups"
-    	  android:title="Groups"/>
+    	  android:title="Groups"
+    	  android:icon="@drawable/groups"/>
     <item android:id="@+id/notifications"
-    	  android:title="Notifications"/>
+    	  android:title="Notifications"
+    	  android:icon="@drawable/notifications"/>
 	<item android:id="@+id/settings"
-		  android:title="Settings"/>
+		  android:title="Settings"
+		  android:icon="@drawable/settings"/>
 </menu>
