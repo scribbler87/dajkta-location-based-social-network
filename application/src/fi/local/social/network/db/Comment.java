@@ -1,5 +1,11 @@
 package fi.local.social.network.db;
 
+/**
+ * Represents the data for our db
+ * @author jens
+ *
+ */
+
 public class Comment {
 	private long id;
 	private String comment;

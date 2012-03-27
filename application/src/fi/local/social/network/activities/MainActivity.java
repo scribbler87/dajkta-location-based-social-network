@@ -1,8 +1,6 @@
 package fi.local.social.network.activities;
 
 import fi.local.social.network.R;
-import fi.local.social.network.R.id;
-import fi.local.social.network.R.layout;
 import fi.local.social.network.btservice.BTServiceConnectedActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -55,10 +53,9 @@ public class MainActivity extends BTServiceConnectedActivity {
 		
 		Button peopleNearbyBtn=(Button)findViewById(R.id.peopleNearby);
 		peopleNearbyBtn.setOnClickListener(new OnClickListener(){
-
 			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
+			public void onClick(View v) 
+			{
 				startActivity(new Intent(getApplicationContext(), PeopleNearby.class));
 			}
 			
