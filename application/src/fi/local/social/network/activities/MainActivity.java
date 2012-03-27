@@ -36,7 +36,7 @@ public class MainActivity extends BTServiceConnectedActivity {
 		dbBbutton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				startActivity(new Intent(getApplicationContext(), DBView.class));
+				startActivity(new Intent(getApplicationContext(), DBActivity.class));
 
 			}
 		});

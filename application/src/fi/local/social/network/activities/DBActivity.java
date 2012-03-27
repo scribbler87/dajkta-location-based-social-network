@@ -15,7 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 
 
-public class DBView extends ListActivity  {
+public class DBActivity extends ListActivity  {
 	private CommentsDataSource datasource;
 	
 	@Override
