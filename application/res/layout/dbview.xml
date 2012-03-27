@@ -5,7 +5,7 @@
     android:orientation="vertical" >
 
     <EditText
-        android:id="@+id/dbTest1"
+        android:id="@+id/textDB1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" >
 
@@ -15,21 +15,29 @@
     
 
     <EditText
-        android:id="@+id/dbTest1"
+        android:id="@+id/textDB2"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 
     <Button
-        android:id="@+id/buttonDBbTestConf1"
+        android:id="@+id/buttonDBbConfirm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Confirm data to DB" />
 
+     <Button
+        android:id="@+id/buttonDBDelete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Delete data from DB" />
+    
     <Button
         android:id="@+id/buttonDBgoBack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Go Back To Main" />
+
+   
 
    	<ListView
         android:id="@android:id/list"

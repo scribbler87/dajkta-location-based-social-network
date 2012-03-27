@@ -9,6 +9,13 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
+
+/**
+ * data access object (DAO) to our db
+ * 
+ * @author jens
+ *
+ */
 public class CommentsDataSource {
 
 	// Database fields

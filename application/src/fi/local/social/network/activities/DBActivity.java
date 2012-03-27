@@ -7,15 +7,25 @@ import fi.local.social.network.R;
 import fi.local.social.network.db.Comment;
 import fi.local.social.network.db.CommentsDataSource;
 
+
+import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+/**
+ * Simulates a first way to use the android sqlite db
+ * 
+ * 
+ * @author jens
+ *
+ */
 
-
-public class DBActivity extends ListActivity  {
+public class DBActivity extends ListActivity  implements OnClickListener{
 	private CommentsDataSource datasource;
 	
 	@Override
@@ -23,8 +33,20 @@ public class DBActivity extends ListActivity  {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.dbview);
 		
-		//Button goBackButton = (Button) findViewById(R.id.buttonDBgoBack);
-		//goBackButton.setOnClickListener(this);
+		Button goBackButton = (Button) findViewById(R.id.buttonDBgoBack);
+		
+		goBackButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				DBActivity.super.onBackPressed();
+			}
+		});
+		
+		Button button = (Button) findViewById(R.id.buttonDBbConfirm);
+		button.setOnClickListener(this);
+		
+		button = (Button) findViewById(R.id.buttonDBDelete);
+		button.setOnClickListener(this);
 		
 		datasource = new CommentsDataSource(this);
 		datasource.open();
@@ -37,37 +59,90 @@ public class DBActivity extends ListActivity  {
 				android.R.layout.simple_list_item_1, values);
 		setListAdapter(adapter);
 	}
+	
 
-	// Will be called via the onClick attribute
+		// Will be called via the onClick attribute
 		// of the buttons in main.xml
 		public void onClick(View view) {
 			@SuppressWarnings("unchecked")
 			ArrayAdapter<Comment> adapter = (ArrayAdapter<Comment>) getListAdapter();
+			
 			Comment comment = null;
 			switch (view.getId()) {
-			case R.id.buttonDBbTestConf1:
-				String[] comments = new String[] { "Cool", "Very nice", "Hate it" };
-				int nextInt = new Random().nextInt(3);
-				// Save the new comment to the database
-				comment = datasource.createComment(comments[nextInt]);
-				adapter.add(comment);
+			case R.id.buttonDBbConfirm:
+				EditText edText= (EditText) findViewById(R.id.textDB1);
+				
+				String editAbleText = edText.getText().toString();
+				if(editAbleText.length() == 0)
+				{
+					AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+					alertDialog.setTitle("Empty Text field");
+					alertDialog.setMessage("The text field is empty");
+					alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+					      public void onClick(DialogInterface dialog, int which) {
+					    	  return;
+					    } });
+					alertDialog.show();
+				}
+				else
+				{
+					// Save the new comment to the database
+					comment = datasource.createComment(editAbleText);
+					adapter.add(comment);
+				}
+				
+				
+				break;
+				
+			case R.id.buttonDBDelete:
+				
+				edText = (EditText) findViewById(R.id.textDB2);
+				
+				editAbleText = edText.getText().toString();
+				if(editAbleText.length() == 0)
+				{
+					AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+					alertDialog.setTitle("Empty Text field");
+					alertDialog.setMessage("The text field is empty. Please fill in with the entry you want to delete.");
+					alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+					      public void onClick(DialogInterface dialog, int which) {
+					    	  return;
+					    } });
+					alertDialog.show();
+				}
+				else
+				{
+					// Save the new comment to the database
+					List<Comment> allComments = datasource.getAllComments();
+					int counter = 0;
+					for (Comment actComment : allComments) 
+					{
+						if (actComment.getComment().equals(editAbleText))
+						{
+							datasource.deleteComment(actComment);
+							counter++;
+						}
+					}
+					
+					AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+					alertDialog.setTitle("deleted db entries");
+					alertDialog.setMessage("You have deleted " + counter + " entries in the db.");
+					alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+					      public void onClick(DialogInterface dialog, int which) {
+					    	  return;
+					    } });
+					alertDialog.show();
+					
+					
+				}
+				
 				break;
 			}
-//			case R.id.delete:
-//				if (getListAdapter().getCount() > 0) {
-//					comment = (Comment) getListAdapter().getItem(0);
-//					datasource.deleteComment(comment);
-//					adapter.remove(comment);
-//				}
-//				break;
-//			}
-//			adapter.notifyDataSetChanged();
+			
+			
+			adapter.notifyDataSetChanged();
 		}
 	
-//	@Override
-//	public void onClick(View v) {
-//		super.onBackPressed();
-//	}
 	
 	@Override
 	protected void onResume() {
