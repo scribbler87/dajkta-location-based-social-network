@@ -1,4 +1,4 @@
-package fi.local.social.network.views;
+package fi.local.social.network.activities;
 
 import java.util.List;
 import java.util.Random;

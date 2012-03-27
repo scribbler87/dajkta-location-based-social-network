@@ -2,7 +2,7 @@ package fi.local.social.network.test;
 
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.TextView;
-import fi.local.social.network.views.*;
+import fi.local.social.network.activities.*;
 
 public class MainViewTest extends ActivityInstrumentationTestCase2<MainView> 
 {
