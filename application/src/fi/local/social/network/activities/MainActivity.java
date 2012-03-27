@@ -52,6 +52,17 @@ public class MainActivity extends BTServiceConnectedActivity {
 
 		IntentFilter filter = new IntentFilter(BTIntent.BT_INTENT);
 		registerReceiver(mReceiver, filter);
+		
+		Button peopleNearbyBtn=(Button)findViewById(R.id.peopleNearby);
+		peopleNearbyBtn.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				startActivity(new Intent(getApplicationContext(), PeopleNearby.class));
+			}
+			
+		});
 	}
 
 	@Override

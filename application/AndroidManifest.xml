@@ -17,5 +17,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.DBActivity" android:label="@string/app_name"/>
+        <activity
+            android:name=".activities.PeopleNearby"
+            android:label="@string/app_name" >
+        </activity>
     </application>
 </manifest>
