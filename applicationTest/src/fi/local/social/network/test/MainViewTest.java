@@ -4,16 +4,16 @@ import android.test.ActivityInstrumentationTestCase2;
 import android.widget.TextView;
 import fi.local.social.network.*;
 
-public class MainViewTest extends ActivityInstrumentationTestCase2<MainView> 
+public class MainViewTest extends ActivityInstrumentationTestCase2<MainActivity> 
 {
 
 	public MainViewTest()
 	{
-		super("fi.local.social.network", MainView.class);
+		super("fi.local.social.network", MainActivity.class);
 		//super("fi.local.social.network.IntentSampleActivity", IntentSampleActivity.class);
 	}
 	
-	private MainView mActivity;
+	private MainActivity mActivity;
 	private TextView mView;
 	private String ressourceString;
 	

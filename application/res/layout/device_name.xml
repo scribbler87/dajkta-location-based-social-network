@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <ListView android:id="@+id/paired_devices" >
+
+        <TextView
+            android:id="@+id/title_paired_devices"
+            android:text="Paired devices" >
+        </TextView>
+    </ListView>
+
+    <ListView android:id="@+id/new_devices" >
+
+        <TextView
+            android:id="@+id/title_new_devices"
+            android:text="New devices" >
+        </TextView>
+    </ListView>
+
+</LinearLayout>

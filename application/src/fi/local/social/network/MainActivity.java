@@ -2,6 +2,7 @@ package fi.local.social.network;
 
 import fi.local.social.network.R;
 import fi.local.social.network.btservice.BTServiceConnectedActivity;
+import fi.local.social.network.bttest.BTActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +30,7 @@ public class MainActivity extends BTServiceConnectedActivity {
 
 		bindSendIntentButton(); // button for sending BTI intents
 		bindDbButton(); // Button for testing db.
+		bindBTButton(); // Testing bt
 
 		IntentFilter filter = new IntentFilter(BTIntent.BT_INTENT);
 		registerReceiver(mReceiver, filter);
@@ -41,6 +43,17 @@ public class MainActivity extends BTServiceConnectedActivity {
 	}
 
 	// helper methods
+
+	private void bindBTButton() {
+		Button BTButton = (Button) findViewById(R.id.btButton);
+		BTButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startActivity(new Intent(getApplicationContext(), BTActivity.class));
+			}
+		});
+
+	}
 
 	private void bindSendIntentButton() {
 		Button sendIntentButton = (Button) findViewById(R.id.sendIntent);
