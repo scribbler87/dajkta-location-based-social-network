@@ -18,8 +18,6 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -31,43 +29,9 @@ import fi.local.social.network.R;
 
 public class BTActivity extends Activity {
 
-	private static final String PHASE_CONTENT_SEPARATOR = "=";
-	private static final String KEY_VALUE_SEPARATOR = "#";
+	static final String PHASE_CONTENT_SEPARATOR = "=";
+	static final String KEY_VALUE_SEPARATOR = "#";
 	private static final String MESSAGE_SEPARATOR = "£";
-
-	private final class ExchangeEventsListener implements OnClickListener {
-		@Override
-		public void onClick(View v) {
-			startExchange();
-		}
-	}
-
-	private final class AddEventsListener implements OnClickListener {
-		@Override
-		public void onClick(View v) {
-			TextView view = (TextView) findViewById(R.id.eventNameField);
-			String message = view.getText().toString();
-			events.put("" + idSeq, message);
-			mConversationArrayAdapter.add("Added event " + idSeq
-					+ KEY_VALUE_SEPARATOR + message);
-			idSeq = random.nextInt();
-
-			System.out.println("Add events");
-		}
-	}
-
-	private final class PrintEventsListener implements OnClickListener {
-		@Override
-		public void onClick(View v) {
-			StringBuilder allEvents = new StringBuilder();
-			allEvents.append("Events we have:");
-			for (String s : events.keySet()) {
-				allEvents.append("" + s + KEY_VALUE_SEPARATOR + events.get(s)
-						+ PHASE_CONTENT_SEPARATOR);
-			}
-			mConversationArrayAdapter.add(allEvents.toString());
-		}
-	}
 
 	private static final String ADVERTISE = "ADVERTISE";
 	private static final String REQUEST = "REQUEST";
@@ -91,10 +55,10 @@ public class BTActivity extends Activity {
 	private Button printEventsButton;
 	private Button addEventsButton;
 	private Button exchangeEventsButton;
-	private Map<String, String> events = new HashMap<String, String>();
-	private ArrayAdapter<String> mConversationArrayAdapter;
-	private int idSeq = 0;
-	private Random random = new Random();
+	Map<String, String> events = new HashMap<String, String>();
+	ArrayAdapter<String> mConversationArrayAdapter;
+	int idSeq = 0;
+	Random random = new Random();
 	private BluetoothAdapter mBluetoothAdapter;
 	private BluetoothChatService mChatService;
 	private ListView mConversationView;
@@ -155,9 +119,10 @@ public class BTActivity extends Activity {
 		addEventsButton = (Button) findViewById(R.id.addEventButton);
 		exchangeEventsButton = (Button) findViewById(R.id.exchangeEventsButton);
 
-		printEventsButton.setOnClickListener(new PrintEventsListener());
-		addEventsButton.setOnClickListener(new AddEventsListener());
-		exchangeEventsButton.setOnClickListener(new ExchangeEventsListener());
+		printEventsButton.setOnClickListener(new PrintEventsListener(this));
+		addEventsButton.setOnClickListener(new AddEventsListener(this));
+		exchangeEventsButton
+				.setOnClickListener(new ExchangeEventsListener(this));
 	}
 
 	private TextView.OnEditorActionListener mWriteListener = new TextView.OnEditorActionListener() {
@@ -288,7 +253,7 @@ public class BTActivity extends Activity {
 		return false;
 	}
 
-	private void startExchange() {
+	void startExchange() {
 		// Check that we're actually connected before trying anything
 		if (mChatService.getState() != BluetoothChatService.STATE_CONNECTED) {
 			Toast.makeText(this, "Not connected", Toast.LENGTH_SHORT).show();
