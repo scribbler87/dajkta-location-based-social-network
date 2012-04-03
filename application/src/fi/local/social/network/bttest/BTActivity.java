@@ -38,8 +38,7 @@ public class BTActivity extends Activity {
 			if (actionId == EditorInfo.IME_NULL
 					&& event.getAction() == KeyEvent.ACTION_UP) {
 				String message = view.getText().toString();
-				events.put("" + idSeq, message);
-				idSeq = random.nextInt();
+				events.put("" + random.nextInt(), message);
 
 			}
 			return true;
@@ -72,11 +71,10 @@ public class BTActivity extends Activity {
 
 	Map<String, String> events = new HashMap<String, String>();
 	ArrayAdapter<String> mConversationArrayAdapter;
-	private int idSeq = 0;
 	Random random = new Random();
 	private BluetoothAdapter mBluetoothAdapter;
 	private BluetoothChatService mChatService;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -131,7 +129,8 @@ public class BTActivity extends Activity {
 		Button exchangeEventsButton = (Button) findViewById(R.id.exchangeEventsButton);
 		exchangeEventsButton
 				.setOnClickListener(new ExchangeEventsListener(this));
-		printEventsButton.setOnClickListener(new PrintEventsListener(this));
+		printEventsButton.setOnClickListener(new PrintEventsListener(
+				mConversationArrayAdapter, events));
 		addEventsButton.setOnClickListener(new AddEventsListener(this));
 
 	}
@@ -199,7 +198,7 @@ public class BTActivity extends Activity {
 		}
 		return false;
 	}
-	
+
 	void startExchange() {
 		// Check that we're actually connected before trying anything
 		if (mChatService.getState() != BluetoothChatService.STATE_CONNECTED) {
@@ -231,9 +230,9 @@ public class BTActivity extends Activity {
 
 		idStringBuilder.append(":");
 
-		for (String s : ids) {
-			idStringBuilder.append(s);
-			idStringBuilder.append('=');
+		for (String id : ids) {
+			idStringBuilder.append(id);
+			idStringBuilder.append(PHASE_CONTENT_SEPARATOR);
 		}
 		idStringBuilder.append(MESSAGE_SEPARATOR);
 		String idString = idStringBuilder.toString();
@@ -243,26 +242,39 @@ public class BTActivity extends Activity {
 	private static void sendMessages(Map<String, String> messageMap,
 			BluetoothChatService mChatService) {
 		if (!messageMap.isEmpty()) {
-			StringBuilder message = new StringBuilder();
-
-			message.append(UPLOAD);
-			message.append(":");
-
-			for (String s : messageMap.keySet()) {
-				Log.i("sendMessages ids", s);
-				message.append(s);
-				message.append(KEY_VALUE_SEPARATOR);
-				message.append(messageMap.get(s));
-				Log.i("sendMessages messages", messageMap.get(s));
-				message.append(PHASE_CONTENT_SEPARATOR);
-			}
-			message.append(MESSAGE_SEPARATOR);
-			Log.i("Sending messages", message.toString());
-			mChatService.write(message.toString().getBytes());
+			String messages = buildMessages(messageMap);
+			mChatService.write(messages.getBytes());
 
 		} else
 			Log.i("Tried to sent empty messageMap, failed",
 					messageMap.toString());
+	}
+
+	private static Set<BTMessage> buildMessageSet(Map<String, String> messageMap) {
+		Set<BTMessage> result = new HashSet<BTMessage>();
+		for (String key : messageMap.keySet()) {
+			result.add(new BTMessageImpl(key, messageMap.get(key)));
+		}
+		return result;
+	}
+
+	private static String buildMessages(Map<String, String> messageMap) {
+		StringBuilder messageStringBuilder = new StringBuilder();
+		Set<BTMessage> messageSet = buildMessageSet(messageMap);
+		messageStringBuilder.append(UPLOAD);
+		messageStringBuilder.append(":");
+
+		for(BTMessage m : messageSet) {
+			messageStringBuilder.append(m.getId());
+			messageStringBuilder.append(KEY_VALUE_SEPARATOR);
+			messageStringBuilder.append(m.getMessage());
+			messageStringBuilder.append(PHASE_CONTENT_SEPARATOR);
+		}
+
+		messageStringBuilder.append(MESSAGE_SEPARATOR);
+		String messages = messageStringBuilder.toString();
+		Log.i("Sending messages", messages);
+		return messages;
 	}
 
 	private void ensureDiscoverable() {
@@ -284,16 +296,13 @@ public class BTActivity extends Activity {
 			case MESSAGE_STATE_CHANGE:
 				switch (msg.arg1) {
 				case BluetoothChatService.STATE_CONNECTED:
-					// mTitle.setText(R.string.title_connected_to);
-					// mTitle.append(mConnectedDeviceName);
 					mConversationArrayAdapter.clear();
 					break;
 				case BluetoothChatService.STATE_CONNECTING:
-					// mTitle.setText(R.string.title_connecting);
 					break;
 				case BluetoothChatService.STATE_LISTEN:
+					break;
 				case BluetoothChatService.STATE_NONE:
-					// mTitle.setText(R.string.title_not_connected);
 					break;
 				}
 				break;
@@ -342,7 +351,7 @@ public class BTActivity extends Activity {
 				} else if ((phaseAndContent[0].equals(REQUEST))
 						|| (phaseAndContent[0].equals(ADVERTISE))) {
 					Set<String> receivedIds = parseReceivedIds(phaseAndContent);
-					
+
 					receivedIds(receivedIds, phaseAndContent[0], events,
 							mChatService);
 
@@ -381,12 +390,7 @@ public class BTActivity extends Activity {
 
 			if (!ids.isEmpty()) {
 				if (phase.equals(ADVERTISE)) {
-					Set<String> requestIds = new HashSet<String>();
-					for (String s : ids) {
-						if (!events.containsKey(s))
-							requestIds.add(s);
-					}
-
+					Set<String> requestIds = buildRequestIds(ids, events);
 					sendIds(requestIds, REQUEST, mChatService);
 
 					Map<String, String> messagesToSend = buildAdvertizeMessagesToSend(
@@ -419,6 +423,17 @@ public class BTActivity extends Activity {
 		}
 	}
 
+	private static Set<String> buildRequestIds(Set<String> ids,
+			Map<String, String> events) {
+		Set<String> requestIds = new HashSet<String>();
+		// TODO use a filter
+		for (String s : ids) {
+			if (!events.containsKey(s))
+				requestIds.add(s);
+		}
+		return requestIds;
+	}
+
 	private static Map<String, String> buildRequestMessagesToSend(
 			Set<String> ids, Map<String, String> events) {
 		Map<String, String> messagesToSend = new HashMap<String, String>();
@@ -435,6 +450,7 @@ public class BTActivity extends Activity {
 		Map<String, String> messagesToSend = new HashMap<String, String>();
 		Set<String> keyset = events.keySet();
 		for (String key : keyset) {
+			// TODO use a filter
 			boolean condition = !ids.contains(key);
 			if (condition) {
 				String value = events.get(key);
