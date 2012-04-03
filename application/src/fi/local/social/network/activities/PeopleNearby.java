@@ -46,6 +46,7 @@ public class PeopleNearby extends ListActivity {
 			}
 			
 			//When a user clicks on an option menu item, a toast with the item title shows up
+			
 			@Override
 			public boolean onOptionsItemSelected(MenuItem item) {
 				super.onOptionsItemSelected(item);
