@@ -1,7 +1,6 @@
 package fi.local.social.network.activities;
 
 import java.util.List;
-import java.util.Random;
 
 import fi.local.social.network.R;
 import fi.local.social.network.db.Comment;
@@ -31,7 +30,7 @@ public class DBActivity extends ListActivity  implements OnClickListener{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.dbview);
+		setContentView(R.layout.dbtest);
 		
 		Button goBackButton = (Button) findViewById(R.id.buttonDBgoBack);
 		
@@ -66,6 +65,7 @@ public class DBActivity extends ListActivity  implements OnClickListener{
 		public void onClick(View view) {
 			@SuppressWarnings("unchecked")
 			ArrayAdapter<Comment> adapter = (ArrayAdapter<Comment>) getListAdapter();
+		
 			
 			Comment comment = null;
 			switch (view.getId()) {

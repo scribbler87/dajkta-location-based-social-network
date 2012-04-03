@@ -3,5 +3,6 @@
 
     <string name="hello">Hello World, IntentSampleActivity!</string>
     <string name="app_name">Mobile neighbour</string>
+    <string name="send">Send</string>
 
 </resources>

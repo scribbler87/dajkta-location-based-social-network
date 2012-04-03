@@ -11,21 +11,29 @@
         android:text="@string/hello" />
 
     <Button
-        android:id="@+id/sendIntent"
+        android:id="@+id/buttonSendIntent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Send intent" />
 
     <Button
-        android:id="@+id/goToDBView"
+        android:id="@+id/buttonGoToDBView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Go to DB View" />
 
     <Button
-        android:id="@+id/peopleNearby"
+        android:id="@+id/buttonPeopleNearby"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="People Nearby" />
 
+    
+    <Button
+        android:id="@+id/buttonChat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Chat" />
+    
+    
 </LinearLayout>
