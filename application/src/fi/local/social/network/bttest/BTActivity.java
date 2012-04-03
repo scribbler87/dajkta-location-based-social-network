@@ -31,6 +31,43 @@ import fi.local.social.network.R;
 
 public class BTActivity extends Activity {
 
+	private static final String PHASE_CONTENT_SEPARATOR = "=";
+	private static final String KEY_VALUE_SEPARATOR = "#";
+	private static final String MESSAGE_SEPARATOR = "£";
+
+	private final class ExchangeEventsListener implements OnClickListener {
+		@Override
+		public void onClick(View v) {
+			startExchange();
+		}
+	}
+
+	private final class AddEventsListener implements OnClickListener {
+		@Override
+		public void onClick(View v) {
+			TextView view = (TextView) findViewById(R.id.eventNameField);
+			String message = view.getText().toString();
+			events.put("" + idSeq, message);
+			mConversationArrayAdapter.add("Added event " + idSeq + KEY_VALUE_SEPARATOR
+					+ message);
+			idSeq = random.nextInt();
+
+			System.out.println("Add events");
+		}
+	}
+
+	private final class PrintEventsListener implements OnClickListener {
+		@Override
+		public void onClick(View v) {
+			StringBuilder allEvents = new StringBuilder();
+			allEvents.append("Events we have:");
+			for (String s : events.keySet()) {
+				allEvents.append("" + s + KEY_VALUE_SEPARATOR + events.get(s) + PHASE_CONTENT_SEPARATOR);
+			}
+			mConversationArrayAdapter.add(allEvents.toString());
+		}
+	}
+
 	private static final String ADVERTISE = "ADVERTISE";
 	private static final String REQUEST = "REQUEST";
 	private static final String UPLOAD = "UPLOAD";
@@ -117,40 +154,9 @@ public class BTActivity extends Activity {
 		addEventsButton = (Button) findViewById(R.id.addEventButton);
 		exchangeEventsButton = (Button) findViewById(R.id.exchangeEventsButton);
 
-		printEventsButton.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				StringBuilder allEvents = new StringBuilder();
-				allEvents.append("Events we have:");
-				for (String s : events.keySet()) {
-					allEvents.append("" + s + "#" + events.get(s) + "=");
-				}
-				mConversationArrayAdapter.add(allEvents.toString());
-			}
-		});
-		addEventsButton.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				TextView view = (TextView) findViewById(R.id.eventNameField);
-				String message = view.getText().toString();
-				events.put("" + idSeq, message);
-				mConversationArrayAdapter.add("Added event " + idSeq + "#"
-						+ message);
-				idSeq = random.nextInt();
-
-				System.out.println("Add events");
-			}
-		});
-		exchangeEventsButton.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				startExchange();
-			}
-
-		});
+		printEventsButton.setOnClickListener(new PrintEventsListener());
+		addEventsButton.setOnClickListener(new AddEventsListener());
+		exchangeEventsButton.setOnClickListener(new ExchangeEventsListener());
 	}
 
 	private TextView.OnEditorActionListener mWriteListener = new TextView.OnEditorActionListener() {
@@ -290,29 +296,16 @@ public class BTActivity extends Activity {
 	}
 
 	private void parseReceivedString(String messages) {
-		for (String singleMessage : messages.split("£")) {
+		for (String singleMessage : messages.split(MESSAGE_SEPARATOR)) {
 			String[] phaseAndContent = singleMessage.split(":");
 			Log.i("phasecontent[0]", phaseAndContent[0]);
 			if (phaseAndContent[0].equals(UPLOAD)) {
-				Map<String, String> newEvents = new HashMap<String, String>();
-
-				String[] pairs = phaseAndContent[1].split("=");
-				for (String pair : pairs) {
-					String[] keyAndValue = pair.split("#");
-					newEvents.put(keyAndValue[0], keyAndValue[1]);
-				}
+				Map<String, String> newEvents = parseNewEvents(phaseAndContent);
 				receivedMessages(newEvents);
 
 			} else if ((phaseAndContent[0].equals(REQUEST))
 					|| (phaseAndContent[0].equals(ADVERTISE))) {
-				Log.i("phaseContent[1]", phaseAndContent[1]);
-				String[] ids = phaseAndContent[1].split("=");
-
-				Set<String> receivedIds = new HashSet<String>();
-				for (String s : ids) {
-					Log.i("array ids", s);
-					receivedIds.add(s);
-				}
+				Set<String> receivedIds = parseReceivedIds(phaseAndContent);
 				Log.i("receivedIds", receivedIds.toString());
 				receivedIds(receivedIds, phaseAndContent[0]);
 
@@ -320,6 +313,29 @@ public class BTActivity extends Activity {
 				Log.i("Received an unknown message", messages.toString());
 			}
 		}
+	}
+
+	private Set<String> parseReceivedIds(String[] phaseAndContent) {
+		Log.i("phaseContent[1]", phaseAndContent[1]);
+		String[] ids = phaseAndContent[1].split(PHASE_CONTENT_SEPARATOR);
+
+		Set<String> receivedIds = new HashSet<String>();
+		for (String s : ids) {
+			Log.i("array ids", s);
+			receivedIds.add(s);
+		}
+		return receivedIds;
+	}
+
+	private Map<String, String> parseNewEvents(String[] phaseAndContent) {
+		Map<String, String> newEvents = new HashMap<String, String>();
+
+		String[] pairs = phaseAndContent[1].split(PHASE_CONTENT_SEPARATOR);
+		for (String pair : pairs) {
+			String[] keyAndValue = pair.split(KEY_VALUE_SEPARATOR);
+			newEvents.put(keyAndValue[0], keyAndValue[1]);
+		}
+		return newEvents;
 	}
 
 	private void sendIds(Set<String> ids, String phase) {
@@ -337,7 +353,7 @@ public class BTActivity extends Activity {
 				idString.append(s);
 				idString.append('=');
 			}
-			idString.append("£");
+			idString.append(MESSAGE_SEPARATOR);
 			Log.i("Sending ids", idString.toString());
 			mChatService.write(idString.toString().getBytes());
 
@@ -358,12 +374,12 @@ public class BTActivity extends Activity {
 			for (String s : messageMap.keySet()) {
 				Log.i("sendMessages ids", s);
 				message.append(s);
-				message.append("#");
+				message.append(KEY_VALUE_SEPARATOR);
 				message.append(messageMap.get(s));
 				Log.i("sendMessages messages", messageMap.get(s));
-				message.append("=");
+				message.append(PHASE_CONTENT_SEPARATOR);
 			}
-			message.append("£");
+			message.append(MESSAGE_SEPARATOR);
 			Log.i("Sending messages", message.toString());
 			mChatService.write(message.toString().getBytes());
 
@@ -418,7 +434,7 @@ public class BTActivity extends Activity {
 			for (String s : messageMap.keySet()) {
 				if (!events.containsKey(s)) {
 					events.put(s, messageMap.get(s));
-					mConversationArrayAdapter.add("Received event " + s + "#"
+					mConversationArrayAdapter.add("Received event " + s + KEY_VALUE_SEPARATOR
 							+ messageMap.get(s));
 				}
 			}
