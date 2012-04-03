@@ -239,32 +239,23 @@ public class BTActivity extends Activity {
 		return idString;
 	}
 
-	private static void sendMessages(Map<String, String> messageMap,
+	private static void sendMessages(Set<BTMessage> messageSet,
 			BluetoothChatService mChatService) {
-		if (!messageMap.isEmpty()) {
-			String messages = buildMessages(messageMap);
+		if (!messageSet.isEmpty()) {
+			String messages = buildMessages(messageSet);
 			mChatService.write(messages.getBytes());
 
 		} else
 			Log.i("Tried to sent empty messageMap, failed",
-					messageMap.toString());
+					messageSet.toString());
 	}
 
-	private static Set<BTMessage> buildMessageSet(Map<String, String> messageMap) {
-		Set<BTMessage> result = new HashSet<BTMessage>();
-		for (String key : messageMap.keySet()) {
-			result.add(new BTMessageImpl(key, messageMap.get(key)));
-		}
-		return result;
-	}
-
-	private static String buildMessages(Map<String, String> messageMap) {
+	private static String buildMessages(Set<BTMessage> messageSet) {
 		StringBuilder messageStringBuilder = new StringBuilder();
-		Set<BTMessage> messageSet = buildMessageSet(messageMap);
 		messageStringBuilder.append(UPLOAD);
 		messageStringBuilder.append(":");
 
-		for(BTMessage m : messageSet) {
+		for (BTMessage m : messageSet) {
 			messageStringBuilder.append(m.getId());
 			messageStringBuilder.append(KEY_VALUE_SEPARATOR);
 			messageStringBuilder.append(m.getMessage());
@@ -393,11 +384,12 @@ public class BTActivity extends Activity {
 					Set<String> requestIds = buildRequestIds(ids, events);
 					sendIds(requestIds, REQUEST, mChatService);
 
-					Map<String, String> messagesToSend = buildAdvertizeMessagesToSend(
+					Set<BTMessage> messagesToSend = buildAdvertizeMessagesToSend(
 							ids, events);
+
 					sendMessages(messagesToSend, mChatService);
 				} else if (phase.equals(REQUEST)) {
-					Map<String, String> messagesToSend = buildRequestMessagesToSend(
+					Set<BTMessage> messagesToSend = buildRequestMessagesToSend(
 							ids, events);
 					sendMessages(messagesToSend, mChatService);
 				}
@@ -434,27 +426,27 @@ public class BTActivity extends Activity {
 		return requestIds;
 	}
 
-	private static Map<String, String> buildRequestMessagesToSend(
-			Set<String> ids, Map<String, String> events) {
-		Map<String, String> messagesToSend = new HashMap<String, String>();
+	private static Set<BTMessage> buildRequestMessagesToSend(Set<String> ids,
+			Map<String, String> events) {
+		Set<BTMessage> messagesToSend = new HashSet<BTMessage>();
 		Set<String> keyset = ids;
 		for (String key : keyset) {
 			String value = events.get(key);
-			messagesToSend.put(key, value);
+			messagesToSend.add(new BTMessageImpl(key,value));
 		}
 		return messagesToSend;
 	}
 
-	private static Map<String, String> buildAdvertizeMessagesToSend(
-			Set<String> ids, Map<String, String> events) {
-		Map<String, String> messagesToSend = new HashMap<String, String>();
+	private static Set<BTMessage> buildAdvertizeMessagesToSend(Set<String> ids,
+			Map<String, String> events) {
+		Set<BTMessage> messagesToSend = new HashSet<BTMessage>();
 		Set<String> keyset = events.keySet();
 		for (String key : keyset) {
 			// TODO use a filter
 			boolean condition = !ids.contains(key);
 			if (condition) {
 				String value = events.get(key);
-				messagesToSend.put(key, value);
+				messagesToSend.add(new BTMessageImpl(key, value));
 			}
 		}
 		return messagesToSend;
