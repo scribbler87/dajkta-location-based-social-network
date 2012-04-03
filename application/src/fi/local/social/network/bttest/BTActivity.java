@@ -48,8 +48,8 @@ public class BTActivity extends Activity {
 			TextView view = (TextView) findViewById(R.id.eventNameField);
 			String message = view.getText().toString();
 			events.put("" + idSeq, message);
-			mConversationArrayAdapter.add("Added event " + idSeq + KEY_VALUE_SEPARATOR
-					+ message);
+			mConversationArrayAdapter.add("Added event " + idSeq
+					+ KEY_VALUE_SEPARATOR + message);
 			idSeq = random.nextInt();
 
 			System.out.println("Add events");
@@ -62,7 +62,8 @@ public class BTActivity extends Activity {
 			StringBuilder allEvents = new StringBuilder();
 			allEvents.append("Events we have:");
 			for (String s : events.keySet()) {
-				allEvents.append("" + s + KEY_VALUE_SEPARATOR + events.get(s) + PHASE_CONTENT_SEPARATOR);
+				allEvents.append("" + s + KEY_VALUE_SEPARATOR + events.get(s)
+						+ PHASE_CONTENT_SEPARATOR);
 			}
 			mConversationArrayAdapter.add(allEvents.toString());
 		}
@@ -214,7 +215,9 @@ public class BTActivity extends Activity {
 				// construct a string from the valid bytes in the buffer
 				String readMessage = new String(readBuf, 0, msg.arg1);
 				Log.i("Handler MESSAGE_READ", readMessage);
-				parseReceivedString(readMessage);
+				parseReceivedMessages(readMessage, events,
+						mConversationArrayAdapter, mChatService,
+						mOutStringBuffer);
 				break;
 			case MESSAGE_DEVICE_NAME:
 				// save the connected device's name
@@ -292,22 +295,25 @@ public class BTActivity extends Activity {
 			return;
 		}
 
-		sendIds(events.keySet(), ADVERTISE);
+		sendIds(events.keySet(), ADVERTISE, mChatService, mOutStringBuffer);
 	}
 
-	private void parseReceivedString(String messages) {
+	private static void parseReceivedMessages(String messages,
+			Map<String, String> events,
+			ArrayAdapter<String> mConversationArrayAdapter,
+			BluetoothChatService mChatService, StringBuffer mOutStringBuffer) {
 		for (String singleMessage : messages.split(MESSAGE_SEPARATOR)) {
 			String[] phaseAndContent = singleMessage.split(":");
 			Log.i("phasecontent[0]", phaseAndContent[0]);
 			if (phaseAndContent[0].equals(UPLOAD)) {
 				Map<String, String> newEvents = parseNewEvents(phaseAndContent);
-				receivedMessages(newEvents);
+				receivedMessages(newEvents, events, mConversationArrayAdapter);
 
 			} else if ((phaseAndContent[0].equals(REQUEST))
 					|| (phaseAndContent[0].equals(ADVERTISE))) {
 				Set<String> receivedIds = parseReceivedIds(phaseAndContent);
-				Log.i("receivedIds", receivedIds.toString());
-				receivedIds(receivedIds, phaseAndContent[0]);
+				receivedIds(receivedIds, phaseAndContent[0], events,
+						mChatService, mOutStringBuffer);
 
 			} else {
 				Log.i("Received an unknown message", messages.toString());
@@ -315,7 +321,7 @@ public class BTActivity extends Activity {
 		}
 	}
 
-	private Set<String> parseReceivedIds(String[] phaseAndContent) {
+	private static Set<String> parseReceivedIds(String[] phaseAndContent) {
 		Log.i("phaseContent[1]", phaseAndContent[1]);
 		String[] ids = phaseAndContent[1].split(PHASE_CONTENT_SEPARATOR);
 
@@ -324,10 +330,11 @@ public class BTActivity extends Activity {
 			Log.i("array ids", s);
 			receivedIds.add(s);
 		}
+		Log.i("receivedIds", receivedIds.toString());
 		return receivedIds;
 	}
 
-	private Map<String, String> parseNewEvents(String[] phaseAndContent) {
+	private static Map<String, String> parseNewEvents(String[] phaseAndContent) {
 		Map<String, String> newEvents = new HashMap<String, String>();
 
 		String[] pairs = phaseAndContent[1].split(PHASE_CONTENT_SEPARATOR);
@@ -338,7 +345,8 @@ public class BTActivity extends Activity {
 		return newEvents;
 	}
 
-	private void sendIds(Set<String> ids, String phase) {
+	private static void sendIds(Set<String> ids, String phase,
+			BluetoothChatService mChatService, StringBuffer mOutStringBuffer) {
 		if (!ids.isEmpty()) {
 			StringBuilder idString = new StringBuilder();
 
@@ -364,7 +372,8 @@ public class BTActivity extends Activity {
 			Log.i("Tried to sent empty id-set, failed", ids.toString());
 	}
 
-	private void sendMessages(Map<String, String> messageMap) {
+	private static void sendMessages(Map<String, String> messageMap,
+			BluetoothChatService mChatService, StringBuffer mOutStringBuffer) {
 		if (!messageMap.isEmpty()) {
 			StringBuilder message = new StringBuilder();
 
@@ -401,7 +410,9 @@ public class BTActivity extends Activity {
 		}
 	}
 
-	private void receivedIds(Set<String> ids, String phase) {
+	private static void receivedIds(Set<String> ids, String phase,
+			Map<String, String> events, BluetoothChatService mChatService,
+			StringBuffer mOutStringBuffer) {
 		if (!ids.isEmpty()) {
 			if (phase.equals(ADVERTISE)) {
 				Set<String> requestIds = new HashSet<String>();
@@ -409,33 +420,35 @@ public class BTActivity extends Activity {
 					if (!events.containsKey(s))
 						requestIds.add(s);
 				}
-				sendIds(requestIds, REQUEST);
+				sendIds(requestIds, REQUEST, mChatService, mOutStringBuffer);
 
 				Map<String, String> messagesToSend = new HashMap<String, String>();
 				for (String s : events.keySet()) {
 					if (!ids.contains(s))
 						messagesToSend.put(s, events.get(s));
 				}
-				sendMessages(messagesToSend);
+				sendMessages(messagesToSend, mChatService, mOutStringBuffer);
 			} else if (phase.equals(REQUEST)) {
 				Map<String, String> messagesToSend = new HashMap<String, String>();
 				for (String s : ids)
 					messagesToSend.put(s, events.get(s));
 
-				sendMessages(messagesToSend);
+				sendMessages(messagesToSend, mChatService, mOutStringBuffer);
 			}
 
 		} else
 			Log.i("Got empty id set", ids.toString());
 	}
 
-	private void receivedMessages(Map<String, String> messageMap) {
+	private static void receivedMessages(Map<String, String> messageMap,
+			Map<String, String> events,
+			ArrayAdapter<String> mConversationArrayAdapter) {
 		if (!messageMap.isEmpty())
 			for (String s : messageMap.keySet()) {
 				if (!events.containsKey(s)) {
 					events.put(s, messageMap.get(s));
-					mConversationArrayAdapter.add("Received event " + s + KEY_VALUE_SEPARATOR
-							+ messageMap.get(s));
+					mConversationArrayAdapter.add("Received event " + s
+							+ KEY_VALUE_SEPARATOR + messageMap.get(s));
 				}
 			}
 		else {
