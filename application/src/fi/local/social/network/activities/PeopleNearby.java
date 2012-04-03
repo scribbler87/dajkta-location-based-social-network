@@ -1,6 +1,7 @@
 package fi.local.social.network.activities;
 import fi.local.social.network.R;
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -65,7 +66,8 @@ public class PeopleNearby extends ListActivity {
 			        	Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
 			        	return true;
 			        case R.id.events:
-			        	Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
+			        	startActivity(new Intent(getApplicationContext(), NewEvent.class));
+			        	//Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
 			        	return true;
 			        default:
 			        	break;
