@@ -21,7 +21,7 @@ public class MainActivity extends BTServiceConnectedActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		Button siButton = (Button) findViewById(R.id.sendIntent);
+		Button siButton = (Button) findViewById(R.id.buttonSendIntent);
 		siButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -30,14 +30,22 @@ public class MainActivity extends BTServiceConnectedActivity {
 			}
 		});
 
-		Button dbBbutton = (Button) findViewById(R.id.goToDBView);
+		Button dbBbutton = (Button) findViewById(R.id.buttonGoToDBView);
 		dbBbutton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				startActivity(new Intent(getApplicationContext(), DBActivity.class));
-
 			}
 		});
+		
+		Button chatButton = (Button) findViewById(R.id.buttonChat);
+		chatButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startActivity(new Intent(getApplicationContext(), ChatActivity.class));
+			}
+		});
+		
 
 		this.mReceiver = new BroadcastReceiver() {
 
@@ -50,15 +58,15 @@ public class MainActivity extends BTServiceConnectedActivity {
 
 		IntentFilter filter = new IntentFilter(BTIntent.BT_INTENT);
 		registerReceiver(mReceiver, filter);
-		
-		Button peopleNearbyBtn=(Button)findViewById(R.id.peopleNearby);
+
+		Button peopleNearbyBtn=(Button)findViewById(R.id.buttonPeopleNearby);
 		peopleNearbyBtn.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) 
 			{
 				startActivity(new Intent(getApplicationContext(), PeopleNearby.class));
 			}
-			
+
 		});
 	}
 
