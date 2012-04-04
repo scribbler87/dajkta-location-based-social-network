@@ -1,6 +1,5 @@
 package fi.local.social.network.bttest;
 
-import java.util.Random;
 
 public class BTMessageImpl implements BTMessage {
 

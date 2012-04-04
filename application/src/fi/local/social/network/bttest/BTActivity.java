@@ -12,7 +12,6 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -31,7 +30,7 @@ import fi.local.social.network.R;
 
 public class BTActivity extends Activity {
 
-	private static final String PHASE_CONTENT_SEPARATOR = ":";
+	static final String PHASE_CONTENT_SEPARATOR = ":";
 
 	private final class WriteListener implements
 			TextView.OnEditorActionListener {
@@ -54,9 +53,9 @@ public class BTActivity extends Activity {
 	static final String KEY_VALUE_SEPARATOR = "#";
 	static final String MESSAGE_SEPARATOR = "£";
 
-	private static final String ADVERTISE = "ADVERTISE";
-	private static final String REQUEST = "REQUEST";
-	private static final String UPLOAD = "UPLOAD";
+	static final String ADVERTISE = "ADVERTISE";
+	static final String REQUEST = "REQUEST";
+	static final String UPLOAD = "UPLOAD";
 
 	// Used by BlueToothChatService and BTActivity handler
 	public static final int MESSAGE_STATE_CHANGE = 1;
@@ -75,11 +74,11 @@ public class BTActivity extends Activity {
 	private static final String EXTRA_DEVICE_ADDRESS = null;
 
 	// private Map<BTId, BTContent> events = new HashMap<BTId, BTContent>();
-	private BTEventSet eventSet = new BTEventSet();
+	BTEventSet eventSet = new BTEventSet();
 	ArrayAdapter<String> mConversationArrayAdapter;
 	Random random = new Random();
 	private BluetoothAdapter mBluetoothAdapter;
-	private BluetoothChatService mChatService;
+	BluetoothChatService mChatService;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -157,7 +156,7 @@ public class BTActivity extends Activity {
 			mChatService.stop();
 	}
 
-	private final Handler mHandler = new BTMessageHandler();
+	private final Handler mHandler = new BTMessageHandler(this);
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
@@ -218,11 +217,10 @@ public class BTActivity extends Activity {
 			return;
 		}
 
-		sendIds(eventSet.getKeySet(), BTProtocolPhase.ADVERTISE, mChatService);
+		sendIds(eventSet.getKeySet(), BTProtocolPhase.ADVERTISE);
 	}
 
-	private static void sendIds(Set<BTId> ids, BTProtocolPhase phase,
-			BluetoothChatService mChatService) {
+	void sendIds(Set<BTId> ids, BTProtocolPhase phase) {
 		if (!ids.isEmpty()) {
 			String idString = buildIdString(ids, phase);
 			Log.i("Sending ids", idString);
@@ -247,8 +245,7 @@ public class BTActivity extends Activity {
 		return idString;
 	}
 
-	private static void sendMessages(BTEventSet messageSet,
-			BluetoothChatService mChatService) {
+	void sendMessages(BTEventSet messageSet) {
 		if (!messageSet.isEmpty()) {
 			String messages = buildUploadMessages(messageSet);
 			mChatService.write(messages.getBytes());
@@ -278,150 +275,20 @@ public class BTActivity extends Activity {
 		}
 	}
 
-	private final class BTMessageHandler extends Handler {
-		private String mConnectedDeviceName = null;
-
-		@Override
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-			case MESSAGE_STATE_CHANGE:
-				switch (msg.arg1) {
-				case BluetoothChatService.STATE_CONNECTED:
-					mConversationArrayAdapter.clear();
-					break;
-				case BluetoothChatService.STATE_CONNECTING:
-					break;
-				case BluetoothChatService.STATE_LISTEN:
-					break;
-				case BluetoothChatService.STATE_NONE:
-					break;
-				}
-				break;
-			case MESSAGE_WRITE:
-				byte[] writeBuf = (byte[]) msg.obj;
-				// construct a string from the buffer
-				String writeMessage = new String(writeBuf);
-				Log.i("Handler MESSAGE_WRITE", writeMessage);
-				break;
-			case MESSAGE_READ:
-				byte[] readBuf = (byte[]) msg.obj;
-				// construct a string from the valid bytes in the buffer
-				String readMessage = new String(readBuf, 0, msg.arg1);
-				Log.i("Handler MESSAGE_READ", readMessage);
-
-				parseReceivedMessages(readMessage, eventSet,
-						mConversationArrayAdapter, mChatService);
-				break;
-			case MESSAGE_DEVICE_NAME:
-				// save the connected device's name
-				mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
-				Toast.makeText(getApplicationContext(),
-						"Connected to " + mConnectedDeviceName,
-						Toast.LENGTH_SHORT).show();
-				break;
-			case MESSAGE_TOAST:
-				Toast.makeText(getApplicationContext(),
-						msg.getData().getString(TOAST), Toast.LENGTH_SHORT)
-						.show();
-				break;
-			}
-		}
-
-		private void parseReceivedMessages(String messages, BTEventSet events,
-				ArrayAdapter<String> mConversationArrayAdapter,
-				BluetoothChatService mChatService) {
-			for (String singleMessage : messages.split(MESSAGE_SEPARATOR)) {
-				String[] phaseAndContent = singleMessage
-						.split(PHASE_CONTENT_SEPARATOR);
-				BTProtocolPhase phase = BTProtocolPhase
-						.getPhase(phaseAndContent[0]);
-
-				if (phase.equals(UPLOAD)) {
-					BTEventSet newEvents = parseNewEvents(phaseAndContent);
-					receivedMessages(newEvents, events,
-							mConversationArrayAdapter);
-
-				} else if ((phase.equals(REQUEST)) || (phase.equals(ADVERTISE))) {
-					Set<BTId> receivedIds = parseReceivedIds(phaseAndContent[1]);
-					receivedIds(receivedIds, phase, events, mChatService);
-				} else {
-					Log.i("Received an unknown message", messages.toString());
-				}
-			}
-		}
-
-		private Set<BTId> parseReceivedIds(String content) {
-			Log.i("phaseContent[1]", content);
-			String[] ids = content.split(ID_SEPARATOR);
-
-			Set<BTId> receivedIds = new HashSet<BTId>();
-			for (String s : ids) {
-				Log.i("array ids", s);
-				receivedIds.add(new BTIdImpl(s));
-			}
-			Log.i("receivedIds", receivedIds.toString());
-			return receivedIds;
-		}
-
-		private BTEventSet parseNewEvents(String[] phaseAndContent) {
-			BTEventSet newEvents = new BTEventSet();
-
-			String[] pairs = phaseAndContent[1].split(ID_SEPARATOR);
-			for (String pair : pairs) {
-				String[] keyAndValue = pair.split(KEY_VALUE_SEPARATOR);
-				newEvents.add(new BTMessageImpl(new BTIdImpl(keyAndValue[0]),
-						new BTContentImpl(keyAndValue[1])));
-			}
-			return newEvents;
-		}
-
-		private void receivedIds(Set<BTId> ids, BTProtocolPhase phase,
-				BTEventSet events, BluetoothChatService mChatService) {
-
-			if (!ids.isEmpty()) {
-				if (phase.equals(ADVERTISE)) {
-					Set<BTId> requestIds = buildRequestIds(ids, events);
-					sendIds(requestIds, BTProtocolPhase.REQUEST, mChatService);
-
-					BTEventSet messagesToSend = buildAdvertizeMessagesToSend(
-							ids, events);
-					sendMessages(messagesToSend, mChatService);
-				} else if (phase.equals(REQUEST)) {
-					sendMessages(events, mChatService);
-				}
-			} else
-				Log.i("Got empty id set", ids.toString());
-		}
-
-		private void receivedMessages(BTEventSet messageMap,
-				Set<BTMessage> events,
-				ArrayAdapter<String> mConversationArrayAdapter) {
-			if (!messageMap.isEmpty())
-				for (BTMessage m : messageMap) {
-					if (!events.contains(m)) {
-						events.add(m);
-						mConversationArrayAdapter.add("Received event: "
-								+ m.getMessage());
-					}
-				}
-			else {
-				Log.i("Got empty id set", messageMap.toString());
-			}
-		}
-	}
-
-	private static Set<BTId> buildRequestIds(Set<BTId> ids, BTEventSet events) {
+	static Set<BTId> buildRequestIds(Set<BTId> ids, BTEventSet events) {
 		Set<BTId> requestIds = new HashSet<BTId>();
-		// TODO use a filter
-		for (BTId s : ids) {
-			if (!events.getKeySet().contains(s))
-				requestIds.add(s);
+		Filter<BTId> filter;
+		for (BTId id : ids) {
+			if (!events.getKeySet().contains(id))
+				requestIds.add(id);
 		}
 		return requestIds;
 	}
 
-	private static BTEventSet buildAdvertizeMessagesToSend(Set<BTId> ourIds,
+	static BTEventSet buildAdvertizeMessagesToSend(Set<BTId> ourIds,
 			BTEventSet ourEvents) {
+		Filter<BTMessage> filter = new IdSetEventFilter(ourIds);
+
 		BTEventSet messagesToSend = new BTEventSet();
 		for (BTId id : ourIds) {
 			BTMessage m = ourEvents.get(id);
