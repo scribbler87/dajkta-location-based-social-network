@@ -1,21 +1,50 @@
 package fi.local.social.network.bttest;
 
+import java.util.Random;
+
 public class BTMessageImpl implements BTMessage {
 
-	public BTMessageImpl(String key, String string) {
-		// TODO Auto-generated constructor stub
+	private BTId id;
+	private BTContent content;
+
+	public BTMessageImpl(BTContent content) {
+		this.id = new BTIdImpl();
+		this.content = content;
+	}
+
+	public BTMessageImpl(String id, String content) {
+		this.id = new BTIdImpl(id);
+		this.content = new BTContentImpl(content);
+	}
+
+	public BTMessageImpl(BTId id, String content) {
+		this.id = id;
+		this.content = new BTContentImpl(content);
+	}
+
+	public BTMessageImpl(BTId key, BTContent content) {
+		this.id = key;
+		this.content = content;
 	}
 
 	@Override
-	public String getId() {
-		// TODO Auto-generated method stub
-		return null;
+	public BTId getId() {
+		return id;
+	}
+
+	@Override
+	public String getContent() {
+		return content.getMessage();
 	}
 
 	@Override
 	public String getMessage() {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder sb = new StringBuilder();
+		sb.append(id.getMessage());
+		sb.append(BTActivity.KEY_VALUE_SEPARATOR);
+		sb.append(content.getMessage());
+		sb.append(BTActivity.ID_SEPARATOR);
+		return sb.toString();
 	}
 
 }

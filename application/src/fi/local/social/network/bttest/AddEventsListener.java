@@ -25,11 +25,12 @@ final class AddEventsListener implements OnClickListener {
 	public void onClick(View v) {
 		TextView view = (TextView) this.btActivity
 				.findViewById(R.id.eventNameField);
-		String message = view.getText().toString();
-		this.btActivity.events.put("" + random.nextInt(), message);
+		BTContent content = new BTContentImpl(view.getText().toString());
+		BTMessageImpl message = new BTMessageImpl(content);
+		this.btActivity.getEvents().add(message);
 		this.btActivity.mConversationArrayAdapter.add("Added event "
-				+ random.nextInt() + BTActivity.KEY_VALUE_SEPARATOR + message);
-		
+				+ message.getMessage());
+
 		System.out.println("Add events");
 	}
 }

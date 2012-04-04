@@ -18,6 +18,8 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -29,6 +31,8 @@ import fi.local.social.network.R;
 
 public class BTActivity extends Activity {
 
+	private static final String PHASE_CONTENT_SEPARATOR = ":";
+
 	private final class WriteListener implements
 			TextView.OnEditorActionListener {
 		public boolean onEditorAction(TextView view, int actionId,
@@ -38,16 +42,17 @@ public class BTActivity extends Activity {
 			if (actionId == EditorInfo.IME_NULL
 					&& event.getAction() == KeyEvent.ACTION_UP) {
 				String message = view.getText().toString();
-				events.put("" + random.nextInt(), message);
+				eventSet.add(new BTMessageImpl(new BTIdImpl(),
+						new BTContentImpl(message)));
 
 			}
 			return true;
 		}
 	}
 
-	static final String PHASE_CONTENT_SEPARATOR = "=";
+	static final String ID_SEPARATOR = "=";
 	static final String KEY_VALUE_SEPARATOR = "#";
-	private static final String MESSAGE_SEPARATOR = "£";
+	static final String MESSAGE_SEPARATOR = "£";
 
 	private static final String ADVERTISE = "ADVERTISE";
 	private static final String REQUEST = "REQUEST";
@@ -69,7 +74,8 @@ public class BTActivity extends Activity {
 	private static final int REQUEST_ENABLE_BT = 2;
 	private static final String EXTRA_DEVICE_ADDRESS = null;
 
-	Map<String, String> events = new HashMap<String, String>();
+	// private Map<BTId, BTContent> events = new HashMap<BTId, BTContent>();
+	private BTEventSet eventSet = new BTEventSet();
 	ArrayAdapter<String> mConversationArrayAdapter;
 	Random random = new Random();
 	private BluetoothAdapter mBluetoothAdapter;
@@ -129,8 +135,14 @@ public class BTActivity extends Activity {
 		Button exchangeEventsButton = (Button) findViewById(R.id.exchangeEventsButton);
 		exchangeEventsButton
 				.setOnClickListener(new ExchangeEventsListener(this));
-		printEventsButton.setOnClickListener(new PrintEventsListener(
-				mConversationArrayAdapter, events));
+		printEventsButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				mConversationArrayAdapter.add("Events we have:"
+						+ eventSet.getMessage());
+			}
+		});
 		addEventsButton.setOnClickListener(new AddEventsListener(this));
 
 	}
@@ -206,10 +218,10 @@ public class BTActivity extends Activity {
 			return;
 		}
 
-		sendIds(events.keySet(), ADVERTISE, mChatService);
+		sendIds(eventSet.getKeySet(), BTProtocolPhase.ADVERTISE, mChatService);
 	}
 
-	private static void sendIds(Set<String> ids, String phase,
+	private static void sendIds(Set<BTId> ids, BTProtocolPhase phase,
 			BluetoothChatService mChatService) {
 		if (!ids.isEmpty()) {
 			String idString = buildIdString(ids, phase);
@@ -220,29 +232,25 @@ public class BTActivity extends Activity {
 			Log.i("Tried to sent empty id-set, failed", ids.toString());
 	}
 
-	private static String buildIdString(Set<String> ids, String phase) {
+	private static String buildIdString(Set<BTId> ids, BTProtocolPhase phase) {
 		StringBuilder idStringBuilder = new StringBuilder();
 
-		if (phase.equals(ADVERTISE))
-			idStringBuilder.append(ADVERTISE);
-		else if (phase.equals(REQUEST))
-			idStringBuilder.append(REQUEST);
+		idStringBuilder.append(phase.getMessage());
+		idStringBuilder.append(PHASE_CONTENT_SEPARATOR);
 
-		idStringBuilder.append(":");
-
-		for (String id : ids) {
-			idStringBuilder.append(id);
-			idStringBuilder.append(PHASE_CONTENT_SEPARATOR);
+		for (BTId id : ids) {
+			idStringBuilder.append(id.getMessage());
+			idStringBuilder.append(ID_SEPARATOR);
 		}
 		idStringBuilder.append(MESSAGE_SEPARATOR);
 		String idString = idStringBuilder.toString();
 		return idString;
 	}
 
-	private static void sendMessages(Set<BTMessage> messageSet,
+	private static void sendMessages(BTEventSet messageSet,
 			BluetoothChatService mChatService) {
 		if (!messageSet.isEmpty()) {
-			String messages = buildMessages(messageSet);
+			String messages = buildUploadMessages(messageSet);
 			mChatService.write(messages.getBytes());
 
 		} else
@@ -250,19 +258,11 @@ public class BTActivity extends Activity {
 					messageSet.toString());
 	}
 
-	private static String buildMessages(Set<BTMessage> messageSet) {
+	private static String buildUploadMessages(BTEventSet messageSet) {
 		StringBuilder messageStringBuilder = new StringBuilder();
 		messageStringBuilder.append(UPLOAD);
-		messageStringBuilder.append(":");
-
-		for (BTMessage m : messageSet) {
-			messageStringBuilder.append(m.getId());
-			messageStringBuilder.append(KEY_VALUE_SEPARATOR);
-			messageStringBuilder.append(m.getMessage());
-			messageStringBuilder.append(PHASE_CONTENT_SEPARATOR);
-		}
-
-		messageStringBuilder.append(MESSAGE_SEPARATOR);
+		messageStringBuilder.append(PHASE_CONTENT_SEPARATOR);
+		messageStringBuilder.append(messageSet.getMessage());
 		String messages = messageStringBuilder.toString();
 		Log.i("Sending messages", messages);
 		return messages;
@@ -309,7 +309,7 @@ public class BTActivity extends Activity {
 				String readMessage = new String(readBuf, 0, msg.arg1);
 				Log.i("Handler MESSAGE_READ", readMessage);
 
-				parseReceivedMessages(readMessage, events,
+				parseReceivedMessages(readMessage, eventSet,
 						mConversationArrayAdapter, mChatService);
 				break;
 			case MESSAGE_DEVICE_NAME:
@@ -327,86 +327,81 @@ public class BTActivity extends Activity {
 			}
 		}
 
-		private void parseReceivedMessages(String messages,
-				Map<String, String> events,
+		private void parseReceivedMessages(String messages, BTEventSet events,
 				ArrayAdapter<String> mConversationArrayAdapter,
 				BluetoothChatService mChatService) {
 			for (String singleMessage : messages.split(MESSAGE_SEPARATOR)) {
-				String[] phaseAndContent = singleMessage.split(":");
-				Log.i("phasecontent[0]", phaseAndContent[0]);
-				if (phaseAndContent[0].equals(UPLOAD)) {
-					Map<String, String> newEvents = parseNewEvents(phaseAndContent);
+				String[] phaseAndContent = singleMessage
+						.split(PHASE_CONTENT_SEPARATOR);
+				BTProtocolPhase phase = BTProtocolPhase
+						.getPhase(phaseAndContent[0]);
+
+				if (phase.equals(UPLOAD)) {
+					BTEventSet newEvents = parseNewEvents(phaseAndContent);
 					receivedMessages(newEvents, events,
 							mConversationArrayAdapter);
 
-				} else if ((phaseAndContent[0].equals(REQUEST))
-						|| (phaseAndContent[0].equals(ADVERTISE))) {
-					Set<String> receivedIds = parseReceivedIds(phaseAndContent);
-
-					receivedIds(receivedIds, phaseAndContent[0], events,
-							mChatService);
-
+				} else if ((phase.equals(REQUEST)) || (phase.equals(ADVERTISE))) {
+					Set<BTId> receivedIds = parseReceivedIds(phaseAndContent[1]);
+					receivedIds(receivedIds, phase, events, mChatService);
 				} else {
 					Log.i("Received an unknown message", messages.toString());
 				}
 			}
 		}
 
-		private Set<String> parseReceivedIds(String[] phaseAndContent) {
-			Log.i("phaseContent[1]", phaseAndContent[1]);
-			String[] ids = phaseAndContent[1].split(PHASE_CONTENT_SEPARATOR);
+		private Set<BTId> parseReceivedIds(String content) {
+			Log.i("phaseContent[1]", content);
+			String[] ids = content.split(ID_SEPARATOR);
 
-			Set<String> receivedIds = new HashSet<String>();
+			Set<BTId> receivedIds = new HashSet<BTId>();
 			for (String s : ids) {
 				Log.i("array ids", s);
-				receivedIds.add(s);
+				receivedIds.add(new BTIdImpl(s));
 			}
 			Log.i("receivedIds", receivedIds.toString());
 			return receivedIds;
 		}
 
-		private Map<String, String> parseNewEvents(String[] phaseAndContent) {
-			Map<String, String> newEvents = new HashMap<String, String>();
+		private BTEventSet parseNewEvents(String[] phaseAndContent) {
+			BTEventSet newEvents = new BTEventSet();
 
-			String[] pairs = phaseAndContent[1].split(PHASE_CONTENT_SEPARATOR);
+			String[] pairs = phaseAndContent[1].split(ID_SEPARATOR);
 			for (String pair : pairs) {
 				String[] keyAndValue = pair.split(KEY_VALUE_SEPARATOR);
-				newEvents.put(keyAndValue[0], keyAndValue[1]);
+				newEvents.add(new BTMessageImpl(new BTIdImpl(keyAndValue[0]),
+						new BTContentImpl(keyAndValue[1])));
 			}
 			return newEvents;
 		}
 
-		private void receivedIds(Set<String> ids, String phase,
-				Map<String, String> events, BluetoothChatService mChatService) {
+		private void receivedIds(Set<BTId> ids, BTProtocolPhase phase,
+				BTEventSet events, BluetoothChatService mChatService) {
 
 			if (!ids.isEmpty()) {
 				if (phase.equals(ADVERTISE)) {
-					Set<String> requestIds = buildRequestIds(ids, events);
-					sendIds(requestIds, REQUEST, mChatService);
+					Set<BTId> requestIds = buildRequestIds(ids, events);
+					sendIds(requestIds, BTProtocolPhase.REQUEST, mChatService);
 
-					Set<BTMessage> messagesToSend = buildAdvertizeMessagesToSend(
+					BTEventSet messagesToSend = buildAdvertizeMessagesToSend(
 							ids, events);
-
 					sendMessages(messagesToSend, mChatService);
 				} else if (phase.equals(REQUEST)) {
-					Set<BTMessage> messagesToSend = buildRequestMessagesToSend(
-							ids, events);
-					sendMessages(messagesToSend, mChatService);
+					sendMessages(events, mChatService);
 				}
-
 			} else
 				Log.i("Got empty id set", ids.toString());
 		}
 
-		private void receivedMessages(Map<String, String> messageMap,
-				Map<String, String> events,
+		private void receivedMessages(BTEventSet messageMap,
+				Set<BTMessage> events,
 				ArrayAdapter<String> mConversationArrayAdapter) {
 			if (!messageMap.isEmpty())
-				for (String s : messageMap.keySet()) {
-					if (!events.containsKey(s)) {
-						events.put(s, messageMap.get(s));
-						mConversationArrayAdapter.add("Received event " + s
-								+ KEY_VALUE_SEPARATOR + messageMap.get(s));
+				for (BTMessage m : messageMap) {
+					if (!events.contains(m)) {
+						events.add(m);
+						mConversationArrayAdapter.add("Received event: "
+								+ m.getMessage());
 					}
 				}
 			else {
@@ -415,40 +410,29 @@ public class BTActivity extends Activity {
 		}
 	}
 
-	private static Set<String> buildRequestIds(Set<String> ids,
-			Map<String, String> events) {
-		Set<String> requestIds = new HashSet<String>();
+	private static Set<BTId> buildRequestIds(Set<BTId> ids, BTEventSet events) {
+		Set<BTId> requestIds = new HashSet<BTId>();
 		// TODO use a filter
-		for (String s : ids) {
-			if (!events.containsKey(s))
+		for (BTId s : ids) {
+			if (!events.getKeySet().contains(s))
 				requestIds.add(s);
 		}
 		return requestIds;
 	}
 
-	private static Set<BTMessage> buildRequestMessagesToSend(Set<String> ids,
-			Map<String, String> events) {
-		Set<BTMessage> messagesToSend = new HashSet<BTMessage>();
-		Set<String> keyset = ids;
-		for (String key : keyset) {
-			String value = events.get(key);
-			messagesToSend.add(new BTMessageImpl(key,value));
+	private static BTEventSet buildAdvertizeMessagesToSend(Set<BTId> ourIds,
+			BTEventSet ourEvents) {
+		BTEventSet messagesToSend = new BTEventSet();
+		for (BTId id : ourIds) {
+			BTMessage m = ourEvents.get(id);
+			if (m != null) {
+				messagesToSend.add(m);
+			}
 		}
 		return messagesToSend;
 	}
 
-	private static Set<BTMessage> buildAdvertizeMessagesToSend(Set<String> ids,
-			Map<String, String> events) {
-		Set<BTMessage> messagesToSend = new HashSet<BTMessage>();
-		Set<String> keyset = events.keySet();
-		for (String key : keyset) {
-			// TODO use a filter
-			boolean condition = !ids.contains(key);
-			if (condition) {
-				String value = events.get(key);
-				messagesToSend.add(new BTMessageImpl(key, value));
-			}
-		}
-		return messagesToSend;
+	BTEventSet getEvents() {
+		return eventSet;
 	}
 }

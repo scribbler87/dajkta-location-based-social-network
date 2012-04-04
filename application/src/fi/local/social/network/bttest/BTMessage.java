@@ -1,7 +1,8 @@
 package fi.local.social.network.bttest;
 
-public interface BTMessage {
+public interface BTMessage extends Messageable{
 
-	public String getId();
+	public BTId getId();
+	public String getContent();
 	public String getMessage();
 }
