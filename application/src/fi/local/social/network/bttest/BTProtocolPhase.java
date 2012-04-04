@@ -5,13 +5,8 @@ public enum BTProtocolPhase implements Messageable {
 
 	@Override
 	public String getMessage() {
-		// TODO Auto-generated method stub
-		return null;
+		return name();
 	}
 
-	public static BTProtocolPhase getPhase(String phase) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	
 }
