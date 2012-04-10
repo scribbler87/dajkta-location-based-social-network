@@ -5,7 +5,7 @@
     android:orientation="vertical" >
 
     <ListView
-        android:id="@android:id/list"
+        android:id="@+android:id/listChat"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="1"

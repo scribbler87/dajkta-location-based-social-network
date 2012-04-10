@@ -24,7 +24,7 @@ public class CommentsDataSource {
 	private String[] allColumns = { MySQLiteHelper.COLUMN_ID,
 			MySQLiteHelper.COLUMN_COMMENT };
 
-	public CommentsDataSource(Context context) {
+	public CommentsDataSource(Context context, String DATABASE_NAME) {
 		dbHelper = new MySQLiteHelper(context);
 	}
 
@@ -58,6 +58,23 @@ public class CommentsDataSource {
 	}
 
 	public List<Comment> getAllComments() {
+		List<Comment> comments = new ArrayList<Comment>();
+
+		Cursor cursor = database.query(MySQLiteHelper.TABLE_COMMENTS,
+				allColumns, null, null, null, null, null);
+
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()) {
+			Comment comment = cursorToComment(cursor);
+			comments.add(comment);
+			cursor.moveToNext();
+		}
+		// Make sure to close the cursor
+		cursor.close();
+		return comments;
+	}
+	
+	public List<Comment> getCommentsWithID(int ID) {
 		List<Comment> comments = new ArrayList<Comment>();
 
 		Cursor cursor = database.query(MySQLiteHelper.TABLE_COMMENTS,

@@ -47,7 +47,7 @@ public class DBActivity extends ListActivity  implements OnClickListener{
 		button = (Button) findViewById(R.id.buttonDBDelete);
 		button.setOnClickListener(this);
 		
-		datasource = new CommentsDataSource(this);
+		datasource = new CommentsDataSource(this,"test_db");
 		datasource.open();
 
 		List<Comment> values = datasource.getAllComments();
