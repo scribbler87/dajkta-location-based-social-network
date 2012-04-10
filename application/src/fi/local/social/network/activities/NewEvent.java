@@ -26,6 +26,7 @@ public class NewEvent extends Activity {
 	private ImageView image=null;
 	private Button chooseImageBtn=null;
 	private Button sendBtn=null;
+	private Bitmap bitmap=null;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -36,6 +37,11 @@ public class NewEvent extends Activity {
 		image=(ImageView)findViewById(R.id.imgView);
 		chooseImageBtn=(Button)findViewById(R.id.chooseImageBtn);
 		sendBtn=(Button)findViewById(R.id.sendBtn);
+		Bitmap bitmapTemp=(Bitmap)getLastNonConfigurationInstance();
+		if(bitmapTemp!=null){
+			image.setImageBitmap(bitmapTemp);
+			bitmap=bitmapTemp;
+		}
 		
 		//When a user clicks on the 'choose a image' button, the user is directed into the media folder to choose a image
 		chooseImageBtn.setOnClickListener(new OnClickListener(){
@@ -81,7 +87,14 @@ public class NewEvent extends Activity {
 	            Bitmap yourSelectedImage = BitmapFactory.decodeStream(imageStream);
 	            //Show the image in the ImageView
 	            image.setImageBitmap(yourSelectedImage);
+	            bitmap=yourSelectedImage;//Store the bitmap of image in case of screen rotation
 	        }
 	    }
 	}
+	
+	//Save the bitmap representation of the image when screen rotates and restore it upon completion of rotation.
+    @Override
+    public Object onRetainNonConfigurationInstance(){
+    	return bitmap;
+    }
 }
