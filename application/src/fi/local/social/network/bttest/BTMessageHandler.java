@@ -71,4 +71,6 @@ final class BTMessageHandler extends Handler {
 		intent.putExtra(BTIntent.EVENT_RECEIVE_PATH, messageString);
 		btActivity.sendBroadcast(intent);
 	}
+	
+	
 }

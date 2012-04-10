@@ -19,5 +19,5 @@ public class BTIdImpl implements BTId {
 	public String getMessage() {
 		return s;
 	}
-
+    
 }

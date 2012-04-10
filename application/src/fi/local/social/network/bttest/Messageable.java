@@ -1,6 +1,10 @@
 package fi.local.social.network.bttest;
 
-public interface Messageable {
+import java.io.Serializable;
+
+public interface Messageable extends Serializable {
 
 	public String getMessage();
+	@Override
+	public String toString();
 }

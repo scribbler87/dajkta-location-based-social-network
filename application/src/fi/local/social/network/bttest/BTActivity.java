@@ -60,32 +60,31 @@ public class BTActivity extends Activity {
 	private BluetoothAdapter mBluetoothAdapter;
 	private BluetoothChatService mChatService;
 
-	private ArrayAdapter<String> mConversationArrayAdapter;
+	private ArrayAdapter<BTMessage> mConversationArrayAdapter;
 
-	private final BroadcastReceiver eventBroadcastReceiver = new BroadcastReceiver() {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			if (intent.equals(BTIntent.EVENT_ADD)) {
-				BTMessage e = (BTMessage) intent
-						.getSerializableExtra(BTIntent.EVENT_ADD_PATH);
-				eventSet.add(e);
-
-				Intent chatIntent = new Intent(BTIntent.CHAT_MESSAGE);
-				intent.putExtra(BTIntent.CHAT_MESSAGE_PATH, "Events we have:"
-						+ e.getMessage());
-				sendBroadcast(chatIntent);
-			}
-		}
-	};
+//	private final BroadcastReceiver eventBroadcastReceiver = new BroadcastReceiver() {
+//
+//		@Override
+//		public void onReceive(Context context, Intent intent) {
+//			if (intent.equals(BTIntent.EVENT_ADD)) {
+//				BTMessage e = (BTMessage) intent
+//						.getSerializableExtra(BTIntent.EVENT_ADD_PATH);
+//				eventSet.add(e);
+//
+//				Intent chatIntent = new Intent(BTIntent.CHAT_MESSAGE);
+//				intent.putExtra(BTIntent.CHAT_MESSAGE_PATH, "Events we have:"
+//						+ e.getMessage());
+//				sendBroadcast(chatIntent);
+//			}
+//		}
+//	};
 
 	private final BroadcastReceiver chatMessageBroadcastReceiver = new BroadcastReceiver() {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (intent.equals(BTIntent.CHAT_MESSAGE)) {
-				mConversationArrayAdapter.add(intent
-						.getStringExtra(BTIntent.CHAT_MESSAGE_PATH));
+				mConversationArrayAdapter.add((BTMessage)intent.getSerializableExtra(BTIntent.CHAT_MESSAGE_PATH));
 			} else if (intent.equals(BTIntent.CHAT_CLEAR)) {
 				mConversationArrayAdapter.clear();
 			}
@@ -111,9 +110,12 @@ public class BTActivity extends Activity {
 					BTEventSet newEvents = new BTEventSet(content);
 					BTEventSet toAdd = eventSet.notContained(newEvents);
 					if (!toAdd.isEmpty()) {
-						for (BTMessage e : toAdd) {
-							Intent addEventIntent = new Intent(BTIntent.EVENT_ADD);
-							addEventIntent.putExtra(BTIntent.EVENT_ADD_PATH, e);
+						for (BTMessage e : toAdd)
+						{
+							eventSet.add(e);
+							Intent chatIntent = new Intent(BTIntent.CHAT_MESSAGE);
+							intent.putExtra(BTIntent.CHAT_MESSAGE_PATH, "Events we have:" + e.getMessage());
+							sendBroadcast(chatIntent);							
 						}
 					}
 				} else if ((phase.equals(BTProtocolPhase.REQUEST))
@@ -157,7 +159,7 @@ public class BTActivity extends Activity {
 		IntentFilter eventFilter = new IntentFilter(
 				BTIntent.EVENT_ADD.getAction());
 		eventFilter.addAction(BTIntent.EVENT_ADD.getAction());
-		registerReceiver(eventBroadcastReceiver, eventFilter);
+//		registerReceiver(eventBroadcastReceiver, eventFilter);
 
 		IntentFilter eventReceiveFilter = new IntentFilter(
 				BTIntent.EVENT_RECEIVE.getAction());
@@ -202,8 +204,7 @@ public class BTActivity extends Activity {
 	private void setupChat() {
 
 		// Initialize the array adapter for the conversation thread
-		mConversationArrayAdapter = new ArrayAdapter<String>(this,
-				R.layout.message);
+		mConversationArrayAdapter = new ArrayAdapter<BTMessage>(this, R.layout.message);
 		ListView conversationView = (ListView) findViewById(R.id.device_list);
 		conversationView.setAdapter(mConversationArrayAdapter);
 
