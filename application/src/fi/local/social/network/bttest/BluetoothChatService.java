@@ -21,13 +21,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
+import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 
@@ -37,7 +40,7 @@ import android.util.Log;
  * connections, a thread for connecting with a device, and a thread for
  * performing data transmissions when connected.
  */
-public class BluetoothChatService {
+public class BluetoothChatService extends Service {
 	// Debugging
 	private static final String TAG = "BluetoothChatService";
 	private static final boolean D = true;
@@ -66,6 +69,11 @@ public class BluetoothChatService {
 	public static final int STATE_CONNECTED = 3; // now connected to a remote
 													// device
 
+	@Override
+	public IBinder onBind(Intent intent) {
+		return null;
+	}
+	
 	/**
 	 * Constructor. Prepares a new BluetoothChat session.
 	 * 
@@ -496,4 +504,5 @@ public class BluetoothChatService {
 			}
 		}
 	}
+
 }

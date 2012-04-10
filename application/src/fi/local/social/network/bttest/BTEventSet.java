@@ -9,6 +9,20 @@ public class BTEventSet extends HashSet<BTMessage> implements Messageable {
 	 */
 	private static final long serialVersionUID = 3380063639332666636L;
 
+	public BTEventSet() {
+		super();
+	}
+
+	public BTEventSet(String content) {
+		super();
+		String[] pairs = content.split(BTActivity.ID_SEPARATOR);
+		for (String pair : pairs) {
+			String[] keyAndValue = pair.split(BTActivity.KEY_VALUE_SEPARATOR);
+			add(new BTMessageImpl(new BTIdImpl(keyAndValue[0]),
+					new BTContentImpl(keyAndValue[1])));
+		}
+	}
+
 	BTIdSet getKeySet() {
 		BTIdSet result = new BTIdSet();
 		for (BTMessage message : this) {
@@ -45,14 +59,14 @@ public class BTEventSet extends HashSet<BTMessage> implements Messageable {
 		}
 		return filtered;
 	}
-	
+
 	String buildUploadMessages() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(BTProtocolPhase.UPLOAD + BTActivity.PHASE_CONTENT_SEPARATOR);
 		sb.append(getMessage());
 		return sb.toString();
 	}
-	
+
 	BTIdSet buildRequestIds(BTIdSet ids) {
 		BTIdSet requestIds = new BTIdSet();
 		Filter<BTId> filter;
@@ -62,7 +76,7 @@ public class BTEventSet extends HashSet<BTMessage> implements Messageable {
 		}
 		return requestIds;
 	}
-	
+
 	BTEventSet buildAdvertizeMessagesToSend(BTIdSet ourIds) {
 		Filter<BTMessage> filter = new IdSetEventFilter(ourIds);
 
@@ -74,5 +88,15 @@ public class BTEventSet extends HashSet<BTMessage> implements Messageable {
 			}
 		}
 		return messagesToSend;
+	}
+	
+	BTEventSet notContained(BTEventSet other) {
+		BTEventSet notContained = new BTEventSet();
+		for(BTMessage m : this) {
+			if(!contains(other)) {
+				notContained.add(m);
+			}
+		}
+		return notContained;
 	}
 }

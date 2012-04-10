@@ -1,18 +1,20 @@
 package fi.local.social.network.bttest;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import android.app.Activity;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+
 import android.os.Bundle;
 import android.os.Handler;
+
 import android.util.Log;
+
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
+
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,6 +30,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
+
 import fi.local.social.network.R;
 
 public class BTActivity extends Activity {
@@ -57,6 +61,24 @@ public class BTActivity extends Activity {
 	private BluetoothChatService mChatService;
 
 	private ArrayAdapter<String> mConversationArrayAdapter;
+
+	private final BroadcastReceiver eventBroadcastReceiver = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent.equals(BTIntent.EVENT_ADD)) {
+				BTMessage e = (BTMessage) intent
+						.getSerializableExtra(BTIntent.EVENT_ADD_PATH);
+				eventSet.add(e);
+
+				Intent chatIntent = new Intent(BTIntent.CHAT_MESSAGE);
+				intent.putExtra(BTIntent.CHAT_MESSAGE_PATH, "Events we have:"
+						+ e.getMessage());
+				sendBroadcast(chatIntent);
+			}
+		}
+	};
+
 	private final BroadcastReceiver chatMessageBroadcastReceiver = new BroadcastReceiver() {
 
 		@Override
@@ -66,6 +88,42 @@ public class BTActivity extends Activity {
 						.getStringExtra(BTIntent.CHAT_MESSAGE_PATH));
 			} else if (intent.equals(BTIntent.CHAT_CLEAR)) {
 				mConversationArrayAdapter.clear();
+			}
+		}
+	};
+
+	private final BroadcastReceiver eventReceiveBroadcastReceiver = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String messageString = intent
+					.getStringExtra(BTIntent.EVENT_RECEIVE_PATH);
+			String[] messages = messageString
+					.split(BTActivity.MESSAGE_SEPARATOR);
+			for (String singleMessage : messages) {
+				String[] phaseAndContent = singleMessage
+						.split(BTActivity.PHASE_CONTENT_SEPARATOR);
+				BTProtocolPhase phase = BTProtocolPhase
+						.valueOf(phaseAndContent[0]);
+				String content = phaseAndContent[1];
+
+				if (phase.equals(BTProtocolPhase.UPLOAD)) {
+					BTEventSet newEvents = new BTEventSet(content);
+					BTEventSet toAdd = eventSet.notContained(newEvents);
+					if (!toAdd.isEmpty()) {
+						for (BTMessage e : toAdd) {
+							Intent addEventIntent = new Intent(BTIntent.EVENT_ADD);
+							addEventIntent.putExtra(BTIntent.EVENT_ADD_PATH, e);
+						}
+					}
+				} else if ((phase.equals(BTProtocolPhase.REQUEST))
+						|| (phase.equals(BTProtocolPhase.ADVERTISE))) {
+					BTIdSet receivedIds = new BTIdSet(content);
+					receivedIds(receivedIds, phase);
+				} else {
+					Log.i("Received an unknown message",
+							messageString.toString());
+				}
 			}
 		}
 	};
@@ -90,11 +148,21 @@ public class BTActivity extends Activity {
 	protected void onStart() {
 		super.onStart();
 
-		IntentFilter filter = new IntentFilter(
+		IntentFilter chatFilter = new IntentFilter(
 				BTIntent.CHAT_MESSAGE.getAction());
-		filter.addAction(BTIntent.CHAT_MESSAGE.getAction());
-		filter.addAction(BTIntent.CHAT_CLEAR.getAction());
-		registerReceiver(chatMessageBroadcastReceiver, filter);
+		chatFilter.addAction(BTIntent.CHAT_MESSAGE.getAction());
+		chatFilter.addAction(BTIntent.CHAT_CLEAR.getAction());
+		registerReceiver(chatMessageBroadcastReceiver, chatFilter);
+
+		IntentFilter eventFilter = new IntentFilter(
+				BTIntent.EVENT_ADD.getAction());
+		eventFilter.addAction(BTIntent.EVENT_ADD.getAction());
+		registerReceiver(eventBroadcastReceiver, eventFilter);
+
+		IntentFilter eventReceiveFilter = new IntentFilter(
+				BTIntent.EVENT_RECEIVE.getAction());
+		eventReceiveFilter.addAction(BTIntent.EVENT_RECEIVE.getAction());
+		registerReceiver(eventReceiveBroadcastReceiver, eventReceiveFilter);
 
 		// If BT is not on, request that it be enabled.
 		// setupChat() will then be called during onActivityResult
@@ -112,14 +180,14 @@ public class BTActivity extends Activity {
 	private void receivedIds(BTIdSet ids, BTProtocolPhase phase) {
 		if (!ids.isEmpty()) {
 			if (phase.equals(BTProtocolPhase.ADVERTISE)) {
-				sendIds(eventSet.buildRequestIds(ids), BTProtocolPhase.REQUEST);
+				mChatService.write(eventSet.buildRequestIds(ids)
+						.buildIdString(BTProtocolPhase.REQUEST).getBytes());
 				sendMessages(eventSet.buildAdvertizeMessagesToSend(ids));
 			} else if (phase.equals(BTProtocolPhase.REQUEST)) {
 				sendMessages(eventSet);
 
 			}
-		} else
-			Log.i("Got empty id set", ids.toString());
+		}
 	}
 
 	private void sendMessages(BTEventSet events) {
@@ -129,70 +197,6 @@ public class BTActivity extends Activity {
 
 		} else
 			Log.i("Tried to sent empty messageMap, failed", events.toString());
-	}
-
-	void receivedMessages(BTEventSet messageMap) {
-		if (!messageMap.isEmpty())
-			for (BTMessage m : messageMap) {
-				if (!eventSet.contains(m)) {
-					eventSet.add(m);
-					Intent intent = new Intent(BTIntent.CHAT_MESSAGE);
-					intent.putExtra(BTIntent.CHAT_MESSAGE_PATH,
-							"Events we have:" + m.getMessage());
-					sendBroadcast(intent);
-				}
-			}
-		else {
-			Log.i("Got empty id set", messageMap.toString());
-		}
-	}
-
-	static BTEventSet parseNewEvents(String[] phaseAndContent) {
-		BTEventSet newEvents = new BTEventSet();
-
-		String[] pairs = phaseAndContent[1].split(BTActivity.ID_SEPARATOR);
-		for (String pair : pairs) {
-			String[] keyAndValue = pair.split(BTActivity.KEY_VALUE_SEPARATOR);
-			newEvents.add(new BTMessageImpl(new BTIdImpl(keyAndValue[0]),
-					new BTContentImpl(keyAndValue[1])));
-		}
-		return newEvents;
-	}
-
-	static BTIdSet parseReceivedIds(String content) {
-		Log.i("content", content);
-		String[] ids = content.split(BTActivity.ID_SEPARATOR);
-
-		BTIdSet receivedIds = new BTIdSet();
-		for (String s : ids) {
-			Log.i("array ids", s);
-			receivedIds.add(new BTIdImpl(s));
-		}
-		Log.i("receivedIds", receivedIds.toString());
-		return receivedIds;
-	}
-
-	void parseReceivedMessages(String messages) {
-		for (String singleMessage : messages
-				.split(BTActivity.MESSAGE_SEPARATOR)) {
-			String[] phaseAndContent = singleMessage
-					.split(BTActivity.PHASE_CONTENT_SEPARATOR);
-			BTProtocolPhase phase = BTProtocolPhase.valueOf(phaseAndContent[0]);
-
-			if (phase.equals(BTProtocolPhase.UPLOAD)) {
-				BTEventSet newEvents = BTActivity
-						.parseNewEvents(phaseAndContent);
-				receivedMessages(newEvents);
-
-			} else if ((phase.equals(BTProtocolPhase.REQUEST))
-					|| (phase.equals(BTProtocolPhase.ADVERTISE))) {
-				BTIdSet receivedIds = BTActivity
-						.parseReceivedIds(phaseAndContent[1]);
-				receivedIds(receivedIds, phase);
-			} else {
-				Log.i("Received an unknown message", messages.toString());
-			}
-		}
 	}
 
 	private void setupChat() {
@@ -206,11 +210,27 @@ public class BTActivity extends Activity {
 		Intent intent = new Intent(BTIntent.CHAT_MESSAGE);
 		intent.putExtra(BTIntent.CHAT_MESSAGE_PATH, "Cool debug:");
 		sendBroadcast(intent);
-		// mConversationArrayAdapter.add("Cool debug");
 
 		// Initialize the compose field with a listener for the return key
 		EditText mOutEditText = (EditText) findViewById(R.id.eventNameField);
-		mOutEditText.setOnEditorActionListener(mWriteListener);
+		mOutEditText.setOnEditorActionListener(new OnEditorActionListener() {
+
+			@Override
+			public boolean onEditorAction(TextView view, int actionId,
+					KeyEvent event) {
+
+				// If the action is a key-up event on the return key, send the
+				// message
+				if (actionId == EditorInfo.IME_NULL
+						&& event.getAction() == KeyEvent.ACTION_UP) {
+					String message = view.getText().toString();
+					eventSet.add(new BTMessageImpl(new BTIdImpl(),
+							new BTContentImpl(message)));
+
+				}
+				return true;
+			}
+		});
 
 		Button printEventsButton = (Button) findViewById(R.id.button_scan);
 		Button addEventsButton = (Button) findViewById(R.id.addEventButton);
@@ -247,31 +267,11 @@ public class BTActivity extends Activity {
 				intent.putExtra(BTIntent.CHAT_MESSAGE_PATH, "Added event:"
 						+ message.getMessage());
 				sendBroadcast(intent);
-				// mConversationArrayAdapter.add("Added event "
-				// + message.getMessage());
 
 				System.out.println("Add events");
 			}
 		});
 	}
-
-	private OnEditorActionListener mWriteListener = new OnEditorActionListener() {
-
-		@Override
-		public boolean onEditorAction(TextView view, int actionId,
-				KeyEvent event) {
-			// If the action is a key-up event on the return key, send the
-			// message
-			if (actionId == EditorInfo.IME_NULL
-					&& event.getAction() == KeyEvent.ACTION_UP) {
-				String message = view.getText().toString();
-				eventSet.add(new BTMessageImpl(new BTIdImpl(),
-						new BTContentImpl(message)));
-
-			}
-			return true;
-		}
-	};
 
 	@Override
 	public void onDestroy() {
@@ -342,13 +342,8 @@ public class BTActivity extends Activity {
 			return;
 		}
 
-		sendIds(eventSet.getKeySet(), BTProtocolPhase.ADVERTISE);
-	}
-
-	private void sendIds(BTIdSet ids, BTProtocolPhase phase) {
-		String idString = ids.buildIdString(phase);
-		Log.i("Sending ids", idString);
-		mChatService.write(idString.getBytes());
+		mChatService.write(eventSet.getKeySet()
+				.buildIdString(BTProtocolPhase.ADVERTISE).getBytes());
 	}
 
 	private void ensureDiscoverable() {

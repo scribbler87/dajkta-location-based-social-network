@@ -48,7 +48,7 @@ final class BTMessageHandler extends Handler {
 			String message = new String(readBuf, 0, msg.arg1);
 			Log.i("Handler MESSAGE_READ", message);
 
-			btActivity.parseReceivedMessages(message);
+			parseReceivedMessages(message);
 			break;
 		case BTActivity.MESSAGE_DEVICE_NAME:
 			// // save the connected device's name
@@ -64,5 +64,11 @@ final class BTMessageHandler extends Handler {
 			// Toast.LENGTH_SHORT).show();
 			break;
 		}
+	}
+	
+	private void parseReceivedMessages(String messageString) {
+		Intent intent = new Intent(BTIntent.EVENT_RECEIVE);
+		intent.putExtra(BTIntent.EVENT_RECEIVE_PATH, messageString);
+		btActivity.sendBroadcast(intent);
 	}
 }
