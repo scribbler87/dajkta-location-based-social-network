@@ -61,7 +61,8 @@ public class PeopleActivity extends ListActivity {
 	        	Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
 	        	return true;
 	        case R.id.settings:
-	        	Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
+	        	//Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
+	        	startActivity(new Intent(getApplicationContext(), SettingActivity.class));
 	        	return true;
 	        case R.id.new_event:
 	        	startActivity(new Intent(getApplicationContext(), NewEventActivity.class));
