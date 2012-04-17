@@ -1,5 +1,6 @@
 package fi.local.social.network.activities;
-import fi.local.social.network.R;
+import java.util.ArrayList;
+
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
+import fi.local.social.network.R;
 
 public class PeopleActivity extends ListActivity {
 	
