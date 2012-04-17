@@ -58,6 +58,9 @@ public class PeopleActivity extends ListActivity {
 	        case R.id.new_event:
 	        	startActivity(new Intent(getApplicationContext(), NewEventActivity.class));
 	        	return true;
+	        case R.id.db_debug:
+	        	startActivity(new Intent(getApplicationContext(), DBActivity.class));
+	        	return true;
 	        default:
 	        	break;
 	    }
