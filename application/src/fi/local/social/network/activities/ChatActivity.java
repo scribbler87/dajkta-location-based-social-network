@@ -5,10 +5,14 @@ import java.util.List;
 
 import fi.local.social.network.R;
 import fi.local.social.network.db.Comment;
+import fi.local.social.network.db.CommentImpl;
 import fi.local.social.network.db.CommentsDataSource;
-import fi.local.social.network.db.MySQLiteHelper;
+
 import android.app.Activity;
-import android.app.ListActivity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -40,9 +44,16 @@ public class ChatActivity  extends Activity {
 		chatHist = (ListView) findViewById(R.id.listChat);
 		chatList = new ArrayList<String>();
 		
-		chatList.add(event.toString());
 		
 		
+		new BroadcastReceiver() {
+			
+			@Override
+			public void onReceive(Context arg0, Intent arg1) {
+				// TODO Auto-generated method stub
+				
+			}
+		};
 		
 		// TODO: get unique table name from both users
 		String tableID = "username1" + "_username_2";
@@ -51,7 +62,7 @@ public class ChatActivity  extends Activity {
 		datasource = new CommentsDataSource(this,tableID);
 		datasource.open();
 
-		List<Comment> allComments = datasource.getAllComments();
+		List<CommentImpl> allComments = datasource.getAllEntries();
 		if(allComments.size() > 0)
 			chatList.addAll(allComments);
 		
@@ -104,12 +115,19 @@ public class ChatActivity  extends Activity {
         	
         
         	// Save the new comment to the database
-			comment = datasource.createComment(message);
+			comment = datasource.createEntry(message);
 
         	
         	chatList.add(message);
         	edittext.setText("");
+        	
+        	
+        	Intent intent = new Intent();
+        	intent.putExtra("chatmessage", message);
+        	
+        	sendBroadcast(intent);
         }
 	}
+	
 
 }
