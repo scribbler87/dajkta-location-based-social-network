@@ -56,8 +56,9 @@ public class PeopleNearby extends ListActivity {
 			        case R.id.friends:
 			            Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
 			            return true;
-			        case R.id.notifications:
-			        	Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
+			        case R.id.event_list:
+			        	//Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
+			        	startActivity(new Intent(getApplicationContext(), ListOfEventsActivity.class));
 			            return true;
 			        case R.id.groups:
 			        	Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
@@ -65,7 +66,7 @@ public class PeopleNearby extends ListActivity {
 			        case R.id.settings:
 			        	Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
 			        	return true;
-			        case R.id.events:
+			        case R.id.new_event:
 			        	startActivity(new Intent(getApplicationContext(), NewEvent.class));
 			        	//Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
 			        	return true;

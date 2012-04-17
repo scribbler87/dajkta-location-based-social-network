@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/events"
+	<item android:id="@+id/new_event"
 		  android:title="Events"
 		  android:icon="@drawable/events"/>
  	<item android:id="@+id/friends"
@@ -9,7 +9,7 @@
     <item android:id="@+id/groups"
     	  android:title="Groups"
     	  android:icon="@drawable/groups"/>
-    <item android:id="@+id/notifications"
+    <item android:id="@+id/event_list"
     	  android:title="Notifications"
     	  android:icon="@drawable/notifications"/>
 	<item android:id="@+id/settings"

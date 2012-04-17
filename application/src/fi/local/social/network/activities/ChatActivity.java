@@ -40,7 +40,7 @@ public class ChatActivity  extends Activity {
 		chatHist = (ListView) findViewById(R.id.listChat);
 		chatList = new ArrayList<String>();
 		
-		chatList.add(event.toString());
+		chatList.add(edittext.getText().toString());
 		
 		
 		
