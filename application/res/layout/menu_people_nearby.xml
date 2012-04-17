@@ -3,12 +3,6 @@
 	<item android:id="@+id/new_event"
 		  android:title="New Event"
 		  android:icon="@drawable/events"/>
- 	<item android:id="@+id/friends"
- 		  android:title="Friends"
- 		  android:icon="@drawable/friends"/>
-    <item android:id="@+id/groups"
-    	  android:title="Groups"
-    	  android:icon="@drawable/groups"/>
     <item android:id="@+id/event_list"
     	  android:title="Event List"
     	  android:icon="@drawable/notifications"/>

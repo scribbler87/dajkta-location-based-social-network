@@ -43,30 +43,20 @@ public class PeopleActivity extends ListActivity {
 		return true;
 	}
 	
-	//When a user clicks on an option menu item, a toast with the item title shows up
-	
+	//When a user clicks on an option menu item, start the right Activity
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		super.onOptionsItemSelected(item);
 		// Handle item selection
-	    switch (item.getItemId()) {
-	        case R.id.friends:
-	            Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
-	            return true;
+	    switch (item.getItemId()) {	     
 	        case R.id.event_list:
-	        	//Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
 	        	startActivity(new Intent(getApplicationContext(), EventsActivity.class));
 	            return true;
-	        case R.id.groups:
-	        	Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
-	        	return true;
 	        case R.id.settings:
-	        	//Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
 	        	startActivity(new Intent(getApplicationContext(), SettingActivity.class));
 	        	return true;
 	        case R.id.new_event:
 	        	startActivity(new Intent(getApplicationContext(), NewEventActivity.class));
-	        	//Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
 	        	return true;
 	        default:
 	        	break;
