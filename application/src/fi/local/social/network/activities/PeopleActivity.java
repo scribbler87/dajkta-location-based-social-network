@@ -39,7 +39,7 @@ public class PeopleActivity extends ListActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu){
 		MenuInflater inflater=getMenuInflater();
-		inflater.inflate(R.layout.menu_people_nearby, menu);
+		inflater.inflate(R.layout.menu, menu);
 		return true;
 	}
 	
