@@ -1,8 +1,5 @@
 package fi.local.social.network;
 
-import fi.local.social.network.R;
-import fi.local.social.network.btservice.BTServiceConnectedActivity;
-import fi.local.social.network.bttest.BTActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +9,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import fi.local.social.network.btservice.BTActivity;
+import fi.local.social.network.btservice.BTServiceConnectedActivity;
 
 public class MainActivity extends BTServiceConnectedActivity {
 	private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -49,7 +48,8 @@ public class MainActivity extends BTServiceConnectedActivity {
 		BTButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				startActivity(new Intent(getApplicationContext(), BTActivity.class));
+				startActivity(new Intent(getApplicationContext(),
+						BTActivity.class));
 			}
 		});
 
