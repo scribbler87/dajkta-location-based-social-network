@@ -21,7 +21,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	protected void setUp() throws Exception {
 		super.setUp();
 		mActivity = this.getActivity();
-		mView = (TextView) mActivity.findViewById(fi.local.social.network.R.id.chatButtonSendIntent );
+		//mView = (TextView) mActivity.findViewById(fi.local.social.network.R.id.chatButtonSendIntent );
 		ressourceString = "Send intent";
 	}
 	
