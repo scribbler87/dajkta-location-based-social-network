@@ -5,15 +5,16 @@ import java.util.List;
 
 import fi.local.social.network.R;
 import fi.local.social.network.db.Comment;
-import fi.local.social.network.db.CommentImpl;
 import fi.local.social.network.db.CommentsDataSource;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -33,6 +34,7 @@ public class ChatActivity  extends Activity {
 	private List chatList;
 	private CommentsDataSource datasource;
 	private Comment comment;
+	private BroadcastReceiver bcR;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -46,14 +48,19 @@ public class ChatActivity  extends Activity {
 		
 		
 		
-		new BroadcastReceiver() {
-			
+		bcR = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context arg0, Intent arg1) {
-				// TODO Auto-generated method stub
+				String chatMessage = arg1.getAction();
+				chatList.add(chatMessage);
+				Log.i("ChatActivity", chatMessage);
+				
 				
 			}
 		};
+		IntentFilter chatMessageFilter = new IntentFilter("chatmessage");
+		registerReceiver(bcR, chatMessageFilter);
+		
 		
 		// TODO: get unique table name from both users
 		String tableID = "username1" + "_username_2";
@@ -62,9 +69,9 @@ public class ChatActivity  extends Activity {
 		datasource = new CommentsDataSource(this,tableID);
 		datasource.open();
 
-		List<CommentImpl> allComments = datasource.getAllEntries();
-		if(allComments.size() > 0)
-			chatList.addAll(allComments);
+	//	List<CommentImpl> allComments = datasource.getAllEntries();
+		//if(allComments.size() > 0)
+			//chatList.addAll(allComments);
 		
 		
 		
