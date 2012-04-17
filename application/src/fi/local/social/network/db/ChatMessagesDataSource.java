@@ -40,7 +40,7 @@ public class ChatMessagesDataSource implements DataSource{
 					allColumns, MySQLiteHelper.COLUMN_ID + " = " + insertId, null,
 					null, null, null);
 			cursor.moveToFirst();
-			CommentImpl newComment = cursorToEntry(cursor);
+			CommentImpl newComment = null; //cursorToEntry(cursor);
 			cursor.close();
 			return newComment;
 		}
@@ -61,7 +61,7 @@ public class ChatMessagesDataSource implements DataSource{
 
 			cursor.moveToFirst();
 			while (!cursor.isAfterLast()) {
-				CommentImpl comment = cursorToEntry(cursor);
+				CommentImpl comment =null;// cursorToEntry(cursor);
 				comments.add(comment);
 				cursor.moveToNext();
 			}
@@ -74,7 +74,7 @@ public class ChatMessagesDataSource implements DataSource{
 		private ChatMessageImpl cursorToEntry(Cursor cursor) {
 			ChatMessageImpl chatMessage = new ChatMessageImpl();
 			chatMessage.setID(cursor.getLong(0));
-			chatMessage.setText((cursor.getString(1));
+			//schatMessage.setText((cursor.getString(1));
 			return chatMessage;
 		}
 
