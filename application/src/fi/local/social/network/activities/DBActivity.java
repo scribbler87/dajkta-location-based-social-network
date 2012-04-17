@@ -3,7 +3,7 @@ package fi.local.social.network.activities;
 import java.util.List;
 
 import fi.local.social.network.R;
-import fi.local.social.network.db.Comment;
+import fi.local.social.network.db.CommentImpl;
 import fi.local.social.network.db.CommentsDataSource;
 
 
@@ -50,11 +50,11 @@ public class DBActivity extends ListActivity  implements OnClickListener{
 		datasource = new CommentsDataSource(this,"test_db");
 		datasource.open();
 
-		List<Comment> values = datasource.getAllComments();
+		List<CommentImpl> values = datasource.getAllEntries();
 
 		// Use the SimpleCursorAdapter to show the
 		// elements in a ListView
-		ArrayAdapter<Comment> adapter = new ArrayAdapter<Comment>(this,
+		ArrayAdapter<CommentImpl> adapter = new ArrayAdapter<CommentImpl>(this,
 				android.R.layout.simple_list_item_1, values);
 		setListAdapter(adapter);
 	}
@@ -64,10 +64,10 @@ public class DBActivity extends ListActivity  implements OnClickListener{
 		// of the buttons in main.xml
 		public void onClick(View view) {
 			@SuppressWarnings("unchecked")
-			ArrayAdapter<Comment> adapter = (ArrayAdapter<Comment>) getListAdapter();
+			ArrayAdapter<CommentImpl> adapter = (ArrayAdapter<CommentImpl>) getListAdapter();
 		
 			
-			Comment comment = null;
+			CommentImpl comment = null;
 			switch (view.getId()) {
 			case R.id.buttonDBbConfirm:
 				EditText edText= (EditText) findViewById(R.id.textDB1);
@@ -87,7 +87,7 @@ public class DBActivity extends ListActivity  implements OnClickListener{
 				else
 				{
 					// Save the new comment to the database
-					comment = datasource.createComment(editAbleText);
+					comment = datasource.createEntry(editAbleText);
 					adapter.add(comment);
 				}
 				
@@ -113,13 +113,13 @@ public class DBActivity extends ListActivity  implements OnClickListener{
 				else
 				{
 					// Save the new comment to the database
-					List<Comment> allComments = datasource.getAllComments();
+					List<CommentImpl> allComments = datasource.getAllEntries();
 					int counter = 0;
-					for (Comment actComment : allComments) 
+					for (CommentImpl actComment : allComments) 
 					{
 						if (actComment.getComment().equals(editAbleText))
 						{
-							datasource.deleteComment(actComment);
+							datasource.deleteEntry(actComment);
 							counter++;
 						}
 					}

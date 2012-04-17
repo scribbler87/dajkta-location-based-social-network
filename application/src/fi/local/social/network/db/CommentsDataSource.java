@@ -16,27 +16,29 @@ import android.database.sqlite.SQLiteDatabase;
  * @author jens
  *
  */
-public class CommentsDataSource {
+public class CommentsDataSource implements DataSource{
 
 	// Database fields
 	private SQLiteDatabase database;
 	private MySQLiteHelper dbHelper;
-	private String[] allColumns = { MySQLiteHelper.COLUMN_ID,
-			MySQLiteHelper.COLUMN_COMMENT };
+	private String[] allColumns = { MySQLiteHelper.COLUMN_ID, MySQLiteHelper.COLUMN_COMMENT };
 
 	public CommentsDataSource(Context context, String DATABASE_NAME) {
 		dbHelper = new MySQLiteHelper(context);
 	}
 
+	@Override
 	public void open() throws SQLException {
 		database = dbHelper.getWritableDatabase();
 	}
 
+	@Override
 	public void close() {
 		dbHelper.close();
 	}
 
-	public Comment createComment(String comment) {
+	@Override
+	public CommentImpl createEntry(String comment) {
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_COMMENT, comment);
 		long insertId = database.insert(MySQLiteHelper.TABLE_COMMENTS, null,
@@ -45,27 +47,28 @@ public class CommentsDataSource {
 				allColumns, MySQLiteHelper.COLUMN_ID + " = " + insertId, null,
 				null, null, null);
 		cursor.moveToFirst();
-		Comment newComment = cursorToComment(cursor);
+		CommentImpl newComment = cursorToEntry(cursor);
 		cursor.close();
 		return newComment;
 	}
 
-	public void deleteComment(Comment comment) {
+	public void deleteEntry(CommentImpl comment) {
 		long id = comment.getId();
 		System.out.println("Comment deleted with id: " + id);
 		database.delete(MySQLiteHelper.TABLE_COMMENTS, MySQLiteHelper.COLUMN_ID
 				+ " = " + id, null);
 	}
 
-	public List<Comment> getAllComments() {
-		List<Comment> comments = new ArrayList<Comment>();
+	@Override
+	public List<CommentImpl> getAllEntries() {
+		List<CommentImpl> comments = new ArrayList<CommentImpl>();
 
 		Cursor cursor = database.query(MySQLiteHelper.TABLE_COMMENTS,
 				allColumns, null, null, null, null, null);
 
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
-			Comment comment = cursorToComment(cursor);
+			CommentImpl comment = cursorToEntry(cursor);
 			comments.add(comment);
 			cursor.moveToNext();
 		}
@@ -74,27 +77,26 @@ public class CommentsDataSource {
 		return comments;
 	}
 	
-	public List<Comment> getCommentsWithID(int ID) {
-		List<Comment> comments = new ArrayList<Comment>();
-
-		Cursor cursor = database.query(MySQLiteHelper.TABLE_COMMENTS,
-				allColumns, null, null, null, null, null);
-
-		cursor.moveToFirst();
-		while (!cursor.isAfterLast()) {
-			Comment comment = cursorToComment(cursor);
-			comments.add(comment);
-			cursor.moveToNext();
-		}
-		// Make sure to close the cursor
-		cursor.close();
-		return comments;
-	}
-
-	private Comment cursorToComment(Cursor cursor) {
-		Comment comment = new Comment();
+	
+	private CommentImpl cursorToEntry(Cursor cursor) {
+		CommentImpl comment = new CommentImpl();
 		comment.setId(cursor.getLong(0));
 		comment.setComment(cursor.getString(1));
 		return comment;
 	}
+
+	
+
+
+
+
+	
+
+
+
+
+
+	
+
+	
 }
