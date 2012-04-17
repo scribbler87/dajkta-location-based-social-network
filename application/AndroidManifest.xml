@@ -22,7 +22,9 @@
         <activity
             android:name=".activities.ChatActivity"
             android:label="@string/app_name" />
-        
+        <activity
+            android:name=".activities.ListOfEventsActivity"
+            android:label="@string/app_name" />
         <activity
             android:name=".activities.DBActivity"
             android:label="@string/app_name" />

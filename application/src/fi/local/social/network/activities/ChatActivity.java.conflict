@@ -44,6 +44,10 @@ public class ChatActivity  extends Activity {
 		chatHist = (ListView) findViewById(R.id.listChat);
 		chatList = new ArrayList<String>();
 		
+<<<<<<< HEAD
+		chatList.add(edittext.getText().toString());
+=======
+>>>>>>> c55e754ef6d650b172be2f73e271d60f54a4411c
 		
 		
 		new BroadcastReceiver() {
