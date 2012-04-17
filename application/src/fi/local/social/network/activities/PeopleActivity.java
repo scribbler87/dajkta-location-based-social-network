@@ -16,63 +16,58 @@ import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class PeopleActivity extends ListActivity {
-	static final String[] PEOPLE_NEAR=new String[]{
-		   "Alex Yang","Tom Cruise","Tom Hanks","Jason Stathon","Joe Hu",
-		   "Alex Yang","Tom Cruise","Tom Hanks","Jason Stathon","Joe Hu",
-		   "Alex Yang","Tom Cruise","Tom Hanks","Jason Stathon","Joe Hu",
-		   "Alex Yang","Tom Cruise","Tom Hanks","Jason Stathon","Joe Hu"};
-			@Override
-			public void onCreate(Bundle savedInstanceState){
-				super.onCreate(savedInstanceState);
-				setListAdapter((ListAdapter) new ArrayAdapter<String>(this, R.layout.peoplenearby,PEOPLE_NEAR));
-				ListView listView = getListView();
-				listView.setTextFilterEnabled(true);
-				
-				listView.setOnItemClickListener(new OnItemClickListener() {
-					//When a name is clicked, a notification pops up with the name
-					@Override
-					public void onItemClick(AdapterView<?> parent, View view,
-						int position, long id) {
-						Toast.makeText(getApplicationContext(),
-						((TextView) view).getText(), Toast.LENGTH_SHORT).show();
-						}
-					});
-			}//end onCreate
-			
-			@Override
-			public boolean onCreateOptionsMenu(Menu menu){
-				MenuInflater inflater=getMenuInflater();
-				inflater.inflate(R.layout.menu_people_nearby, menu);
-				return true;
-			}
-			
-			//When a user clicks on an option menu item, a toast with the item title shows up
-			
-			@Override
-			public boolean onOptionsItemSelected(MenuItem item) {
-				super.onOptionsItemSelected(item);
-				// Handle item selection
-			    switch (item.getItemId()) {
-			        case R.id.friends:
-			            Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
-			            return true;
-			        case R.id.event_list:
-			        	//Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
-			        	startActivity(new Intent(getApplicationContext(), EventsActivity.class));
-			            return true;
-			        case R.id.groups:
-			        	Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
-			        	return true;
-			        case R.id.settings:
-			        	Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
-			        	return true;
-			        case R.id.new_event:
-			        	startActivity(new Intent(getApplicationContext(), NewEventActivity.class));
-			        	//Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
-			        	return true;
-			        default:
-			        	break;
-			    }
-			    return false;
-			}
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState){
+		super.onCreate(savedInstanceState);
+		
+		String[] mockup_values=new String[]{"Alex Yang","Tom Cruise","Tom Hanks","Jason Stathon","Joe Hu"};
+		
+		setListAdapter((ListAdapter) new ArrayAdapter<String>(this, R.layout.people_item, R.id.label, mockup_values));
+		//ListView listView = getListView();
+		//listView.setTextFilterEnabled(true);
+	}
+	
+	@Override
+	protected void onListItemClick(ListView l, View view, int position, long id) {
+		startActivity(new Intent(getApplicationContext(), ChatActivity.class));
+		//Toast.makeText(getApplicationContext(),((TextView) view).getText(), Toast.LENGTH_SHORT).show();
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu){
+		MenuInflater inflater=getMenuInflater();
+		inflater.inflate(R.layout.menu_people_nearby, menu);
+		return true;
+	}
+	
+	//When a user clicks on an option menu item, a toast with the item title shows up
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		super.onOptionsItemSelected(item);
+		// Handle item selection
+	    switch (item.getItemId()) {
+	        case R.id.friends:
+	            Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
+	            return true;
+	        case R.id.event_list:
+	        	//Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
+	        	startActivity(new Intent(getApplicationContext(), EventsActivity.class));
+	            return true;
+	        case R.id.groups:
+	        	Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
+	        	return true;
+	        case R.id.settings:
+	        	Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
+	        	return true;
+	        case R.id.new_event:
+	        	startActivity(new Intent(getApplicationContext(), NewEventActivity.class));
+	        	//Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
+	        	return true;
+	        default:
+	        	break;
+	    }
+	    return false;
+	}
 }
