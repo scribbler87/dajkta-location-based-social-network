@@ -64,7 +64,7 @@ public class MainActivity extends BTServiceConnectedActivity {
 			@Override
 			public void onClick(View v) 
 			{
-				startActivity(new Intent(getApplicationContext(), PeopleNearby.class));
+				startActivity(new Intent(getApplicationContext(), PeopleActivity.class));
 			}
 
 		});

@@ -18,7 +18,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import fi.local.social.network.R;
 
-public class NewEvent extends Activity {
+public class NewEventActivity extends Activity {
 	
 	private static final int SELECT_PICTURE = 1;
 	private EditText title=null;

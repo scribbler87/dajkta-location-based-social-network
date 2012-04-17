@@ -15,7 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class PeopleNearby extends ListActivity {
+public class PeopleActivity extends ListActivity {
 	static final String[] PEOPLE_NEAR=new String[]{
 		   "Alex Yang","Tom Cruise","Tom Hanks","Jason Stathon","Joe Hu",
 		   "Alex Yang","Tom Cruise","Tom Hanks","Jason Stathon","Joe Hu",
@@ -58,7 +58,7 @@ public class PeopleNearby extends ListActivity {
 			            return true;
 			        case R.id.event_list:
 			        	//Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
-			        	startActivity(new Intent(getApplicationContext(), ListOfEventsActivity.class));
+			        	startActivity(new Intent(getApplicationContext(), EventsActivity.class));
 			            return true;
 			        case R.id.groups:
 			        	Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
@@ -67,7 +67,7 @@ public class PeopleNearby extends ListActivity {
 			        	Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
 			        	return true;
 			        case R.id.new_event:
-			        	startActivity(new Intent(getApplicationContext(), NewEvent.class));
+			        	startActivity(new Intent(getApplicationContext(), NewEventActivity.class));
 			        	//Toast.makeText(getApplicationContext(),"You choose option menu item: "+item.getTitle(), Toast.LENGTH_SHORT).show();
 			        	return true;
 			        default:
