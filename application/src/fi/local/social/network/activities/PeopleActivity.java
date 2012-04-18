@@ -1,5 +1,8 @@
 package fi.local.social.network.activities;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,18 +14,28 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import fi.local.social.network.R;
+import fi.local.social.network.db.User;
+import fi.local.social.network.db.UserImpl;
 
 public class PeopleActivity extends ListActivity {
+	
+	List<User> peopleNearby;
+	private ListView lvPeoplenarby;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		
-		String[] mockup_values=new String[]{"Alex Yang","Tom Cruise","Tom Hanks","Jason Stathon","Joe Hu"};
-		
-		setListAdapter((ListAdapter) new ArrayAdapter<String>(this, R.layout.people_item, R.id.label, mockup_values));
-		//ListView listView = getListView();
-		//listView.setTextFilterEnabled(true);
+		// TODO: get real people and their names
+		// add some mockup values
+		peopleNearby = new ArrayList<User>();
+		peopleNearby.add(new UserImpl("Alex Yang", "add uri for pic"));
+		peopleNearby.add(new UserImpl("Tom Cruise", "add uri for pic"));
+		peopleNearby.add(new UserImpl("Tom Hanks", "add uri for pic"));
+		peopleNearby.add(new UserImpl("Jason Stathon","add uri for pic"));
+		peopleNearby.add(new UserImpl("Joe Hu", "add uri for pic"));
+
+		setListAdapter((ListAdapter) new ArrayAdapter<User>(this, R.layout.people_item, R.id.label, peopleNearby));
 	}
 	
 	@Override

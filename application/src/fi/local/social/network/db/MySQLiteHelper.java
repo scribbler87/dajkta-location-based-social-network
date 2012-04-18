@@ -8,19 +8,19 @@ import android.util.Log;
 
 public class MySQLiteHelper extends SQLiteOpenHelper {
 
-	public static final String TABLE_COMMENTS = "comments";
-	public static final String COLUMN_ID = "_id";
-	public static final String COLUMN_COMMENT = "comment";
+	
 
 	private static final String DATABASE_NAME = "mobileNeighbour.db";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 	
+	
+	// generall column names
+	public static final String COLUMN_TIMESTAMP = "timestamp";
+	public static final String COLUMN_ID = "_id";
 	
 	// chat message specific columns and other constants
 	public static final String TABLE_CHATMESSAGES = "chatmessages";
-	
 	public static final String COLUMN_CHATMESSAGE = "chatmessage";
-	public static final String COLUMN_TIMESTAMP = "timestamp";
 	public static final String COLUMN_SENDERNAME = "sendername";
 	public static final String COLUMN_RECEIVERNAME = "receivername";
 	
@@ -55,13 +55,14 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		Log.w(MySQLiteHelper.class.getName(),
 				"Upgrading database from version " + oldVersion + " to "
 						+ newVersion + ", which will destroy all old data");
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_COMMENTS);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHATMESSAGES);
 		onCreate(db);
 	}
 	
 	public final String[] getAllColumnNames(String tableName)
 	{
 		Cursor dbCursor = (Cursor) this.getWritableDatabase().query(tableName, null, null, null, null, null, null); 
+		
 		String[] columNames = dbCursor.getColumnNames();
 		
 		return columNames;

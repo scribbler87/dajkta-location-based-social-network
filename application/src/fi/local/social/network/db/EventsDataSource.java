@@ -12,8 +12,6 @@ public class EventsDataSource implements DataSource{
 	// Database fields
 	private SQLiteDatabase database;
 	private MySQLiteHelper dbHelper;
-	private String[] allColumns = { MySQLiteHelper.COLUMN_ID,
-			MySQLiteHelper.COLUMN_COMMENT };
 
 	public EventsDataSource(Context context) {
 		dbHelper = new MySQLiteHelper(context);
@@ -36,13 +34,11 @@ public class EventsDataSource implements DataSource{
 
 	@Override
 	public List getAllEntries() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	private Event cursorToEntry(Cursor cursor) {
 		EventImpl event = new EventImpl();
-		// TODO
 		return event;
 	}
 
