@@ -40,7 +40,7 @@ public class ChatMessagesDataSource implements DataSource{
 		
 		String sender = data.substring(0, endSendName);
 		String receiver = data.substring(endSendName+1, endRecName);
-		String message = data.substring(endRecName+1, data.length() - 1);
+		String message = data.substring(endRecName+1, data.length() );
 		
 		values.put(MySQLiteHelper.COLUMN_TIMESTAMP, System.currentTimeMillis());
 		values.put(MySQLiteHelper.COLUMN_SENDERNAME, sender);
@@ -65,11 +65,10 @@ public class ChatMessagesDataSource implements DataSource{
 
 		List<ChatMessage> chatMessages = new ArrayList<ChatMessage>();
 
-		Cursor dbCursor = (Cursor) database.query(MySQLiteHelper.TABLE_CHATMESSAGES, null, null, null, null, null, null); 
-		String[] columNnames = dbCursor.getColumnNames();
+		String[] allColumnNames = dbHelper.getAllColumnNames(MySQLiteHelper.TABLE_CHATMESSAGES);
 		
 		Cursor cursor = database.query(MySQLiteHelper.TABLE_CHATMESSAGES,
-				columNnames, null, null, null, null, null);
+				allColumnNames, null, null, null, null, null);
 
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
@@ -96,6 +95,14 @@ public class ChatMessagesDataSource implements DataSource{
 		chatMessage.setMessage(cursor.getString(4));
 
 		return chatMessage;
+	}
+	
+	public void deleteChatMessage(ChatMessage cm) 
+	{
+		long id = cm.getID();
+		System.out.println("User deleted with id: " + id);
+		database.delete(MySQLiteHelper.TABLE_CHATMESSAGES, MySQLiteHelper.COLUMN_ID
+				+ " = " + id, null);
 	}
 
 

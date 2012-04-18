@@ -2,6 +2,7 @@ package fi.local.social.network.activities;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -18,6 +19,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 import fi.local.social.network.R;
+import fi.local.social.network.db.ChatMessage;
+import fi.local.social.network.db.ChatMessagesDataSource;
+import fi.local.social.network.db.User;
+import fi.local.social.network.db.UserDataSource;
+import fi.local.social.network.db.UserImpl;
 
 public class SettingActivity extends Activity {
 	private static final int SELECT_PICTURE = 1;
@@ -25,10 +31,16 @@ public class SettingActivity extends Activity {
 	private Button selectPic;
 	private Button saveBtn;
 	private EditText nickname;
+	private UserDataSource userDataSource;
+	private ChatMessagesDataSource chatMessDataSource;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.setting);
+		
+		userDataSource = new UserDataSource(this);
+		userDataSource.open();
 		
 		selectPic=(Button)findViewById(R.id.chooseProfilePicBtn);
 		image=(ImageView)findViewById(R.id.imageView1);
@@ -68,6 +80,19 @@ public class SettingActivity extends Activity {
 			}
 		});
 	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		userDataSource.open();
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		userDataSource.close();
+	}
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) { 
 	    super.onActivityResult(requestCode, resultCode, imageReturnedIntent); 
@@ -93,8 +118,43 @@ public class SettingActivity extends Activity {
 	}
 	
 	private void saveNickname() {
+		String newUsername = nickname.getText().toString();
 		Toast.makeText(getApplicationContext(),
-				"Your nickname is "+nickname.getText().toString(),
+				"Your nickname is "+ newUsername,
 				Toast.LENGTH_SHORT).show();
+		
+		// Save the new comment to the database
+
+		User newUser = new UserImpl(newUsername, "not yet here");
+		newUser.setIsPhoneUser(true);
+		
+		List<User> allEntries = userDataSource.getAllEntries();
+		User oldUser = null;
+		for (User actUser : allEntries) {
+			if(actUser.isPhoneUser())
+			{
+				oldUser = actUser;
+				userDataSource.deleteUser(actUser);
+			}
+		}
+		
+		// reset db to have old messages with the nickname
+		chatMessDataSource = new ChatMessagesDataSource(this);
+		chatMessDataSource.open();
+		List<ChatMessage> chatMessages = chatMessDataSource.getAllEntries();
+		for (ChatMessage chatMessage : chatMessages) 
+		{
+			chatMessDataSource.deleteChatMessage(chatMessage);
+			
+			if(chatMessage.getReceiverName().equals(oldUser.getUserName()))
+				chatMessage.setReceiverName(newUsername);
+			else if(chatMessage.getSenderName().equals(oldUser.getUserName()))
+				chatMessage.setSenderName(newUsername);
+			
+			chatMessDataSource.createEntry(chatMessage.getDBString());
+		}
+		chatMessDataSource.close();
+		
+		userDataSource.createEntry(newUser.getDBString());
 	}
 }

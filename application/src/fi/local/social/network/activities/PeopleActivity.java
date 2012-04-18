@@ -15,12 +15,14 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import fi.local.social.network.R;
 import fi.local.social.network.db.User;
+import fi.local.social.network.db.UserDataSource;
 import fi.local.social.network.db.UserImpl;
 
 public class PeopleActivity extends ListActivity {
 	
 	List<User> peopleNearby;
-	private ListView lvPeoplenarby;
+	private UserDataSource userDatasource;
+	private String username;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -36,16 +38,51 @@ public class PeopleActivity extends ListActivity {
 		peopleNearby.add(new UserImpl("Joe Hu", "add uri for pic"));
 
 		setListAdapter((ListAdapter) new ArrayAdapter<User>(this, R.layout.people_item, R.id.label, peopleNearby));
+		
+		
+		userDatasource = new UserDataSource(this);
+		userDatasource.open();
+		List<User> allEntries = userDatasource.getAllEntries();
+		for (User user : allEntries) {
+			if(user.isPhoneUser())
+			{
+				this.username = user.getUserName();
+				break;
+			}
+		}
+		userDatasource.close();
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		userDatasource = new UserDataSource(this);
+		userDatasource.open();
+		List<User> allEntries = userDatasource.getAllEntries();
+		for (User user : allEntries) {
+			if(user.isPhoneUser())
+			{
+				this.username = user.getUserName();
+				break;
+			}
+		}
+		userDatasource.close();
+		
 	}
 	
 	@Override
 	protected void onListItemClick(ListView l, View view, int position, long id) {
-		startActivity(new Intent(getApplicationContext(), ChatActivity.class));
+		Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+		intent.putExtra("username", this.username);
+		Object o = this.getListAdapter().getItem(position);
+	    String receiverName = o.toString();
+		intent.putExtra("receiver", receiverName.toString());
+		startActivity(intent);
 	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu){
-		MenuInflater inflater=getMenuInflater();
+		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.layout.menu, menu);
 		return true;
 	}

@@ -33,143 +33,170 @@ public class ChatActivity  extends Activity {
 	private ListView chatHist;
 	private List<ChatMessage> chatList;
 	private BroadcastReceiver bcR;
-	private ChatMessagesDataSource datasource;
+	private ChatMessagesDataSource chatMessageDataSource;
 	private ChatMessage chatMessage;
 	private ArrayAdapter<ChatMessage> adapter;
 	private IntentFilter chatMessageFilter;
 	private ListView lvChatHist;
+	private String userName;
+	private String receiverName;
 
 
-@Override
-protected void onCreate(Bundle savedInstanceState) {
-	super.onCreate(savedInstanceState);
-	setContentView(R.layout.chat);
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.chat);
 
-	sendButton = (Button) findViewById(R.id.buttonChatConfirm);
-	edittext = (EditText) findViewById(R.id.edit_text_out);
-	chatHist = (ListView) findViewById(R.id.listChat);
-	chatList = new ArrayList<ChatMessage>();
+		sendButton = (Button) findViewById(R.id.buttonChatConfirm);
+		edittext = (EditText) findViewById(R.id.edit_text_out);
+		chatHist = (ListView) findViewById(R.id.listChat);
+		chatList = new ArrayList<ChatMessage>();
 
-
-
-	bcR = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context arg0, Intent arg1) {
-			String chatMessage = arg1.getAction();
-			ChatMessage cm = new ChatMessageImpl();
-
-			chatList.add(cm);
-			Log.i("ChatActivity", chatMessage);
+		Bundle extras = getIntent().getExtras();
+		userName = (String) extras.get("username");
+		receiverName =  extras.get("receiver").toString();
 
 
+		bcR = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context arg0, Intent arg1) {
+				String chatMessage = arg1.getAction();
+				ChatMessage cm = new ChatMessageImpl();
+				Log.i("ChatActivity", chatMessage);
+			}
+		};
+
+		chatMessageFilter = new IntentFilter("chatmessage");
+		registerReceiver(bcR, chatMessageFilter);
+
+
+		chatMessageDataSource = new ChatMessagesDataSource(this);
+		chatMessageDataSource.open();
+
+		List<ChatMessage> allMessages = chatMessageDataSource.getAllEntries();
+		for (ChatMessage chatMessage : allMessages) {
+			if(chatMessage.getReceiverName().equals(receiverName) || chatMessage.getSenderName().equals(receiverName))
+				chatList.add(chatMessage);
 		}
-	};
-	chatMessageFilter = new IntentFilter("chatmessage");
-	registerReceiver(bcR, chatMessageFilter);
+			
+			
 
 
-	datasource = new ChatMessagesDataSource(this);
-	datasource.open();
+		ArrayAdapter<ChatMessage> adapter = new ArrayAdapter<ChatMessage>(this,
+				android.R.layout.simple_list_item_1, chatList);
 
-	List<ChatMessage> allMessages = datasource.getAllEntries();
-	if(allMessages.size() > 0)
-		chatList.addAll(allMessages);
-
-
-	ArrayAdapter<ChatMessage> adapter = new ArrayAdapter<ChatMessage>(this,
-            android.R.layout.simple_list_item_1, chatList);
-
-	 lvChatHist = (ListView) findViewById(R.id.listChat);
-	 lvChatHist.setAdapter(adapter);
-	
-	
-	sendButton.setOnClickListener(new OnClickListener() {
-		@Override
-		public void onClick(View v) 
-		{
-			// Send a message using content of the edit text widget
-			String message = edittext.getText().toString();
-			sendMessage(message);
-		}
-	});
+		lvChatHist = (ListView) findViewById(R.id.listChat);
+		lvChatHist.setAdapter(adapter);
 
 
-	edittext.setOnKeyListener(new OnKeyListener() {
-		@Override
-		public boolean onKey(View arg0, int keyCode, KeyEvent event) {
-			// If the event is a key-down event on the "enter" button
-			if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
-					(keyCode == KeyEvent.KEYCODE_ENTER)) {
-
+		sendButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) 
+			{
+				// Send a message using content of the edit text widget
 				String message = edittext.getText().toString();
 				sendMessage(message);
-				return true;
 			}
-
-			return false;
-		}
-	});
-}
-
-@Override
-protected void onResume()
-{
-	super.onResume();
-	registerReceiver(bcR, chatMessageFilter);
-}
-
-@Override
-protected void onPause()
-{
-	super.onPause();
-	unregisterReceiver(bcR);
-}
+		});
 
 
-private void sendMessage(String message)
-{
-	// Check that there's actually something to send
-	if (message.length() > 0) {
-		System.err.println(message);
+		edittext.setOnKeyListener(new OnKeyListener() {
+			@Override
+			public boolean onKey(View arg0, int keyCode, KeyEvent event) {
+				// If the event is a key-down event on the "enter" button
+				if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+						(keyCode == KeyEvent.KEYCODE_ENTER)) {
 
-		// TODO: get it from the network or somewhere else
-		// generating string for storing in db
-		String sender = "senderName";
-		String receiver = "receiverName";
-		message = sender + ";" + receiver +  ";" + message;
+					String message = edittext.getText().toString();
+					sendMessage(message);
+					return true;
+				}
 
-		// Save the new comment to the database
-		chatMessage = (ChatMessage) datasource.createEntry(message);
-
-		// update the list view
-		chatList.add(chatMessage);
-		// clear the editable text 
-		edittext.setText("");
-
-		
-		// send the message to the bluetooth	
-		Intent intent = new Intent();
-		intent.putExtra("chatmessage", message);
-
-		sendBroadcast(intent);
+				return false;
+			}
+		});
 	}
-}
 
-public ListView getChatHist() {
-	return chatHist;
-}
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		registerReceiver(bcR, chatMessageFilter);
+		Bundle extras = getIntent().getExtras();
+		userName = (String) extras.get("username");
+		receiverName =  extras.get("receiver").toString();
+		
+		chatMessageDataSource.open();
+		this.chatList = new ArrayList<ChatMessage>();
+		List<ChatMessage> allMessages = chatMessageDataSource.getAllEntries();
+		for (ChatMessage chatMessage : allMessages) {
+			if(chatMessage.getReceiverName().equals(receiverName) || chatMessage.getSenderName().equals(receiverName))
+				chatList.add(chatMessage);
+		}
+	}
 
-public void setChatHist(ListView chatHist) {
-	this.chatHist = chatHist;
-}
+	@Override
+	protected void onPause()
+	{
+		super.onPause();
+		unregisterReceiver(bcR);
+		chatMessageDataSource.close();
+	}
 
-public ArrayAdapter<ChatMessage> getAdapter() {
-	return adapter;
-}
 
-public void setAdapter(ArrayAdapter<ChatMessage> adapter) {
-	this.adapter = adapter;
-}
+	private void sendMessage(String message)
+	{
+		// Check that there's actually something to send
+		if (message.length() > 0) {
+			System.err.println(message);
+
+			// TODO: get it from the network or somewhere else
+			// generating string for storing in db
+
+			ChatMessage tmpMessage = new ChatMessageImpl();
+			tmpMessage.setMessage(message);
+			tmpMessage.setReceiverName(receiverName);
+			tmpMessage.setSenderName(userName);
+
+			// Save the new comment to the database
+			chatMessage = (ChatMessage) chatMessageDataSource.createEntry(tmpMessage.getDBString());
+
+			// update the list view
+			chatList.add(chatMessage);
+			// clear the editable text 
+			edittext.setText("");
+
+
+			// send the message to the bluetooth	
+			Intent intent = new Intent();
+			intent.putExtra("chatmessage", message);
+
+			sendBroadcast(intent);
+		}
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		chatMessageDataSource.close();
+	}
+	
+
+	public ListView getChatHist() {
+		return chatHist;
+	}
+
+	public void setChatHist(ListView chatHist) {
+		this.chatHist = chatHist;
+	}
+
+	public ArrayAdapter<ChatMessage> getAdapter() {
+		return adapter;
+	}
+
+	public void setAdapter(ArrayAdapter<ChatMessage> adapter) {
+		this.adapter = adapter;
+	}
 
 
 }

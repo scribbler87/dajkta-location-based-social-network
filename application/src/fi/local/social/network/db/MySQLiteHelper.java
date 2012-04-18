@@ -11,23 +11,30 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	
 
 	private static final String DATABASE_NAME = "mobileNeighbour.db";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 4;
 	
+	
+	public static int isUser = 1;
 	
 	// generall column names
 	public static final String COLUMN_TIMESTAMP = "timestamp";
 	public static final String COLUMN_ID = "_id";
 	
 	// chat message specific columns and other constants
-	public static final String TABLE_CHATMESSAGES = "chatmessages";
 	public static final String COLUMN_CHATMESSAGE = "chatmessage";
 	public static final String COLUMN_SENDERNAME = "sendername";
 	public static final String COLUMN_RECEIVERNAME = "receivername";
 	
+	// user specific data
+	public static final String COLUMN_USERNAME = "chatmessage";
+	public static final String COLUMN_PICPROFILEURI = "picuri";
+	public static final String COLUMN_PHONEUSER = "phoneuser"; // to show if this is the username on "THIS" phone
+	
 	
 	
 	// TODO add the other tables as well
-	
+	public static final String TABLE_CHATMESSAGES = "chatmessages";
+	public static final String TABLE_USERS = "users";
 
 	public MySQLiteHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -37,18 +44,10 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase database) 
 	{
 		// create the database
-		final String dbCreate = getCreateDB();
-		database.execSQL(dbCreate);
+		database.execSQL(ChatMessageImpl.createChatMessTable);
+		database.execSQL(UserImpl.createUserTable);
 	}
 
-	private static String getCreateDB() 
-	{
-		String res = "";
-		
-		res += ChatMessageImpl.createChatMessTable;
-		
-		return res;
-	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -56,6 +55,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 				"Upgrading database from version " + oldVersion + " to "
 						+ newVersion + ", which will destroy all old data");
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHATMESSAGES);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
 		onCreate(db);
 	}
 	

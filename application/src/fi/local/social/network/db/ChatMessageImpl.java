@@ -94,4 +94,15 @@ public class ChatMessageImpl implements ChatMessage{
 	};
 
 	
+	public String getDBString()
+	{
+		String res = "";
+		
+		res += this.senderName + ";";
+		res += this.receiverName + ";";
+		res += this.message; // just use some user value
+		
+		return res;
+	}
+	
 }
