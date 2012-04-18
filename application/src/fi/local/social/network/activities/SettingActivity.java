@@ -9,11 +9,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 import fi.local.social.network.R;
 
@@ -22,7 +24,7 @@ public class SettingActivity extends Activity {
 	private ImageView image;
 	private Button selectPic;
 	private Button saveBtn;
-	private TextView nickname;
+	private EditText nickname;
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -31,7 +33,7 @@ public class SettingActivity extends Activity {
 		selectPic=(Button)findViewById(R.id.chooseProfilePicBtn);
 		image=(ImageView)findViewById(R.id.imageView1);
 		saveBtn=(Button)findViewById(R.id.saveBtn);
-		nickname=(TextView)findViewById(R.id.etNickname);
+		nickname=(EditText)findViewById(R.id.etNickname);
 		//When a user clicks on the 'choose a image' button, the user is directed into the media folder to choose a image
 		selectPic.setOnClickListener(new OnClickListener(){
 			@Override
@@ -48,10 +50,21 @@ public class SettingActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				Toast.makeText(getApplicationContext(),
-						"Your nickname is "+nickname.getText().toString(),
-						Toast.LENGTH_SHORT).show();
+				saveNickname();
+			}
+		});
+		
+		nickname.setOnKeyListener(new OnKeyListener() {
+			@Override
+			public boolean onKey(View arg0, int keyCode, KeyEvent event) {
+				// If the event is a key-down event on the "enter" button
+				if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+						(keyCode == KeyEvent.KEYCODE_ENTER)) {
+					saveNickname();
+					return true;
+				}
+
+				return false;
 			}
 		});
 	}
@@ -79,5 +92,9 @@ public class SettingActivity extends Activity {
 	    }
 	}
 	
-	
+	private void saveNickname() {
+		Toast.makeText(getApplicationContext(),
+				"Your nickname is "+nickname.getText().toString(),
+				Toast.LENGTH_SHORT).show();
+	}
 }

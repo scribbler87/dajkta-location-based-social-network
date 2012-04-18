@@ -31,7 +31,6 @@ public class EventsDataSource implements DataSource{
 
 	@Override
 	public Object createEntry(String entry) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

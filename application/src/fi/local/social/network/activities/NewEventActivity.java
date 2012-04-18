@@ -59,7 +59,6 @@ public class NewEventActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
 				Toast.makeText(getApplicationContext(),
 						"The message is supposed to be sent to nearby devices.",
 						Toast.LENGTH_SHORT).show();
@@ -80,7 +79,6 @@ public class NewEventActivity extends Activity {
 				try {
 					imageStream = getContentResolver().openInputStream(selectedImage);
 				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				//Get bitmap format of the selected image

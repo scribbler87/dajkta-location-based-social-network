@@ -1,5 +1,4 @@
 package fi.local.social.network.activities;
-import java.util.ArrayList;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -8,13 +7,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 import fi.local.social.network.R;
 
 public class PeopleActivity extends ListActivity {
@@ -33,7 +28,6 @@ public class PeopleActivity extends ListActivity {
 	@Override
 	protected void onListItemClick(ListView l, View view, int position, long id) {
 		startActivity(new Intent(getApplicationContext(), ChatActivity.class));
-		//Toast.makeText(getApplicationContext(),((TextView) view).getText(), Toast.LENGTH_SHORT).show();
 	}
 	
 	@Override
@@ -57,9 +51,6 @@ public class PeopleActivity extends ListActivity {
 	        	return true;
 	        case R.id.new_event:
 	        	startActivity(new Intent(getApplicationContext(), NewEventActivity.class));
-	        	return true;
-	        case R.id.db_debug:
-	        	startActivity(new Intent(getApplicationContext(), DBActivity.class));
 	        	return true;
 	        default:
 	        	break;

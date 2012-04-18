@@ -5,11 +5,36 @@ import java.sql.Timestamp;
 public class ChatMessageImpl implements ChatMessage{
 
 	private long ID;
-	private String text;
+	private String message;
 	private Timestamp time;
 	private String senderName;
+	private String receiverName;
+
 	
+
+	/* Order of the table columns!
+	 * ChatMessage chatMessage = new ChatMessageImpl();
+			chatMessage.setID(cursor.getLong(0));
+
+			long ts = cursor.getLong(1);
+			Timestamp timestamp = new Timestamp(ts);
+			chatMessage.setTime(timestamp);
+
+			chatMessage.setSenderName(cursor.getString(2));
+			chatMessage.setReceiverName(cursor.getString(3));
+
+			chatMessage.setText(cursor.getString(4));
+	 * */
 	
+	final static  String createChatMessTable =  "create table "
+			+ MySQLiteHelper.TABLE_CHATMESSAGES + "( " + MySQLiteHelper.COLUMN_ID
+			+ " integer primary key autoincrement, " 
+			+ MySQLiteHelper.COLUMN_TIMESTAMP + "   long, " 
+			+ MySQLiteHelper.COLUMN_SENDERNAME + " text not null, " 
+			+ MySQLiteHelper.COLUMN_RECEIVERNAME + " text not null, " 
+			+ MySQLiteHelper.COLUMN_CHATMESSAGE + " text  not null );"; 
+
+
 	@Override
 	public long getID() {
 		return ID;
@@ -21,13 +46,13 @@ public class ChatMessageImpl implements ChatMessage{
 	}
 
 	@Override
-	public String getText() {
-		return this.text;
+	public String getMessage() {
+		return this.message;
 	}
 
 	@Override
-	public void setText(String text) {
-		this.text = text;
+	public void setMessage(String message) {
+		this.message = message;
 	}
 
 	@Override
@@ -47,7 +72,26 @@ public class ChatMessageImpl implements ChatMessage{
 
 	@Override
 	public void setSenderName(String name) {
-		this.senderName = senderName;
+		this.senderName = name;
 	}
 
+	@Override
+	public String getReceiverName() {
+		return this.receiverName;
+	}
+
+	@Override
+	public void setReceiverName(String name) {
+		this.receiverName = name;
+	}
+
+	@Override
+	public String toString() {
+		String res = "";
+		res += this.senderName + ": ";
+		res += this.message;
+		return res;
+	};
+
+	
 }
