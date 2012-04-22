@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+    
+    
+
+    <ListView
+        android:id="@+id/device_list"
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1">
+    </ListView>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Exchange" android:id="@+id/exchangeEventsButton"/>
+    
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="make discoverable" android:id="@+id/makediscoverable"/>
+    
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="connect" android:id="@+id/connect"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Scan devices" android:id="@+id/button_scan"/>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="text" android:id="@+id/eventNameField"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add event" 
+            android:id="@+id/addEventButton"/>
+    </LinearLayout>
+ <!--   
+    <TextView
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:textSize="18sp"
+    android:padding="5dp"
+    android:id="@+id/message"/>
+    -->
+/>
+
+</LinearLayout>
+
+
+
