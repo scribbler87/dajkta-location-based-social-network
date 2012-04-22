@@ -33,15 +33,15 @@ public class SettingActivity extends Activity {
 	private EditText nickname;
 	private UserDataSource userDataSource;
 	private ChatMessagesDataSource chatMessDataSource;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.setting);
-		
+
 		userDataSource = new UserDataSource(this);
 		userDataSource.open();
-		
+
 		selectPic=(Button)findViewById(R.id.chooseProfilePicBtn);
 		image=(ImageView)findViewById(R.id.imageView1);
 		saveBtn=(Button)findViewById(R.id.saveBtn);
@@ -52,11 +52,11 @@ public class SettingActivity extends Activity {
 			public void onClick(View v) {
 				//Launch an image choosing activity
 				Intent imageChoosingIntent = new Intent(Intent.ACTION_PICK,
-			               android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+						android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 				startActivityForResult(imageChoosingIntent, SELECT_PICTURE);
 			}
 		});
-		
+
 		//When a user clicks on the 'Save' button, changed settings would be saved.
 		saveBtn.setOnClickListener(new OnClickListener(){
 
@@ -65,7 +65,7 @@ public class SettingActivity extends Activity {
 				saveNickname();
 			}
 		});
-		
+
 		nickname.setOnKeyListener(new OnKeyListener() {
 			@Override
 			public boolean onKey(View arg0, int keyCode, KeyEvent event) {
@@ -80,29 +80,29 @@ public class SettingActivity extends Activity {
 			}
 		});
 	}
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
 		userDataSource.open();
 	}
-	
+
 	@Override
 	protected void onPause() {
 		super.onPause();
 		userDataSource.close();
 	}
-	
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) { 
-	    super.onActivityResult(requestCode, resultCode, imageReturnedIntent); 
+		super.onActivityResult(requestCode, resultCode, imageReturnedIntent); 
 
-	    switch(requestCode) { 
-	    case SELECT_PICTURE:
-	        if(resultCode == RESULT_OK){  
-	        	//Uri of the selected image by user
-	            Uri selectedImage = imageReturnedIntent.getData();
-	            InputStream imageStream=null;
+		switch(requestCode) { 
+		case SELECT_PICTURE:
+			if(resultCode == RESULT_OK){  
+				//Uri of the selected image by user
+				Uri selectedImage = imageReturnedIntent.getData();
+				InputStream imageStream=null;
 				try {
 					imageStream = getContentResolver().openInputStream(selectedImage);
 				} catch (FileNotFoundException e) {
@@ -110,24 +110,24 @@ public class SettingActivity extends Activity {
 					e.printStackTrace();
 				}
 				//Get bitmap format of the selected image
-	            Bitmap yourSelectedImage = BitmapFactory.decodeStream(imageStream);
-	            //Show the image in the ImageView
-	            image.setImageBitmap(yourSelectedImage);
-	        }
-	    }
+				Bitmap yourSelectedImage = BitmapFactory.decodeStream(imageStream);
+				//Show the image in the ImageView
+				image.setImageBitmap(yourSelectedImage);
+			}
+		}
 	}
-	
+
 	private void saveNickname() {
 		String newUsername = nickname.getText().toString();
 		Toast.makeText(getApplicationContext(),
 				"Your nickname is "+ newUsername,
 				Toast.LENGTH_SHORT).show();
-		
+
 		// Save the new comment to the database
 
 		User newUser = new UserImpl(newUsername, "not yet here");
 		newUser.setIsPhoneUser(true);
-		
+
 		List<User> allEntries = userDataSource.getAllEntries();
 		User oldUser = null;
 		for (User actUser : allEntries) {
@@ -137,24 +137,28 @@ public class SettingActivity extends Activity {
 				userDataSource.deleteUser(actUser);
 			}
 		}
-		
-		// reset db to have old messages with the nickname
+
+		// reset db to have old messages with the new nickname TODO: not working correctly
 		chatMessDataSource = new ChatMessagesDataSource(this);
 		chatMessDataSource.open();
 		List<ChatMessage> chatMessages = chatMessDataSource.getAllEntries();
 		for (ChatMessage chatMessage : chatMessages) 
 		{
 			chatMessDataSource.deleteChatMessage(chatMessage);
-			
+
 			if(chatMessage.getReceiverName().equals(oldUser.getUserName()))
 				chatMessage.setReceiverName(newUsername);
 			else if(chatMessage.getSenderName().equals(oldUser.getUserName()))
 				chatMessage.setSenderName(newUsername);
-			
+
 			chatMessDataSource.createEntry(chatMessage.getDBString());
+
+			// TODO also change in events
 		}
 		chatMessDataSource.close();
-		
+
 		userDataSource.createEntry(newUser.getDBString());
+
+		startActivity(new Intent(getApplicationContext(), PeopleActivity.class));
 	}
 }

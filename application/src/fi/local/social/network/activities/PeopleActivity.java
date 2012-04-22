@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import fi.local.social.network.R;
+import fi.local.social.network.db.EventImpl;
 import fi.local.social.network.db.User;
 import fi.local.social.network.db.UserDataSource;
 import fi.local.social.network.db.UserImpl;
@@ -22,7 +23,7 @@ public class PeopleActivity extends ListActivity {
 	
 	List<User> peopleNearby;
 	private UserDataSource userDatasource;
-	private String username;
+	public static String USERNAME = "";
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -46,11 +47,15 @@ public class PeopleActivity extends ListActivity {
 		for (User user : allEntries) {
 			if(user.isPhoneUser())
 			{
-				this.username = user.getUserName();
+				this.USERNAME = user.getUserName();
 				break;
 			}
 		}
 		userDatasource.close();
+		if("".equals(USERNAME))
+		{
+			startActivity(new Intent(getApplicationContext(), SettingActivity.class));
+		}
 	}
 	
 	@Override
@@ -62,18 +67,21 @@ public class PeopleActivity extends ListActivity {
 		for (User user : allEntries) {
 			if(user.isPhoneUser())
 			{
-				this.username = user.getUserName();
+				this.USERNAME = user.getUserName();
 				break;
 			}
 		}
 		userDatasource.close();
-		
+		if("".equals(USERNAME))
+		{
+			startActivity(new Intent(getApplicationContext(), SettingActivity.class));
+		}
 	}
 	
 	@Override
 	protected void onListItemClick(ListView l, View view, int position, long id) {
 		Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-		intent.putExtra("username", this.username);
+		intent.putExtra("username", this.USERNAME);
 		Object o = this.getListAdapter().getItem(position);
 	    String receiverName = o.toString();
 		intent.putExtra("receiver", receiverName.toString());
