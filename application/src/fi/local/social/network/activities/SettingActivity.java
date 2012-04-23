@@ -28,20 +28,21 @@ public class SettingActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.setting);
 		
-		selectPic=(Button)findViewById(R.id.chooseProfilePicBtn);
+		//selectPic=(Button)findViewById(R.id.chooseProfilePicBtn);
 		image=(ImageView)findViewById(R.id.imageView1);
 		saveBtn=(Button)findViewById(R.id.saveBtn);
 		nickname=(TextView)findViewById(R.id.etNickname);
-		//When a user clicks on the 'choose a image' button, the user is directed into the media folder to choose a image
+		/*
 		selectPic.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
 				//Launch an image choosing activity
-				Intent imageChoosingIntent = new Intent(Intent.ACTION_PICK,
-			               android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-				startActivityForResult(imageChoosingIntent, SELECT_PICTURE);
+				
 			}
 		});
+		*/
+		
+		
 		
 		//When a user clicks on the 'Save' button, changed settings would be saved.
 		saveBtn.setOnClickListener(new OnClickListener(){
@@ -55,6 +56,14 @@ public class SettingActivity extends Activity {
 			}
 		});
 	}
+	//When a user clicks on the 'choose a image' button, the user is directed into the media folder to choose a image
+	public void chooseProfilePic(View v)
+	{
+		Intent imageChoosingIntent = new Intent(Intent.ACTION_PICK,
+	               android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+		startActivityForResult(imageChoosingIntent, SELECT_PICTURE);
+	}
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) { 
 	    super.onActivityResult(requestCode, resultCode, imageReturnedIntent); 
