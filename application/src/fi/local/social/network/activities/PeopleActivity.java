@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -18,8 +19,9 @@ import fi.local.social.network.db.EventImpl;
 import fi.local.social.network.db.User;
 import fi.local.social.network.db.UserDataSource;
 import fi.local.social.network.db.UserImpl;
+import com.example.android.actionbarcompat.*;
 
-public class PeopleActivity extends ListActivity {
+public class PeopleActivity extends ActionBarActivity {
 	
 	List<User> peopleNearby;
 	private UserDataSource userDatasource;
@@ -28,6 +30,8 @@ public class PeopleActivity extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
+		
+		setContentView(R.layout.people);
 		
 		// TODO: get real people and their names
 		// add some mockup values
@@ -38,8 +42,22 @@ public class PeopleActivity extends ListActivity {
 		peopleNearby.add(new UserImpl("Jason Stathon","add uri for pic"));
 		peopleNearby.add(new UserImpl("Joe Hu", "add uri for pic"));
 
-		setListAdapter((ListAdapter) new ArrayAdapter<User>(this, R.layout.people_item, R.id.label, peopleNearby));
+		ArrayAdapter<User> adapter = new ArrayAdapter<User>(this, R.layout.people_item, R.id.label, peopleNearby);
 		
+		ListView listView = (ListView) findViewById(R.id.mylist);
+		listView.setAdapter((ListAdapter) adapter );
+		
+		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+				//intent.putExtra("username", this.USERNAME);
+				//Object o = listView.getItemAtPosition(position);
+			    String receiverName = view.toString();
+				intent.putExtra("receiver", receiverName.toString());
+				startActivity(intent);
+			}
+		});
 		
 		userDatasource = new UserDataSource(this);
 		userDatasource.open();
@@ -76,16 +94,6 @@ public class PeopleActivity extends ListActivity {
 		{
 			startActivity(new Intent(getApplicationContext(), SettingActivity.class));
 		}
-	}
-	
-	@Override
-	protected void onListItemClick(ListView l, View view, int position, long id) {
-		Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-		intent.putExtra("username", this.USERNAME);
-		Object o = this.getListAdapter().getItem(position);
-	    String receiverName = o.toString();
-		intent.putExtra("receiver", receiverName.toString());
-		startActivity(intent);
 	}
 	
 	@Override
