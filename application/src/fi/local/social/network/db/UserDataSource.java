@@ -27,7 +27,7 @@ public class UserDataSource implements DataSource {
 
 	@Override
 	public void close() {
-		dbHelper.close();
+	dbHelper.close();
 	}
 
 	@Override
