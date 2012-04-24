@@ -64,12 +64,27 @@ public class PeopleActivity extends ActionBarActivity {
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-				//intent.putExtra("username", this.USERNAME);
-				//Object o = listView.getItemAtPosition(position);
-			    String receiverName = view.toString();
-				intent.putExtra("receiver", receiverName.toString());
-				startActivity(intent);
+				
+				startActivityForResult( (new Intent(getApplicationContext(), DeviceListActivity.class)),
+						BluetoothChatService.REQUEST_CONNECT_DEVICE );
+				Message message = Message.obtain(null, BluetoothChatService.MSG_SEND_EVENT);
+//				Bundle b = new Bundle();
+//				b.putString("str1", buffer.toString());
+				//		message.setData(b);
+				try {
+					mService.send(message);
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+
+				// TODO
+//				Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+//				intent.putExtra("username", this.USERNAME);
+//				Object o = this.getListAdapter().getItem(position);
+//				String receiverName = o.toString();
+//				intent.putExtra("receiver", receiverName.toString());
+//				startActivity(intent);
+				
 			}
 		});
 		
@@ -129,30 +144,6 @@ public class PeopleActivity extends ActionBarActivity {
 		{
 			startActivity(new Intent(getApplicationContext(), SettingActivity.class));
 		}
-	}
-
-	@Override
-	protected void onListItemClick(ListView l, View view, int position, long id) {
-		startActivityForResult( (new Intent(getApplicationContext(), DeviceListActivity.class)),
-				BluetoothChatService.REQUEST_CONNECT_DEVICE );
-		Message message = Message.obtain(null, BluetoothChatService.MSG_SEND_EVENT);
-//		Bundle b = new Bundle();
-//		b.putString("str1", buffer.toString());
-		//		message.setData(b);
-		try {
-			mService.send(message);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-
-
-		// TODO
-//		Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-//		intent.putExtra("username", this.USERNAME);
-//		Object o = this.getListAdapter().getItem(position);
-//		String receiverName = o.toString();
-//		intent.putExtra("receiver", receiverName.toString());
-//		startActivity(intent);
 	}
 
 	@Override
