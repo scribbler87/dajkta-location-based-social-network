@@ -28,6 +28,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import fi.local.social.network.R;
+import fi.local.social.network.activities.DeviceListActivity;
 
 public class BTActivity extends Activity {
 
@@ -176,10 +177,10 @@ public class BTActivity extends Activity {
 		});
 
 		// Initialize the BluetoothChatService to perform bluetooth connections
-		mChatService = new BluetoothChatService(this, mHandler);
+//		mChatService = new BluetoothChatService(this, mHandler);
 
 		// Initialize the buffer for outgoing messages
-		mOutStringBuffer = new StringBuffer("");
+		mOutStringBuffer = new StringBuffer("");		// 
 	}
 
 	private TextView.OnEditorActionListener mWriteListener = new TextView.OnEditorActionListener() {
@@ -216,56 +217,57 @@ public class BTActivity extends Activity {
 			mChatService.stop();
 	}
 
-	private final Handler mHandler = new Handler() {
-		@Override
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-			case MESSAGE_STATE_CHANGE:
-				switch (msg.arg1) {
-				case BluetoothChatService.STATE_CONNECTED:
-					// mTitle.setText(R.string.title_connected_to);
-					// mTitle.append(mConnectedDeviceName);
-					mConversationArrayAdapter.clear();
-					break;
-				case BluetoothChatService.STATE_CONNECTING:
-					// mTitle.setText(R.string.title_connecting);
-					break;
-				case BluetoothChatService.STATE_LISTEN:
-				case BluetoothChatService.STATE_NONE:
-					// mTitle.setText(R.string.title_not_connected);
-					break;
-				}
-				break;
-			case MESSAGE_WRITE:
-				byte[] writeBuf = (byte[]) msg.obj;
-				// construct a string from the buffer
-				String writeMessage = new String(writeBuf);
-				Log.i("Handler MESSAGE_WRITE", writeMessage);
-				break;
-			case MESSAGE_READ:
-				byte[] readBuf = (byte[]) msg.obj;
-				// construct a string from the valid bytes in the buffer
-				String readMessage = new String(readBuf, 0, msg.arg1);
-				Log.i("Handler MESSAGE_READ", readMessage);
-				parseReceivedString(readMessage);
-				break;
-			case MESSAGE_DEVICE_NAME:
-				// save the connected device's name
-				mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
-				Toast.makeText(getApplicationContext(),
-						"Connected to " + mConnectedDeviceName,
-						Toast.LENGTH_SHORT).show();
-				break;
-			case MESSAGE_TOAST:
-				Toast.makeText(getApplicationContext(),
-						msg.getData().getString(TOAST), Toast.LENGTH_SHORT)
-						.show();
-				break;
-			}
-		}
-
-	};
-
+//	private final Handler mHandler = new Handler() {
+//		@Override
+//		public void handleMessage(Message msg) {
+//			switch (msg.what) {
+//			case MESSAGE_STATE_CHANGE:
+//				switch (msg.arg1) {
+//				case BluetoothChatService.STATE_CONNECTED:
+//					// mTitle.setText(R.string.title_connected_to);
+//					// mTitle.append(mConnectedDeviceName);
+//					mConversationArrayAdapter.clear();
+//					break;
+//				case BluetoothChatService.STATE_CONNECTING:
+//					// mTitle.setText(R.string.title_connecting);
+//					break;
+//				case BluetoothChatService.STATE_LISTEN:
+//				case BluetoothChatService.STATE_NONE:
+//					// mTitle.setText(R.string.title_not_connected);
+//					break;
+//				}
+//				break;
+//			case MESSAGE_WRITE:
+//				byte[] writeBuf = (byte[]) msg.obj;
+//				// construct a string from the buffer
+//				String writeMessage = new String(writeBuf);
+//				Log.i("Handler MESSAGE_WRITE", writeMessage);
+//				break;
+//			case MESSAGE_READ:
+//				byte[] readBuf = (byte[]) msg.obj;
+//				// construct a string from the valid bytes in the buffer
+//				String readMessage = new String(readBuf, 0, msg.arg1);
+//				Log.i("Handler MESSAGE_READ", readMessage);
+//				parseReceivedString(readMessage);
+//				break;
+//			case MESSAGE_DEVICE_NAME:
+//				// save the connected device's name
+//				mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
+//				Toast.makeText(getApplicationContext(),
+//						"Connected to " + mConnectedDeviceName,
+//						Toast.LENGTH_SHORT).show();
+//				break;
+//			case MESSAGE_TOAST:
+//				Toast.makeText(getApplicationContext(),
+//						msg.getData().getString(TOAST), Toast.LENGTH_SHORT)
+//						.show();
+//				break;
+//			}REQUEST_ENABLE_BT
+//		}
+//
+//	};
+	
+	// callback function from startActivityResult
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
 		case REQUEST_CONNECT_DEVICE:
@@ -334,28 +336,13 @@ public class BTActivity extends Activity {
 					.split(PHASE_CONTENT_SEPARATOR);
 			Log.i("phasecontent[0]", phaseAndContent[0]);
 			if (phaseAndContent[0].equals(UPLOAD)) {
-				// Map<String, String> newEvents = new HashMap<String,
-				// String>();
-				//
-				// String[] pairs = phaseAndContent[1].split("=");
-				// for (String pair : pairs) {
-				// String[] keyAndValue = pair.split("#");
-				// newEvents.put(keyAndValue[0], keyAndValue[1]);
-				// }
+
 				Map<String, String> newEvents = parseNewEvents(phaseAndContent);
 				receivedMessages(newEvents);
 
 			} else if ((phaseAndContent[0].equals(REQUEST))
 					|| (phaseAndContent[0].equals(ADVERTISE))) {
 				Set<String> receivedIds = parseReceivedIds(phaseAndContent);
-				// Log.i("phaseContent[1]", phaseAndContent[1]);
-				// String[] ids = phaseAndContent[1].split("=");
-				//
-				// Set<String> receivedIds = new HashSet<String>();
-				// for (String s : ids) {
-				// Log.i("array ids", s);
-				// receivedIds.add(s);
-				// }
 
 				Log.i("receivedIds", receivedIds.toString());
 				receivedIds(receivedIds, phaseAndContent[0]);
