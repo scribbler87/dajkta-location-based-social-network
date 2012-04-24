@@ -5,7 +5,7 @@
         android:id="@+id/event_list"
         android:icon="@drawable/notifications"
         android:title="Events"
-        android:showAsAction="always|withText" />
+        android:showAsAction="always" />
 
     <item
         android:id="@+id/new_event"
