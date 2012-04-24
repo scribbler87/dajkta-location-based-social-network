@@ -149,7 +149,7 @@ public class PeopleActivity extends ActionBarActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu){
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.layout.menu, menu);
+		inflater.inflate(R.menu.menu, menu);
 		return true;
 	}
 
