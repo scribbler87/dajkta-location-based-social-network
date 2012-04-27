@@ -9,7 +9,7 @@ public interface DataSource {
 	public void open();
 	public void close();
 	public Object createEntry(String entry);
-	public List getAllEntries();
+	public List<?> getAllEntries();
 	
 	
 }

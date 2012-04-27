@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 
-public class BTService extends Service {
+public class BTService extends Service implements BTServiceInterface {
 
 	private final IBinder mBinder = new BTServiceBinder();
 
