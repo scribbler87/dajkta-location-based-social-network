@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fi.local.social.network.btservice;
+package fi.local.social.network.activities;
 
 import java.util.Set;
 
@@ -187,6 +187,7 @@ public class DeviceListActivity extends Activity {
                 // If it's already paired, skip it, because it's been listed already
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
                     mNewDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+                    
                 }
             // When discovery is finished, change the Activity title
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
