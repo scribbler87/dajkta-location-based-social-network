@@ -468,7 +468,7 @@ public class BTService extends Service{
 
 					// Send the obtained bytes to the UI Activity
 					//mHandler.obtainMessage(BTActivity.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
-					Message message = Message.obtain(null, BluetoothChatService.MSG_REC_EVENT);
+					Message message = Message.obtain(null, BTService.MSG_REC_EVENT);
 					Bundle b = new Bundle();
 					b.putString("str1", buffer.toString());
 					message.setData(b);
