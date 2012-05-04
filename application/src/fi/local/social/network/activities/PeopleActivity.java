@@ -104,7 +104,8 @@ public class PeopleActivity extends ServiceHelper {
 		}
 
 		// ********************bind to the bluetooth service
-		doBindService();
+		
+		doBindService(PeopleActivity.this);
 		sendMessageToService("startdiscovery", "", BTService.MSG_START_DISCOVERY);
 	}
 

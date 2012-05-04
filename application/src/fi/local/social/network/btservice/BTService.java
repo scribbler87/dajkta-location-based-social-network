@@ -60,6 +60,7 @@ public class BTService extends Service{
 	private AcceptThread mAcceptThread;
 	private ConnectThread mConnectThread;
 	private ConnectedThread mConnectedThread;
+	private static boolean isRunning;
 	
 	private static final boolean D = true;
 	
@@ -90,8 +91,10 @@ public class BTService extends Service{
 			case MSG_START_DISCOVERY:
 				doDiscovery();
 			case MSG_START_CONNCETION:
+				System.err.println("startttttttttttttttttttttttttt");
 				Bundle data = msg.getData();
 				String address = data.getString("address");
+				System.err.println("starting connection ? ");
 				BluetoothDevice b = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address);
 				connect(b);
 			default:
@@ -111,7 +114,7 @@ public class BTService extends Service{
 	@Override
 	public void onCreate() {
 		super.onCreate();
-
+		System.err.println("RUNNNNNNNNNNNNNNIIIIIIIIIIIINNNNNNNNNNNNNNNNNNGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG");
 		// is the bluetooth turned on?
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		// turn bt on if it not turned on
@@ -129,17 +132,28 @@ public class BTService extends Service{
 		intFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
 
 
+		
+		
+		
 		// Register for broadcasts when a device is discovered
 		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
 		this.registerReceiver(broadCastReceiver, intFilter);
 		start();
+		
+		isRunning = true;
 	}
 
 	
+	public static boolean isRunning() {
+		return isRunning;
+	}
+
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		mBluetoothAdapter.cancelDiscovery();
+		isRunning = false;
 	}
 
 	/**
@@ -324,7 +338,9 @@ public class BTService extends Service{
 			try {
 				// This is a blocking call and will only return on a
 				// successful connection or an exception
+				System.err.println("Start to connect");
 				mmSocket.connect();
+				System.err.println("finnished connect");
 			} catch (IOException e) {
 				connectionFailed();
 				// Close the socket
@@ -344,6 +360,7 @@ public class BTService extends Service{
 			}
 
 			// Start the connected thread
+			System.err.println("Start connected thread");
 			connected(mmSocket, mmDevice);
 		}
 

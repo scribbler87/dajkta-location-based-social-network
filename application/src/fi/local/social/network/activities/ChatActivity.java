@@ -104,11 +104,9 @@ public class ChatActivity extends ServiceHelper {
 		});
 
 
-		doBindService();
+		doBindService(ChatActivity.this);
 		
 		sendMessageToService("startConnenction", address, BTService.MSG_START_CONNCETION);
-		
-		
 	}
 
 	@Override
