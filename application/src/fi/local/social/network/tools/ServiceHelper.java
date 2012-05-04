@@ -31,7 +31,8 @@ public abstract class ServiceHelper extends ActionBarActivity{
 
 		public void onServiceConnected(ComponentName className, IBinder service) {
 			System.err.println("onServiceConnected");
-			mService = new Messenger(service);
+			if(service != null)
+				mService = new Messenger(service);
 			try {
 				Log.i(TAG , service.getInterfaceDescriptor());
 			} catch (RemoteException e) {
@@ -41,6 +42,7 @@ public abstract class ServiceHelper extends ActionBarActivity{
 			Log.i(TAG ,"Attached.");
 			sendMessageToService("msg_register", "", BTService.MSG_REGISTER_CLIENT);
 			// In this case the service has crashed before we could even do anything with it
+			
 		}
 
 
@@ -119,15 +121,23 @@ public abstract class ServiceHelper extends ActionBarActivity{
 			Log.i(TAG ,"Unbinding.");
 		}
 	}
-
-	private boolean isMyServiceRunning() {
-		ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-		for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-			if ("fi.local.social.network.btservice.BTService".equals(service.service.getClassName())) {
-				return true;
+	
+	protected void doUnRegister() {
+		if (mIsBound) {
+			// If we have received the service, and hence registered with it, then now is the time to unregister.
+			if (mService != null) {
+				try {
+					Message msg = Message.obtain(null, BTService.MSG_UNREGISTER_CLIENT);
+					mService.send(msg);
+				} catch (RemoteException e) {
+					// There is nothing special we need to do if the service has crashed.
+				}
 			}
+			// Detach our existing connection.
+			mIsBound = false;
+			Log.i(TAG ,"Unbinding.");
 		}
-		return false;
 	}
+
 
 }

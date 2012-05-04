@@ -36,6 +36,15 @@ public class BroadCastReceiverDevices extends BroadcastReceiver{
 				// TODO later start here a different service or thread which gets the userinformation
 				// such as username and uri to the pic
 			}
+			else
+			{
+				String address = device.getAddress();
+				System.err.println((device.getName() + "\n" + address));
+				devicesAddr.add(address);
+				
+				// send the founded devices back to gui
+				BTService.sendAddrToPeopleActivity(address);
+			}
 			// When discovery is finished, change the Activity title
 		} else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
 			if (devicesAddr.size() == 0) {

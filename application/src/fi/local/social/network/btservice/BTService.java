@@ -35,6 +35,8 @@ public class BTService extends Service{
 	public static final int MSG_START_DISCOVERY = 6;
 	public static final int MSG_REC_MESSAGE = 7; 
 	public static final int MSG_START_CONNCETION = 8;
+	public static final int MSG_REGISTERED_CLIENT = 9;
+	public static final int MSG_PING = 10;
 
 	private BluetoothAdapter mBluetoothAdapter = null;
 
@@ -46,10 +48,10 @@ public class BTService extends Service{
 	final Messenger mMessenger = new Messenger(new IncomingHandler());
 	/** Keeps track of all current registered clients. */
 	public static ArrayList<Messenger> mClients = new ArrayList<Messenger>();
-	
+
 	private String TAG = "btservice";
 	private IntentFilter intFilter;
-	
+
 	private static final String NAME = "MobileNeighbour";
 
 	// TODO: Change this
@@ -61,9 +63,9 @@ public class BTService extends Service{
 	private ConnectThread mConnectThread;
 	private ConnectedThread mConnectedThread;
 	private static boolean isRunning;
-	
+
 	private static final boolean D = true;
-	
+
 	// Constants that indicate the current connection state
 	public static final int STATE_NONE = 0;       // we're doing nothing
 	public static final int STATE_LISTEN = 1;     // now listening for incoming connections
@@ -81,6 +83,7 @@ public class BTService extends Service{
 			switch (msg.what) {
 			case MSG_REGISTER_CLIENT:
 				mClients.add(msg.replyTo);
+				sendRegisteredClient();
 				break;
 			case MSG_UNREGISTER_CLIENT:
 				mClients.remove(msg.replyTo);
@@ -90,21 +93,23 @@ public class BTService extends Service{
 				break;
 			case MSG_START_DISCOVERY:
 				doDiscovery();
+				break;
 			case MSG_START_CONNCETION:
 				System.err.println("startttttttttttttttttttttttttt");
 				Bundle data = msg.getData();
 				String address = data.getString("address");
-				System.err.println("starting connection ? ");
+				System.err.println("starting connection ? " + address);
 				BluetoothDevice b = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address);
 				connect(b);
+				break;
 			default:
 				super.handleMessage(msg);
 			}
 		}
 	}
-	
-	
-	
+
+
+
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -114,7 +119,7 @@ public class BTService extends Service{
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		System.err.println("RUNNNNNNNNNNNNNNIIIIIIIIIIIINNNNNNNNNNNNNNNNNNGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG");
+
 		// is the bluetooth turned on?
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		// turn bt on if it not turned on
@@ -123,7 +128,7 @@ public class BTService extends Service{
 
 
 		mBluetoothAdapter.startDiscovery();
-		
+
 
 		// define filter for broadcast
 		intFilter = new IntentFilter();
@@ -132,18 +137,18 @@ public class BTService extends Service{
 		intFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
 
 
-		
-		
-		
+
+
+
 		// Register for broadcasts when a device is discovered
 		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
 		this.registerReceiver(broadCastReceiver, intFilter);
 		start();
-		
+
 		isRunning = true;
 	}
 
-	
+
 	public static boolean isRunning() {
 		return isRunning;
 	}
@@ -175,15 +180,49 @@ public class BTService extends Service{
 
 	// search for devices binded and not binded
 	private static final BroadcastReceiver broadCastReceiver = new BroadCastReceiverDevices();
+
+	// send the founded devices to the peopleactivity
+	public static void sendRegisteredClient() {
+		System.err.println("new registered client");
+		for(int i = 0; i < mClients.size() ; i++)
+		{
+			Messenger client = mClients.get(i);
+
+			Message msg = Message.obtain(null, MSG_REGISTERED_CLIENT);
+			try {
+				client.send(msg);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
 	
-	
+	// send the founded devices to the peopleactivity
+	public static void sendPing() {
+		System.err.println("dadsghj");
+		for(int i = 0; i < mClients.size() ; i++)
+		{
+			Messenger client = mClients.get(i);
+
+			Message msg = Message.obtain(null, MSG_PING);
+			try {
+				client.send(msg);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+
 	// send the founded devices to the peopleactivity
 	public static void sendAddrToPeopleActivity(String addr) {
 		System.err.println("addres: " + addr);
 		for(int i = 0; i < mClients.size() ; i++)
 		{
 			Messenger client = mClients.get(i);
-			
+
 			Bundle b = new Bundle();
 			b.putString("address", addr);
 			Message msg = Message.obtain(null, MSG_NEW_ADDR);
@@ -196,10 +235,10 @@ public class BTService extends Service{
 			}
 		}
 
-    }
-	
+	}
+
 	// Cool stuff
-	
+
 	public synchronized void start() {
 		if (D) Log.d(TAG, "start");
 
@@ -216,15 +255,15 @@ public class BTService extends Service{
 		}
 		setState(STATE_LISTEN);
 	}
-	
-	
+
+
 	private void connectionLost() {
 		setState(STATE_LISTEN);
 
 		// Send a failure message back to the Activity
 		// TODO send to activity
 	}
-	
+
 	private synchronized void setState(int state) {
 		if (D) Log.d(TAG, "setState() " + mState + " -> " + state);
 		mState = state;
@@ -232,7 +271,7 @@ public class BTService extends Service{
 		// Give the new state to the Handler so the UI Activity can update
 		// TODO send to activity
 	}
-	
+
 	private void connectionFailed() {
 		setState(STATE_LISTEN);
 
@@ -244,7 +283,7 @@ public class BTService extends Service{
 	 * Indicate that the connection was lost and notify the UI Activity.
 	 */
 
-	
+
 	public synchronized void connected(BluetoothSocket socket, BluetoothDevice device) {
 		if (D) Log.d(TAG, "connected");
 
@@ -266,7 +305,7 @@ public class BTService extends Service{
 
 		setState(STATE_CONNECTED);
 	}
-	
+
 	public synchronized void connect(BluetoothDevice device) {
 		if (D) Log.d(TAG, "connect to: " + device);
 
@@ -283,7 +322,7 @@ public class BTService extends Service{
 		mConnectThread.start();
 		setState(STATE_CONNECTING);
 	}
-	
+
 	public synchronized void stop() {
 		if (D) Log.d(TAG, "stop");
 		if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
@@ -308,7 +347,7 @@ public class BTService extends Service{
 		// Perform the write unsynchronized
 		r.write(out);
 	}
-	
+
 	private class ConnectThread extends Thread {
 		private final BluetoothSocket mmSocket;
 		private final BluetoothDevice mmDevice;
@@ -339,9 +378,13 @@ public class BTService extends Service{
 				// This is a blocking call and will only return on a
 				// successful connection or an exception
 				System.err.println("Start to connect");
+				//System.err.println(mmSocket.isConnected());
 				mmSocket.connect();
 				System.err.println("finnished connect");
+				write("Hello World".getBytes());
+				sendPing();
 			} catch (IOException e) {
+				System.err.println("Fuuu");
 				connectionFailed();
 				// Close the socket
 				try {
@@ -372,7 +415,7 @@ public class BTService extends Service{
 			}
 		}
 	}
-	
+
 	/**
 	 * This thread runs while listening for incoming connections. It behaves
 	 * like a server-side client. It runs until a connection is accepted
@@ -444,7 +487,7 @@ public class BTService extends Service{
 			}
 		}
 	}
-	
+
 	/**
 	 * This thread runs during a connection with a remote device.
 	 * It handles all incoming and outgoing transmissions.
@@ -515,7 +558,7 @@ public class BTService extends Service{
 				Log.e(TAG, "Exception during write", e);
 			}
 		}
-		
+
 
 		public void cancel() {
 			try {

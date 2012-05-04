@@ -46,7 +46,7 @@ public class ChatActivity extends ServiceHelper {
 	private String userName;
 	private String receiverName;
 	//final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
-	private String address;
+	public String address;
 
 
 	@Override
@@ -65,6 +65,7 @@ public class ChatActivity extends ServiceHelper {
 		userName = (String) extras.get("username");
 		receiverName = extras.get("receiver").toString();
 		address = extras.get("address").toString();
+		System.err.println("addreasdasdajklshdklaskldasklöd: " + address);
 
 
 		chatMessageDataSource = new ChatMessagesDataSource(this);
@@ -106,7 +107,7 @@ public class ChatActivity extends ServiceHelper {
 
 		doBindService(ChatActivity.this);
 		
-		sendMessageToService("startConnenction", address, BTService.MSG_START_CONNCETION);
+	
 	}
 
 	@Override
@@ -189,7 +190,7 @@ public class ChatActivity extends ServiceHelper {
 		try {
 			System.err.println("stop service");
 			//	stopService(new Intent(ChatActivity.this, BTService.class));
-			doUnbindService();
+		//	doUnbindService();
 		} catch (Throwable t) {
 			Log.e("MainActivity", "Failed to unbind from the service", t);
 		}
@@ -211,6 +212,9 @@ public class ChatActivity extends ServiceHelper {
 				// receive a message from the bluetooth service
 				String str1 = msg.getData().getString("chat_message");
 				Toast.makeText(getApplicationContext(), str1, Toast.LENGTH_SHORT).show();
+				break;
+			case BTService.MSG_REGISTERED_CLIENT:
+				sendMessageToService("address", address, BTService.MSG_START_CONNCETION);
 				break;
 
 			default:

@@ -76,7 +76,9 @@ public class PeopleActivity extends ServiceHelper {
 				Bundle b = new Bundle();
 				b.putString("username", USERNAME);
 				b.putString("receiver", view.toString());// TODO check if this works
-				b.putString("address", view.toString()); // TODO how to get the adress from the according user??
+				String s = view.toString();
+				System.err.println("viewtostring " + s);
+				b.putString("address", peopleNearby.get(position).getAddress()); // TODO how to get the adress from the according user??
 				intent.putExtras(b);
 				startActivity(intent);
 
@@ -104,9 +106,9 @@ public class PeopleActivity extends ServiceHelper {
 		}
 
 		// ********************bind to the bluetooth service
-		
+
 		doBindService(PeopleActivity.this);
-		sendMessageToService("startdiscovery", "", BTService.MSG_START_DISCOVERY);
+		
 	}
 
 	@Override
@@ -114,12 +116,18 @@ public class PeopleActivity extends ServiceHelper {
 		super.onDestroy();
 		try {
 			System.err.println("stop service");
-			doUnbindService();
-			stopService(new Intent(PeopleActivity.this, BTService.class));
+			//doUnbindService();
+			//	stopService(new Intent(PeopleActivity.this, BTService.class));
 		} catch (Throwable t) {
 			Log.e("MainActivity", "Failed to unbind from the service", t);
 		}
 	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+	//	doUnRegister();
+	}	
 
 
 	@Override
@@ -140,6 +148,7 @@ public class PeopleActivity extends ServiceHelper {
 		{
 			startActivity(new Intent(getApplicationContext(), SettingActivity.class));
 		}
+		doBindService(PeopleActivity.this);
 	}
 
 	@Override
@@ -196,7 +205,10 @@ public class PeopleActivity extends ServiceHelper {
 				adapter.notifyDataSetChanged();
 				Toast.makeText(getApplicationContext(), address, Toast.LENGTH_SHORT).show();
 				break;
-
+			case BTService.MSG_REGISTERED_CLIENT:
+				System.err.println("startdiscovery");
+				sendMessageToService("startDiscovery", "", BTService.MSG_START_DISCOVERY);
+				break;
 			default:
 				super.handleMessage(msg);
 			}
