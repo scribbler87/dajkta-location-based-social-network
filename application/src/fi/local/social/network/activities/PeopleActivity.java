@@ -28,6 +28,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import fi.local.social.network.R;
+import fi.local.social.network.btservice.BTService;
 import fi.local.social.network.btservice.BluetoothChatService;
 import fi.local.social.network.db.EventImpl;
 import fi.local.social.network.db.User;
@@ -64,30 +65,19 @@ public class PeopleActivity extends ActionBarActivity {
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				
-				startActivityForResult( (new Intent(getApplicationContext(), DeviceListActivity.class)),
-						BluetoothChatService.REQUEST_CONNECT_DEVICE );
-				Message message = Message.obtain(null, BluetoothChatService.MSG_SEND_EVENT);
-//				Bundle b = new Bundle();
-//				b.putString("str1", buffer.toString());
-				//		message.setData(b);
-				try {
-					mService.send(message);
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				}
-
-				// TODO
-//				Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-//				intent.putExtra("username", this.USERNAME);
-//				Object o = this.getListAdapter().getItem(position);
-//				String receiverName = o.toString();
-//				intent.putExtra("receiver", receiverName.toString());
-//				startActivity(intent);
+				Toast.makeText(getApplicationContext(), "kjhkj", Toast.LENGTH_SHORT).show();
+				Intent intent = new Intent(getApplicationContext() , ChatActivity.class);
+				Bundle b = new Bundle();
+				b.putString("username", USERNAME);
+				b.putString("receiver", view.toString());// TODO check if this works
+				intent.putExtras(b);
+				startActivity(intent);
 				
 			}
 		});
 		
+		
+		// ***********check if we have a username, if not lets create one********************
 		userDatasource = new UserDataSource(this);
 		userDatasource.open();
 		List<User> allEntries = userDatasource.getAllEntries();
@@ -104,10 +94,10 @@ public class PeopleActivity extends ActionBarActivity {
 			startActivity(new Intent(getApplicationContext(), SettingActivity.class));
 		}
 		
-		ComponentName startService = startService(new Intent(PeopleActivity.this, BluetoothChatService.class));
+		// ********************bind to the bluetooth service
+		ComponentName startService = startService(new Intent(PeopleActivity.this, BTService.class));
 		if(startService != null)
 		{
-			
 			doBindService();
 		}
 		else
@@ -118,6 +108,7 @@ public class PeopleActivity extends ActionBarActivity {
 	protected void onDestroy() {
 		super.onDestroy();
 		try {
+			System.err.println("stop service");
 			stopService(new Intent(PeopleActivity.this, BluetoothChatService.class));
 			doUnbindService();
 		} catch (Throwable t) {
@@ -168,9 +159,6 @@ public class PeopleActivity extends ActionBarActivity {
 		case R.id.new_event:
 			startActivity(new Intent(getApplicationContext(), NewEventActivity.class));
 			return true;
-		case R.id.device_list:
-			startActivity(new Intent(getApplicationContext(), DeviceListActivity.class));
-			return true;
 		default:
 			break;
 		}
@@ -199,6 +187,9 @@ public class PeopleActivity extends ActionBarActivity {
 				// In this case the service has crashed before we could even do anything with it
 			}
 		}
+		
+		
+		// *********** can be used to send a message to another device
 		public void sendMsg(Message m)
 		{
 			try {
@@ -216,7 +207,7 @@ public class PeopleActivity extends ActionBarActivity {
 	};
 
 	void doBindService() {
-		bindService(new Intent(this, BluetoothChatService.class), mConnection, Context.BIND_AUTO_CREATE);
+		bindService(new Intent(this, BTService.class), mConnection, Context.BIND_AUTO_CREATE);
 		mIsBound = true;
 		Log.i(TAG ,"Binding.");
 	}
@@ -225,7 +216,7 @@ public class PeopleActivity extends ActionBarActivity {
 			// If we have received the service, and hence registered with it, then now is the time to unregister.
 			if (mService != null) {
 				try {
-					Message msg = Message.obtain(null, BluetoothChatService.MSG_UNREGISTER_CLIENT);
+					Message msg = Message.obtain(null, BTService.MSG_UNREGISTER_CLIENT);
 					mService.send(msg);
 				} catch (RemoteException e) {
 					// There is nothing special we need to do if the service has crashed.
@@ -242,12 +233,9 @@ public class PeopleActivity extends ActionBarActivity {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-//            case BluetoothChatService.MSG_SET_INT_VALUE:
-//                //textIntValue.setText("Int Message: " + msg.arg1);
-//                break;
             case BluetoothChatService.MSG_REC_EVENT:
-                String str1 = msg.getData().getString("str1");
-//                textStrValue.setText("Str Message: " + str1);
+            	// receive a message from the bluetooth service
+                String str1 = msg.getData().getString("chat");
                 Toast.makeText(getApplicationContext(), str1, Toast.LENGTH_SHORT).show();
                 break;
             default:
@@ -255,32 +243,5 @@ public class PeopleActivity extends ActionBarActivity {
             }
         }
     }
-    
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		switch (requestCode) {
-		case BluetoothChatService.REQUEST_CONNECT_DEVICE:
-			// When DeviceListActivity returns with a device to connect
-			if (resultCode == Activity.RESULT_OK) {
-				// Get the device MAC address
-				String address = data.getExtras().getString(
-						DeviceListActivity.EXTRA_DEVICE_ADDRESS);
-//				// Get the BLuetoothDevice object
-//				BluetoothDevice device = mBluetoothAdapter
-//						.getRemoteDevice(address);
-//				// Attempt to connect to the device
-//				
-//				mChatService.connect(device);
-				Message msg2 = Message.obtain(null, BluetoothChatService.MSG_DEVICE_ADDRESS);
-				Bundle b = new Bundle();
-				b.putString("address", address);
-				try {
-					mService.send(msg2);
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				}
-			}
-			break;
-
-		}
-	}
+   
 }

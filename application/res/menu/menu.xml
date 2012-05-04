@@ -17,8 +17,5 @@
         android:icon="@drawable/settings"
         android:title="Settings"/>
 
-    <item
-        android:id="@+id/deviceList"
-        android:title="Device Lists"/>
 
 </menu>
