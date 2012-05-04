@@ -11,9 +11,11 @@ import fi.local.social.network.db.ChatMessageImpl;
 import fi.local.social.network.db.ChatMessagesDataSource;
 import fi.local.social.network.db.User;
 import fi.local.social.network.db.UserImpl;
+import fi.local.social.network.tools.ServiceHelper;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -33,7 +35,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class ChatActivity extends Activity {
+
+public class ChatActivity extends ServiceHelper {
 
 	private EditText edittext;
 	private List<ChatMessage> chatList;
@@ -42,13 +45,16 @@ public class ChatActivity extends Activity {
 	private ListView chatHistoryListView;
 	private String userName;
 	private String receiverName;
-	final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
+	//final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
+	private String address;
 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.chat);
+
+		this.mMessenger =  new Messenger(new IncomingHandler());
 
 		Button sendButton = (Button) findViewById(R.id.buttonChatConfirm);
 		edittext = (EditText) findViewById(R.id.edit_text_out);
@@ -58,6 +64,7 @@ public class ChatActivity extends Activity {
 		Bundle extras = getIntent().getExtras();
 		userName = (String) extras.get("username");
 		receiverName = extras.get("receiver").toString();
+		address = extras.get("address").toString();
 
 
 		chatMessageDataSource = new ChatMessagesDataSource(this);
@@ -95,6 +102,13 @@ public class ChatActivity extends Activity {
 				return false;
 			}
 		});
+
+
+		doBindService();
+		
+		sendMessageToService("startConnenction", address, BTService.MSG_START_CONNCETION);
+		
+		
 	}
 
 	@Override
@@ -148,10 +162,8 @@ public class ChatActivity extends Activity {
 			clearEditField();
 
 			// send the message to the bluetooth
-			Intent intent = new Intent();
-			intent.putExtra("chatmessage", message);
-
-			sendBroadcast(intent);
+			
+			
 		}
 	}
 
@@ -171,10 +183,18 @@ public class ChatActivity extends Activity {
 	protected void onDestroy() {
 		super.onDestroy();
 		cleanUpResources();
+		stopService(new Intent(ChatActivity.this, BTService.class));
 	}
 
 	private void cleanUpResources() {
 		chatMessageDataSource.close();
+		try {
+			System.err.println("stop service");
+			//	stopService(new Intent(ChatActivity.this, BTService.class));
+			doUnbindService();
+		} catch (Throwable t) {
+			Log.e("MainActivity", "Failed to unbind from the service", t);
+		}
 	}
 
 	public ArrayAdapter<ChatMessage> getAdapter() {
@@ -184,22 +204,21 @@ public class ChatActivity extends Activity {
 	public void setAdapter(ArrayAdapter<ChatMessage> adapter) {
 		this.adapter = adapter;
 	}
-	
+
 	class IncomingHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-            case BTService.MSG_REC_MESSAGE:
-            	// receive a message from the bluetooth service
-                String str1 = msg.getData().getString("chat_message");
-                Toast.makeText(getApplicationContext(), str1, Toast.LENGTH_SHORT).show();
-                break;
-                
-                
-            default:
-                super.handleMessage(msg);
-            }
-        }
-    }
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case BTService.MSG_REC_MESSAGE:
+				// receive a message from the bluetooth service
+				String str1 = msg.getData().getString("chat_message");
+				Toast.makeText(getApplicationContext(), str1, Toast.LENGTH_SHORT).show();
+				break;
+
+			default:
+				super.handleMessage(msg);
+			}
+		}
+	}
 
 }

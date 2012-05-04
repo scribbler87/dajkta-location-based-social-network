@@ -207,7 +207,6 @@ public class BluetoothChatService extends Service
 //		mAdapter = BluetoothAdapter.getDefaultAdapter();
 		mState = STATE_NONE;
 		//mHandler = handler;
-
 	}
 
 
