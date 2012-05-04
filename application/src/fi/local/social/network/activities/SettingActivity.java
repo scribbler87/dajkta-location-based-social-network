@@ -131,8 +131,8 @@ public class SettingActivity extends Activity {
 				Toast.LENGTH_SHORT).show();
 
 		// Save the new comment to the database
-
-		User newUser = new UserImpl(newUsername, "not yet here");
+		// TODO add own device address
+		User newUser = new UserImpl(newUsername, "not yet here", "dummy adrress");
 		newUser.setIsPhoneUser(true);
 
 		List<User> allEntries = userDataSource.getAllEntries();

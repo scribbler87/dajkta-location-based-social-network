@@ -11,6 +11,9 @@ public interface User {
 	public String getProfilePicURI();
 	public void setProfilePicURI(String uri);
 	
+	public String getAddress();
+	public void setAddress(String address);
+	
 	public boolean isPhoneUser();
 	public void setIsPhoneUser(boolean b);
 	

@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fi.local.social.network.R;
+import fi.local.social.network.activities.PeopleActivity.IncomingHandler;
+import fi.local.social.network.btservice.BTService;
 import fi.local.social.network.db.ChatMessage;
 import fi.local.social.network.db.ChatMessageImpl;
 import fi.local.social.network.db.ChatMessagesDataSource;
+import fi.local.social.network.db.User;
+import fi.local.social.network.db.UserImpl;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -15,6 +19,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -24,17 +31,19 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class ChatActivity extends Activity {
 
 	private EditText edittext;
 	private List<ChatMessage> chatList;
-	private BroadcastReceiver chatMessageReceiver;
 	private ChatMessagesDataSource chatMessageDataSource;
 	private ArrayAdapter<ChatMessage> adapter;
 	private ListView chatHistoryListView;
 	private String userName;
 	private String receiverName;
+	final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,23 +59,13 @@ public class ChatActivity extends Activity {
 		userName = (String) extras.get("username");
 		receiverName = extras.get("receiver").toString();
 
-		chatMessageReceiver = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context arg0, Intent arg1) {
-				String chatMessage = arg1.getAction();
-				// ChatMessage cm = new ChatMessageImpl();
-				Log.i("ChatActivity", chatMessage);
-			}
-		};
-
-		registerReceiver(chatMessageReceiver, createChatMessageFilter());
 
 		chatMessageDataSource = new ChatMessagesDataSource(this);
 		chatMessageDataSource.open();
 
 		filterMyMessages(); // we also receive others messages
 
-		ArrayAdapter<ChatMessage> adapter = new ArrayAdapter<ChatMessage>(this,
+		adapter = new ArrayAdapter<ChatMessage>(this,
 				android.R.layout.simple_list_item_1, chatList);
 
 		chatHistoryListView = (ListView) findViewById(R.id.listChat);
@@ -101,7 +100,6 @@ public class ChatActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		registerReceiver(chatMessageReceiver, createChatMessageFilter());
 		Bundle extras = getIntent().getExtras();
 		userName = (String) extras.get("username");
 		receiverName = extras.get("receiver").toString();
@@ -146,6 +144,7 @@ public class ChatActivity extends Activity {
 					.createEntry(tmpMessage.getDBString());
 
 			addChatMessage(chatMessage);
+			adapter.notifyDataSetChanged();
 			clearEditField();
 
 			// send the message to the bluetooth
@@ -175,7 +174,6 @@ public class ChatActivity extends Activity {
 	}
 
 	private void cleanUpResources() {
-		unregisterReceiver(chatMessageReceiver);
 		chatMessageDataSource.close();
 	}
 
@@ -186,5 +184,22 @@ public class ChatActivity extends Activity {
 	public void setAdapter(ArrayAdapter<ChatMessage> adapter) {
 		this.adapter = adapter;
 	}
+	
+	class IncomingHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+            case BTService.MSG_REC_MESSAGE:
+            	// receive a message from the bluetooth service
+                String str1 = msg.getData().getString("chat_message");
+                Toast.makeText(getApplicationContext(), str1, Toast.LENGTH_SHORT).show();
+                break;
+                
+                
+            default:
+                super.handleMessage(msg);
+            }
+        }
+    }
 
 }

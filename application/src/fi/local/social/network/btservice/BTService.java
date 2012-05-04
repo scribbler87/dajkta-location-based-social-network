@@ -2,6 +2,8 @@ package fi.local.social.network.btservice;
 
 import java.util.ArrayList;
 
+import fi.local.social.network.activities.PeopleActivity;
+
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -9,10 +11,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 
@@ -23,6 +27,9 @@ public class BTService extends Service{
 	public static final int MSG_UNREGISTER_CLIENT = 2;
 	public static final int MSG_SEND_EVENT = 3;
 	public static final int MSG_REC_EVENT = 4;
+	public static final int MSG_NEW_ADDR = 5;
+	public static final int MSG_START_DISCOVERY = 6;
+	public static final int MSG_REC_MESSAGE = 7; 
 
 	private BluetoothAdapter mBluetoothAdapter = null;
 
@@ -33,9 +40,11 @@ public class BTService extends Service{
 	 */
 	final Messenger mMessenger = new Messenger(new IncomingHandler());
 	/** Keeps track of all current registered clients. */
-	ArrayList<Messenger> mClients = new ArrayList<Messenger>();
+	public static ArrayList<Messenger> mClients = new ArrayList<Messenger>();
 	private String TAG = "btservice";
 	private IntentFilter intFilter;
+
+
 	/**
 	 * Handler of incoming messages from clients.
 	 */
@@ -54,11 +63,16 @@ public class BTService extends Service{
 			case MSG_SEND_EVENT:
 				// TODO send to device
 				break;
+			case MSG_START_DISCOVERY:
+				doDiscovery();
 			default:
 				super.handleMessage(msg);
 			}
 		}
 	}
+	
+	
+	
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -79,7 +93,7 @@ public class BTService extends Service{
 		mBluetoothAdapter.startDiscovery();
 		
 
-
+		// define filter for broadcast
 		intFilter = new IntentFilter();
 		intFilter.addAction(BluetoothDevice.ACTION_FOUND);
 		intFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
@@ -89,14 +103,6 @@ public class BTService extends Service{
 		// Register for broadcasts when a device is discovered
 		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
 		this.registerReceiver(broadCastReceiver, intFilter);
-
-		// Register for broadcasts when discovery has finished
-		//		filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-		//		this.registerReceiver(broadCastReceiver, filter);
-
-		doDiscovery();
-
-		// send the founded devices to the peopleactivity
 
 	}
 
@@ -125,7 +131,29 @@ public class BTService extends Service{
 	}
 
 	// search for devices binded and not binded
-	private static final BroadcastReceiver broadCastReceiver = new BroadCastReceiverDevices(); 
+	private static final BroadcastReceiver broadCastReceiver = new BroadCastReceiverDevices();
+	
+	
+	// send the founded devices to the peopleactivity
+	public static void sendAddrToPeopleActivity(String addr) {
+		System.err.println("addres: " + addr);
+		for(int i = 0; i < mClients.size() ; i++)
+		{
+			Messenger client = mClients.get(i);
+			
+			Bundle b = new Bundle();
+			b.putString("address", addr);
+			Message msg = Message.obtain(null, MSG_NEW_ADDR);
+			msg.setData(b);
+			try {
+				client.send(msg);
+			} catch (RemoteException e) {
+				// TODO mClients.remove(i);?? 
+				e.printStackTrace();
+			}
+		}
+
+    }
 
 
 
