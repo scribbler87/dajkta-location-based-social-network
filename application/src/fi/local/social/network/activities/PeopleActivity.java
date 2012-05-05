@@ -40,6 +40,7 @@ import fi.local.social.network.db.UserDataSource;
 import fi.local.social.network.db.UserImpl;
 import fi.local.social.network.tools.ServiceHelper;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
@@ -54,7 +55,7 @@ public class PeopleActivity extends ServiceHelper {
 	public static String USERNAME = "";
 	//	final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
 	private ArrayAdapter<User> adapter;
-
+	private DisplayImageOptions options;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -69,6 +70,13 @@ public class PeopleActivity extends ServiceHelper {
 		ImageLoaderConfiguration config = ImageLoaderConfiguration.createDefault(this);
 		ImageLoader.getInstance().init(config);
 		
+		// Initialize options for loaded images 
+		options = new DisplayImageOptions.Builder()
+			.showImageForEmptyUrl(R.drawable.profile_default)
+			.showStubImage(R.drawable.profile_default)
+			.cacheInMemory()
+			.cacheOnDisc()
+			.build();
 		peopleNearby = new ArrayList<User>();
 		
 		// add some mockup values
@@ -329,7 +337,7 @@ public class PeopleActivity extends ServiceHelper {
 			label.setText(user.getUserName());
 			
 			ImageView profilePicture=(ImageView)row.findViewById(R.id.profilePicture);
-			imageLoader.displayImage(user.getProfilePicURI(), profilePicture);
+			imageLoader.displayImage(user.getProfilePicURI(), profilePicture, options);
 
 			return row;
 		}
