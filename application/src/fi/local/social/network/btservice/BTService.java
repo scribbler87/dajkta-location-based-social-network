@@ -359,7 +359,7 @@ public class BTService extends Service{
 			// Get a BluetoothSocket for a connection with the
 			// given BluetoothDevice
 			try {
-				tmp = device.createInsecureRfcommSocketToServiceRecord(MY_UUID);
+				tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
 			} catch (IOException e) {
 				Log.e(TAG, "create() failed", e);
 			}
@@ -430,7 +430,7 @@ public class BTService extends Service{
 
 			// Create a new listening server socket
 			try {
-				tmp = mBluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(NAME, MY_UUID);
+				tmp = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(NAME, MY_UUID);
 			} catch (IOException e) {
 				Log.e(TAG, "listen() failed", e);
 			}
