@@ -84,12 +84,14 @@ public class PeopleActivity extends ServiceHelper {
 		peopleNearby = new ArrayList<User>();
 		
 		// add some mockup values
-		//peopleNearby.add(new UserImpl("Anil",PICTUREPATH+"anil.jpg","ABC"));
-		//peopleNearby.add(new UserImpl("Antti",PICTUREPATH+"antti.jpg","ABC"));
-		//peopleNearby.add(new UserImpl("Jens",PICTUREPATH+"jens.jpg","ABC"));
-		//peopleNearby.add(new UserImpl("Kalle",PICTUREPATH+"kalle.jpg","ABC"));
-		//peopleNearby.add(new UserImpl("Shichao",PICTUREPATH+"shichao.jpg","ABC"));
-		//peopleNearby.add(new UserImpl("Taneli",PICTUREPATH+"taneli.jpg","ABC"));
+		/*
+		peopleNearby.add(new UserImpl("Anil",PICTUREPATH+"anil.jpg","ABC"));
+		peopleNearby.add(new UserImpl("Antti",PICTUREPATH+"antti.jpg","ABC"));
+		peopleNearby.add(new UserImpl("Jens",PICTUREPATH+"jens.jpg","ABC"));
+		peopleNearby.add(new UserImpl("Kalle",PICTUREPATH+"kalle.jpg","ABC"));
+		peopleNearby.add(new UserImpl("Shichao",PICTUREPATH+"shichao.jpg","ABC"));
+		peopleNearby.add(new UserImpl("Taneli",PICTUREPATH+"taneli.jpg","ABC"));
+		*/
 		
 		// Create list adapter
 		adapter = new PeopleListAdapter(this, R.layout.people_item, R.id.label, peopleNearby);
@@ -112,6 +114,8 @@ public class PeopleActivity extends ServiceHelper {
 
 			}
 		});
+		
+		gridView.setEmptyView(findViewById(R.id.empty));
 
 
 		// ***********check if we have a username, if not lets create one********************
@@ -217,7 +221,7 @@ public class PeopleActivity extends ServiceHelper {
                         public void run() {
                             getActionBarHelper().setRefreshActionItemState(false);
                         }
-                    }, 5000);
+                    }, 10000);
             break;
 		default:
 			break;
