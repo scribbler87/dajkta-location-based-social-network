@@ -1,8 +1,17 @@
 package fi.local.social.network.activities;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.app.Activity;
 import android.app.ListActivity;
@@ -11,6 +20,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -48,6 +58,8 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 public class PeopleActivity extends ServiceHelper {
 
+	private static String APIPATH= "http://www.vugi.iki.fi/msp-api/getName.php?address=";
+	
 	List<User> peopleNearby;
 	private UserDataSource userDatasource;
 	protected ImageLoader imageLoader = ImageLoader.getInstance();
@@ -72,11 +84,9 @@ public class PeopleActivity extends ServiceHelper {
 		ImageLoader.getInstance().init(config);
 		
 		peopleNearby = new ArrayList<User>();
+		
 		// add some mockup values
-		//		peopleNearby.add(new UserImpl("Tom Cruise", "add uri for pic"));
-		//		peopleNearby.add(new UserImpl("Tom Hanks", "add uri for pic"));
-		//		peopleNearby.add(new UserImpl("Jason Stathon","add uri for pic"));
-		//		peopleNearby.add(new UserImpl("Joe Hu", "add uri for pic"));
+		//peopleNearby.add(new UserImpl("Tom Cruise", "http://www.vugi.iki.fi/msp-api/profile_picture.jpeg","ABC"));
 
 		adapter = new PeopleListAdapter(this, R.layout.people_item, R.id.label, peopleNearby);
 		
@@ -212,6 +222,59 @@ public class PeopleActivity extends ServiceHelper {
 		return false;
 	}
 	
+	class HTTPNameRequest extends AsyncTask<String, String, String>{
+		
+		private String address;
+		private String TAG = "HTTPNameRequest";
+
+	    @Override
+	    protected String doInBackground(String... btAddress) {
+	    	
+	    	this.address = btAddress[0];
+	    	Log.d(TAG,"Starting request for address: " + address);
+	    	
+	        HttpClient httpclient = new DefaultHttpClient();
+	        HttpResponse response;
+	        String responseString = null;
+	        try {
+	            response = httpclient.execute(new HttpGet(PeopleActivity.APIPATH + address));
+	            StatusLine statusLine = response.getStatusLine();
+	            
+	            if(statusLine.getStatusCode() == HttpStatus.SC_OK){
+	                ByteArrayOutputStream out = new ByteArrayOutputStream();
+	                response.getEntity().writeTo(out);
+	                out.close();
+	                responseString = out.toString();
+	            } else{
+	                response.getEntity().getContent().close();
+	                throw new IOException(statusLine.getReasonPhrase());
+	            }
+	        } catch (IOException e) {
+	        	Log.e(TAG,"Got IOException");
+	            //TODO Handle problems..
+	        }
+	        return responseString;
+	    }
+
+	    @Override
+	    protected void onPostExecute(String result) {
+	        super.onPostExecute(result);
+	        if (result != null){
+	        	Log.d(TAG,"Result for adress " + address + ": " + result);
+	        	for(int i = 0; i < peopleNearby.size(); i++) {
+					User user = peopleNearby.get(i);
+					if(this.address.equals(user.getAddress())){
+						Log.d(TAG,"Setting user name for: " + user.getAddress());
+						user.setUserName(result);
+						adapter.notifyDataSetChanged();
+						return;
+					}
+				}
+	        }
+	        
+	    }
+	}
+	
 	class IncomingHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
@@ -241,7 +304,10 @@ public class PeopleActivity extends ServiceHelper {
 				}
 				peopleNearby.add(userImpl);
 				adapter.notifyDataSetChanged();
-				Toast.makeText(getApplicationContext(), address, Toast.LENGTH_SHORT).show();
+				
+				// Start a HTTP request to get the username from server based on Bluetooth address
+				new HTTPNameRequest().execute(address);
+				
 				break;
 			case BTService.MSG_REGISTERED_CLIENT:
 				System.err.println("startdiscovery");
