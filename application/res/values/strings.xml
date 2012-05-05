@@ -2,13 +2,22 @@
 <resources>
 
     <string name="app_name">Mobile neighbour</string>
-    <string name="send">Send</string>
     
     <!-- People activity -->
 	<string name="peopleLabel">People</string>
+	<string name="refresh">Refresh</string>
+	
+	<!-- Chat activity -->
+	<string name="chatLabel">Chat</string>
 	
 	<!-- Events activity -->
     <string name="eventsLabel">Events</string>
+    
+    <!-- New event activity -->
+    <string name="newEventLabel">New event</string>
+    
+    <!-- Settings activity -->
+    <string name="settingsLabel">Settings</string>
     
     <!--  BluetoothChat -->
     <string name="not_connected">You are not connected to a device</string>
@@ -35,6 +44,7 @@
     <string name="discoverable">Make discoverable</string>
     <string name="exchange">Exchange</string>
     <string name="printevents">Print events</string>
+    <string name="send">Send</string>
     
     
 </resources>
