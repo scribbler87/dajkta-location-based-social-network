@@ -35,7 +35,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-
 public class ChatActivity extends ServiceHelper {
 
 	private EditText edittext;
@@ -45,16 +44,16 @@ public class ChatActivity extends ServiceHelper {
 	private ListView chatHistoryListView;
 	private String userName;
 	private String receiverName;
-	//final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
+	// final Messenger mMessenger = new Messenger(new IncomingHandler()); //
+	// Target we publish for clients to send messages to IncomingHandler.
 	public String address;
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.chat);
 
-		this.mMessenger =  new Messenger(new IncomingHandler());
+		this.mMessenger = new Messenger(new IncomingHandler());
 
 		Button sendButton = (Button) findViewById(R.id.buttonChatConfirm);
 		edittext = (EditText) findViewById(R.id.edit_text_out);
@@ -64,8 +63,6 @@ public class ChatActivity extends ServiceHelper {
 		userName = (String) extras.get("username");
 		receiverName = extras.get("receiver").toString();
 		address = extras.get("address").toString();
-		System.err.println("addreasdasdajklshdklaskldasklöd: " + address);
-
 
 		chatMessageDataSource = new ChatMessagesDataSource(this);
 		chatMessageDataSource.open();
@@ -112,7 +109,6 @@ public class ChatActivity extends ServiceHelper {
 		Bundle extras = getIntent().getExtras();
 		userName = (String) extras.get("username");
 		receiverName = extras.get("receiver").toString();
-
 	}
 
 	private void filterMyMessages() {
@@ -142,20 +138,17 @@ public class ChatActivity extends ServiceHelper {
 					.createEntry(tmpMessage.getDBString());
 
 			chatList.add(chatMessage);
-			//adapter.add(chatMessage);
+			// adapter.add(chatMessage);
 			adapter.notifyDataSetChanged();
 			clearEditField();
 
 			// send the message to the bluetooth
-			
-			
+
 		}
 	}
 
 	private void clearEditField() {
-
-		String string = "";
-		edittext.setText(string);
+		edittext.setText("");
 	}
 
 	@Override
@@ -174,8 +167,8 @@ public class ChatActivity extends ServiceHelper {
 		chatMessageDataSource.close();
 		try {
 			System.err.println("stop service");
-			//	stopService(new Intent(ChatActivity.this, BTService.class));
-		//	doUnbindService();
+			// stopService(new Intent(ChatActivity.this, BTService.class));
+			// doUnbindService();
 		} catch (Throwable t) {
 			Log.e("MainActivity", "Failed to unbind from the service", t);
 		}
@@ -196,10 +189,12 @@ public class ChatActivity extends ServiceHelper {
 			case BTService.MSG_REC_MESSAGE:
 				// receive a message from the bluetooth service
 				String str1 = msg.getData().getString("chat_message");
-				Toast.makeText(getApplicationContext(), str1, Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), str1,
+						Toast.LENGTH_SHORT).show();
 				break;
 			case BTService.MSG_REGISTERED_CLIENT:
-				sendMessageToService("address", address, BTService.MSG_START_CONNCETION);
+				sendMessageToService("address", address,
+						BTService.MSG_START_CONNCETION);
 				break;
 
 			default:
@@ -207,5 +202,4 @@ public class ChatActivity extends ServiceHelper {
 			}
 		}
 	}
-
 }
