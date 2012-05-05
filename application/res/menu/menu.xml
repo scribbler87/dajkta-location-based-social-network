@@ -5,17 +5,11 @@
         android:id="@+id/event_list"
         android:icon="@drawable/notifications"
         android:title="@string/events"
-        android:showAsAction="always" />
-
-    <item
-        android:id="@+id/new_event"
-        android:icon="@drawable/events"
-        android:title="@string/event"/>
+        android:showAsAction="always|withText" />
 
     <item
         android:id="@+id/settings"
         android:icon="@drawable/settings"
         android:title="@string/settings"/>
-
 
 </menu>
