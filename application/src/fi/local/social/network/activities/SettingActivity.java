@@ -44,7 +44,7 @@ public class SettingActivity extends Activity {
 		nickname = (EditText) findViewById(R.id.etNickname);
 
 		userDataSource = new UserDataSource(this);
-		userDataSource.open();
+
 
 		// selectPic=(Button)findViewById(R.id.chooseProfilePicBtn);
 		image = (ImageView) findViewById(R.id.imageView1);
@@ -76,6 +76,20 @@ public class SettingActivity extends Activity {
 		});
 	}
 
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		userDataSource.open();
+	}
+	
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		userDataSource.close();
+	}
+	
 	// When a user clicks on the 'choose a image' button, the user is directed
 	// into the media folder to choose a image
 	public void chooseProfilePic(View v) {

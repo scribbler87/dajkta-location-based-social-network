@@ -395,7 +395,8 @@ public class BluetoothChatService extends Service
 	 */
 	private void connectionLost() {
 		setState(STATE_LISTEN);
-
+		this.stop();
+		this.start();
 		// Send a failure message back to the Activity
 		// TODO send to activity
 	}

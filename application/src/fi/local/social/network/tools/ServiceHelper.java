@@ -95,7 +95,7 @@ public abstract class ServiceHelper extends ActionBarActivity{
 		
 		if(BTService.isRunning())
 		{
-			System.err.println("shoould runnnnnnnnnnnnnnnnnnnnnnn");
+			System.err.println("bt service is running");
 		}
 
 		mIsBound = getApplicationContext().bindService(new Intent(this, BTService.class), mConnection, Context.BIND_AUTO_CREATE);

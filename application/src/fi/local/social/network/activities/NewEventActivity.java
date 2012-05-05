@@ -26,7 +26,7 @@ public class NewEventActivity extends Activity {
 
 		// open db
 		eventsDataSource = new EventsDataSource(getApplicationContext());
-		eventsDataSource.open();
+		
 
 		// When a user clicks on the 'Send Event' button, the newly created
 		// event would be sent to all nearby devices
@@ -80,7 +80,6 @@ public class NewEventActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		eventsDataSource.close();
 	}
 
 	@Override

@@ -65,7 +65,7 @@ public class ChatActivity extends ServiceHelper {
 		address = extras.get("address").toString();
 
 		chatMessageDataSource = new ChatMessagesDataSource(this);
-		chatMessageDataSource.open();
+		
 
 		filterMyMessages(); // we also receive others messages
 
@@ -109,6 +109,7 @@ public class ChatActivity extends ServiceHelper {
 		Bundle extras = getIntent().getExtras();
 		userName = (String) extras.get("username");
 		receiverName = extras.get("receiver").toString();
+		chatMessageDataSource.open();
 	}
 
 	private void filterMyMessages() {
@@ -143,6 +144,13 @@ public class ChatActivity extends ServiceHelper {
 			clearEditField();
 
 			// send the message to the bluetooth
+			// check if we are connected to adevice
+			if(BTService.mState == 3)
+			{
+				this.sendMessageToService("chatMessage", chatMessage.getMessage(), BTService.MSG_CHAT_MESSAGE);
+			}
+			else
+				Toast.makeText(getApplicationContext(), "You are not connected with the device.", Toast.LENGTH_LONG);
 
 		}
 	}
@@ -154,6 +162,8 @@ public class ChatActivity extends ServiceHelper {
 	@Override
 	protected void onPause() {
 		super.onPause();
+		cleanUpResources();
+		this.sendMessageToService("leaveChatActivity", "", BTService.LEAVE_CHATACTIVITY);
 	}
 
 	@Override
@@ -166,7 +176,7 @@ public class ChatActivity extends ServiceHelper {
 	private void cleanUpResources() {
 		chatMessageDataSource.close();
 		try {
-			System.err.println("stop service");
+		//	doUnbindService();
 			// stopService(new Intent(ChatActivity.this, BTService.class));
 			// doUnbindService();
 		} catch (Throwable t) {
@@ -188,14 +198,28 @@ public class ChatActivity extends ServiceHelper {
 			switch (msg.what) {
 			case BTService.MSG_REC_MESSAGE:
 				// receive a message from the bluetooth service
-				String str1 = msg.getData().getString("chat_message");
+
+				String str1 = msg.getData().getString("chatMessage");
+				System.err.println("received message: " + str1);
+				Toast.makeText(getApplicationContext(), str1, Toast.LENGTH_SHORT).show();
+				ChatMessageImpl chatMessageImpl = new ChatMessageImpl();
+				chatMessageImpl.setMessage(str1);
+				chatMessageImpl.setSenderName("sender"); //TODO
+				chatList.add(chatMessageImpl);
+				adapter.notifyDataSetChanged();
+
 				Toast.makeText(getApplicationContext(), str1,
 						Toast.LENGTH_SHORT).show();
+
 				break;
 			case BTService.MSG_REGISTERED_CLIENT:
 				sendMessageToService("address", address,
 						BTService.MSG_START_CONNCETION);
 				break;
+			case BTService.CONNECTION_LOST:
+				startActivity(new Intent(getApplicationContext(), PeopleActivity.class));
+				break;
+				
 
 			default:
 				super.handleMessage(msg);

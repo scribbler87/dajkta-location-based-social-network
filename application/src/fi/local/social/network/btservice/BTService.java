@@ -3,17 +3,24 @@ package fi.local.social.network.btservice;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 
 
+
+import android.app.ActivityManager.RunningServiceInfo;
+import android.app.ActivityManager;
+import android.app.Application;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -37,6 +44,10 @@ public class BTService extends Service{
 	public static final int MSG_START_CONNCETION = 8;
 	public static final int MSG_REGISTERED_CLIENT = 9;
 	public static final int MSG_PING = 10;
+	public static final int MSG_CHAT_MESSAGE = 11;
+	public static final int LEAVE_CHATACTIVITY = 12;
+	public static final int CONNECTION_LOST = 13;
+	public static final int START_CHAT_AVTIVITY = 14;
 
 	private BluetoothAdapter mBluetoothAdapter = null;
 
@@ -58,10 +69,11 @@ public class BTService extends Service{
 	// Unique UUID for this application
 	private static final UUID MY_UUID = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
 
-	private int mState = -1;
+	public static int mState = -1;
 	private AcceptThread mAcceptThread;
 	private ConnectThread mConnectThread;
 	private ConnectedThread mConnectedThread;
+//	private CheckVisablityThread checkVisablityThread;
 	private static boolean isRunning;
 
 	private static final boolean D = true;
@@ -95,12 +107,32 @@ public class BTService extends Service{
 				doDiscovery();
 				break;
 			case MSG_START_CONNCETION:
-				System.err.println("startttttttttttttttttttttttttt");
 				Bundle data = msg.getData();
 				String address = data.getString("address");
-				System.err.println("starting connection ? " + address);
+				System.err.println("starting connection to address:  " + address);
 				BluetoothDevice b = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address);
 				connect(b);
+				break;
+			case MSG_CHAT_MESSAGE:
+				Bundle chatMessage = msg.getData();
+				String message = chatMessage.getString("chatMessage");
+				byte[] bytes = null;
+				try {
+					bytes = message.getBytes("UTF-16LE");
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+
+				write(bytes);
+				break;
+			case LEAVE_CHATACTIVITY:
+				// check if we are still in the connected thread
+				if(mState == 3)
+				{
+					start();
+				}
+
+
 				break;
 			default:
 				super.handleMessage(msg);
@@ -108,7 +140,16 @@ public class BTService extends Service{
 		}
 	}
 
-
+	private void ensureDiscoverable() {
+		if (mBluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+			Intent discoverableIntent = new Intent(
+					BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+			discoverableIntent.putExtra(
+					BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 120);
+			discoverableIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(discoverableIntent);
+		}
+	}
 
 
 	@Override
@@ -120,6 +161,20 @@ public class BTService extends Service{
 	public void onCreate() {
 		super.onCreate();
 
+		
+//		this.stopSelf();
+//		ActivityManager systemService = (ActivityManager)getApplicationContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
+//		List<RunningServiceInfo> runningServices = systemService.getRunningServices(Integer.MAX_VALUE);
+//		for (RunningServiceInfo runningServiceInfo : runningServices) {
+//			if("fi.local.social.network.btservice.BtService".equals(runningServiceInfo.service.getClassName().toString()))
+//			{
+//				//runningServiceInfo.
+//				System.err.println("service is still running when we start our service");
+//			}
+//		}
+//		checkVisablityThread = new CheckVisablityThread();
+//		checkVisablityThread.start();
+
 		// is the bluetooth turned on?
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		// turn bt on if it not turned on
@@ -127,7 +182,7 @@ public class BTService extends Service{
 			mBluetoothAdapter.enable();
 
 
-		mBluetoothAdapter.startDiscovery();
+		
 
 
 		// define filter for broadcast
@@ -141,10 +196,9 @@ public class BTService extends Service{
 
 
 		// Register for broadcasts when a device is discovered
-		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
 		this.registerReceiver(broadCastReceiver, intFilter);
 		start();
-
+		ensureDiscoverable();
 		isRunning = true;
 	}
 
@@ -197,23 +251,8 @@ public class BTService extends Service{
 		}
 
 	}
-	
-	// send the founded devices to the peopleactivity
-	public static void sendPing() {
-		System.err.println("dadsghj");
-		for(int i = 0; i < mClients.size() ; i++)
-		{
-			Messenger client = mClients.get(i);
 
-			Message msg = Message.obtain(null, MSG_PING);
-			try {
-				client.send(msg);
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
-		}
 
-	}
 
 
 	// send the founded devices to the peopleactivity
@@ -231,6 +270,25 @@ public class BTService extends Service{
 				client.send(msg);
 			} catch (RemoteException e) {
 				// TODO mClients.remove(i);?? 
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+
+	public static void sendMessageToUI(String key, String data,  int MSG_TYPE) {
+		for(int i = 0; i < mClients.size() ; i++)
+		{
+			Messenger client = mClients.get(i);
+
+			Bundle b = new Bundle();
+			b.putString(key, data);
+			Message msg = Message.obtain(null, MSG_TYPE);
+			msg.setData(b);
+			try {
+				client.send(msg);
+			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
 		}
@@ -259,7 +317,10 @@ public class BTService extends Service{
 
 	private void connectionLost() {
 		setState(STATE_LISTEN);
-
+		sendMessageToUI("connectionLost", "", this.CONNECTION_LOST);
+		stop();
+		start();
+		sendMessageToUI("lostConnection", "", BTService.LEAVE_CHATACTIVITY);
 		// Send a failure message back to the Activity
 		// TODO send to activity
 	}
@@ -377,14 +438,9 @@ public class BTService extends Service{
 			try {
 				// This is a blocking call and will only return on a
 				// successful connection or an exception
-				System.err.println("Start to connect");
-				//System.err.println(mmSocket.isConnected());
 				mmSocket.connect();
-				System.err.println("finnished connect");
-				write("Hello World".getBytes());
-				sendPing();
+
 			} catch (IOException e) {
-				System.err.println("Fuuu");
 				connectionFailed();
 				// Close the socket
 				try {
@@ -441,13 +497,18 @@ public class BTService extends Service{
 			if (D) Log.d(TAG, "BEGIN mAcceptThread" + this);
 			setName("AcceptThread");
 			BluetoothSocket socket = null;
+//			if(!checkVisablityThread.isAlive())
+//				checkVisablityThread.start();
 
 			// Listen to the server socket if we're not connectedeplyTo
 			while (mState != STATE_CONNECTED) {
 				try {
+
+
 					// This is a blocking call and will only return on a
 					// successful connection or an exception
 					socket = mmServerSocket.accept();
+
 				} catch (IOException e) {
 					Log.e(TAG, "accept() failed", e);
 					break;
@@ -519,26 +580,34 @@ public class BTService extends Service{
 			Log.i(TAG, "BEGIN mConnectedThread");
 			byte[] buffer = new byte[1024];
 			int bytes;
-
+			
+			sendMessageToUI("startChatActivity", "", START_CHAT_AVTIVITY);
 			// Keep listening to the InputStream while connected
 			while (true) {
 				try {
 					// Read from the InputStream
 					bytes = mmInStream.read(buffer);
+					String receivedMessage = new String(buffer,"UTF-16LE");
 
 					// Send the obtained bytes to the UI Activity
-					//mHandler.obtainMessage(BTActivity.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
-					Message message = Message.obtain(null, BTService.MSG_REC_EVENT);
-					Bundle b = new Bundle();
-					b.putString("str1", buffer.toString());
-					message.setData(b);
-					mClients.get(0).send(message);
-					Log.i(TAG, buffer.toString());
+					buffer = null;
+					buffer = new byte[1024];
+
+					sendMessageToUI("chatMessage",receivedMessage,MSG_REC_MESSAGE);
+
+					Log.i(TAG, receivedMessage);
 				} catch (Exception e) {
 					Log.e(TAG, "disconnected", e);
+					try {
+						mmInStream.close();
+						mmOutStream.close();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+					
 					connectionLost();
 					break;
-				} // TODO add more excptions
+				}
 			}
 		}
 
@@ -548,8 +617,9 @@ public class BTService extends Service{
 		 */
 		public void write(byte[] buffer) {
 			try {
+				System.err.println("start sending message");
 				mmOutStream.write(buffer);
-
+				System.err.println("finished sending message");
 				// Share the sent message back to the UI Activity
 				//mHandler.obtainMessage(BTActivity.MESSAGE_WRITE, -1, -1, buffer).sendToTarget();
 				// TODO: todo
@@ -568,6 +638,9 @@ public class BTService extends Service{
 			}
 		}
 	}
+	
+
+
 
 
 
