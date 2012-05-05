@@ -15,27 +15,14 @@ import fi.local.social.network.db.EventsDataSource;
 
 public class NewEventActivity extends Activity {
 
-	private EditText title = null;
-	private EditText content = null;
-	private Button sendBtn = null;
 	private EventsDataSource eventsDataSource;
-
-	private String sTitle;
-	private String sContent;
-	private long startTime;
-	private long endTime;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.newevent);
-		title = (EditText) findViewById(R.id.newEventTitle);
-		content = (EditText) findViewById(R.id.newEventContent);
-		sendBtn = (Button) findViewById(R.id.sendBtn);
-		sTitle = title.getEditableText().toString();
-		sContent = content.getEditableText().toString();
-		startTime = 0L; // TODO initialize with the default value
-		endTime = 0L; // TODO initialize with the default value
+		
+		Button sendBtn = (Button) findViewById(R.id.sendBtn);
 
 		// open db
 		eventsDataSource = new EventsDataSource(getApplicationContext());
@@ -52,7 +39,14 @@ public class NewEventActivity extends Activity {
 						"The message is supposed to be sent to nearby devices.",
 						Toast.LENGTH_SHORT).show();
 
+
+				EditText title = (EditText) findViewById(R.id.newEventTitle);
+				String sTitle = title.getEditableText().toString();
+				EditText content = (EditText) findViewById(R.id.newEventContent);
+				String sContent = content.getEditableText().toString();
+				
 				sTitle = title.getEditableText().toString();
+				
 				sContent = content.getEditableText().toString();
 
 				if (sTitle.equals("")) {
@@ -63,15 +57,15 @@ public class NewEventActivity extends Activity {
 							"Please add a content description.",
 							Toast.LENGTH_SHORT).show();
 				} else {
-					sendNewEvent();
+					sendNewEvent(sTitle, sContent);
 				}
 			}
 		});
 	}
 
-	private void sendNewEvent() {
-		Event event = new EventImpl(startTime, endTime, sTitle, sContent,
-				PeopleActivity.USERNAME,null);
+	private void sendNewEvent(String sTitle, String sContent) {
+		Event event = new EventImpl(0L, 0L, sTitle, sContent,
+				PeopleActivity.USERNAME, null);
 		eventsDataSource.createEntry(event.getDBString());
 
 		startActivity(new Intent(getApplicationContext(), EventsActivity.class));

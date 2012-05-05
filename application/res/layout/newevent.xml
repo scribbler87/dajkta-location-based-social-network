@@ -35,38 +35,6 @@
 				        android:layout_width="fill_parent"
 				        android:layout_height="166dp"
 				        android:scrollbars="vertical" />
-				    <TableLayout
-				        android:layout_width="fill_parent"
-				        android:layout_height="wrap_content">
-				        <TableRow>
-						    <TextView
-						        android:id="@+id/eventStartTime"
-						        android:layout_width="0px"
-						        android:layout_weight="0.5"
-						        android:layout_height="wrap_content"
-						        android:text="Start from:" />
-							<TextView
-						        android:id="@+id/eventEndTime"
-						        android:layout_width="0px"
-						        android:layout_weight="0.5"
-						        android:layout_height="wrap_content"
-						        android:text="Last until:" />
-				    	</TableRow>
-				    	<TableRow>
-						    <TextView
-						        android:id="@+id/eventStartTimeValue"
-						        android:layout_width="0px"
-						        android:layout_weight="0.5"
-						        android:layout_height="wrap_content"
-						        android:text="" />
-						    <TextView
-						        android:id="@+id/eventEndTimeValue"
-						        android:layout_width="0px"
-						        android:layout_weight="0.5"
-						        android:layout_height="wrap_content"
-						        android:text="" />
-				    	</TableRow>
-				    </TableLayout>
 				    <ImageView
 				        android:id="@+id/imgView"
 				        android:layout_width="wrap_content"
