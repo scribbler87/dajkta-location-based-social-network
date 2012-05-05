@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.example.android.actionbarcompat.ActionBarActivity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

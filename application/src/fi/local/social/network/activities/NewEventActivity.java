@@ -2,7 +2,6 @@ package fi.local.social.network.activities;
 
 import com.example.android.actionbarcompat.ActionBarActivity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
