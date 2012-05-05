@@ -58,7 +58,6 @@ public class ChatActivity extends ServiceHelper {
 
 		Button sendButton = (Button) findViewById(R.id.buttonChatConfirm);
 		edittext = (EditText) findViewById(R.id.edit_text_out);
-		// ListView chatHist = (ListView) findViewById(R.id.listChat);
 		chatList = new ArrayList<ChatMessage>();
 
 		Bundle extras = getIntent().getExtras();
@@ -104,10 +103,7 @@ public class ChatActivity extends ServiceHelper {
 			}
 		});
 
-
 		doBindService(ChatActivity.this);
-		
-	
 	}
 
 	@Override
@@ -117,13 +113,6 @@ public class ChatActivity extends ServiceHelper {
 		userName = (String) extras.get("username");
 		receiverName = extras.get("receiver").toString();
 
-		chatMessageDataSource.open();
-		this.chatList = new ArrayList<ChatMessage>();
-		filterMyMessages();
-	}
-
-	private static IntentFilter createChatMessageFilter() {
-		return new IntentFilter("chatmessage");
 	}
 
 	private void filterMyMessages() {
@@ -131,12 +120,8 @@ public class ChatActivity extends ServiceHelper {
 		for (ChatMessage chatMessage : allMessages) {
 			if (chatMessage.getReceiverName().equals(receiverName)
 					|| chatMessage.getSenderName().equals(receiverName))
-				addChatMessage(chatMessage);
+				chatList.add(chatMessage);
 		}
-	}
-
-	private void addChatMessage(ChatMessage chatMessage) {
-		chatList.add(chatMessage);
 	}
 
 	private void sendMessage(String message) {
@@ -156,7 +141,8 @@ public class ChatActivity extends ServiceHelper {
 			ChatMessage chatMessage = (ChatMessage) chatMessageDataSource
 					.createEntry(tmpMessage.getDBString());
 
-			addChatMessage(chatMessage);
+			chatList.add(chatMessage);
+			//adapter.add(chatMessage);
 			adapter.notifyDataSetChanged();
 			clearEditField();
 
@@ -175,7 +161,6 @@ public class ChatActivity extends ServiceHelper {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		cleanUpResources();
 	}
 
 	@Override
