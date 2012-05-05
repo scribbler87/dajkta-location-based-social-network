@@ -109,7 +109,7 @@ public class EventImpl implements Event {
 		res += startTime + ";";
 		res += endTime + ";";
 		res += description + ";";
-		res += profilePicUri + ";";
+		res += "NO_PIC"+ ";";
 		
 		return res;
 	}

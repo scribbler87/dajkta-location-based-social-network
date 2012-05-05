@@ -17,7 +17,6 @@ import android.view.View.OnKeyListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 import fi.local.social.network.R;
 import fi.local.social.network.db.ChatMessage;
@@ -29,33 +28,32 @@ import fi.local.social.network.db.UserImpl;
 public class SettingActivity extends Activity {
 	private static final int SELECT_PICTURE = 1;
 	private ImageView image;
-	//private Button selectPic;
+	// private Button selectPic;
 	private Button saveBtn;
 	private EditText nickname;
 	private UserDataSource userDataSource;
 	private ChatMessagesDataSource chatMessDataSource;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState){
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.setting);
-		//selectPic=(Button)findViewById(R.id.chooseProfilePicBtn);
-		image=(ImageView)findViewById(R.id.imageView1);
-		saveBtn=(Button)findViewById(R.id.saveBtn);
-		nickname=(EditText)findViewById(R.id.etNickname);
-
+		// selectPic=(Button)findViewById(R.id.chooseProfilePicBtn);
+		image = (ImageView) findViewById(R.id.imageView1);
+		saveBtn = (Button) findViewById(R.id.saveBtn);
+		nickname = (EditText) findViewById(R.id.etNickname);
 
 		userDataSource = new UserDataSource(this);
-		userDataSource.open();
-
-		//selectPic=(Button)findViewById(R.id.chooseProfilePicBtn);
-		image=(ImageView)findViewById(R.id.imageView1);
-		saveBtn=(Button)findViewById(R.id.saveBtn);
-		nickname=(EditText)findViewById(R.id.etNickname);
 
 
-		//When a user clicks on the 'Save' button, changed settings would be saved.
-		saveBtn.setOnClickListener(new OnClickListener(){
+		// selectPic=(Button)findViewById(R.id.chooseProfilePicBtn);
+		image = (ImageView) findViewById(R.id.imageView1);
+		saveBtn = (Button) findViewById(R.id.saveBtn);
+		nickname = (EditText) findViewById(R.id.etNickname);
+
+		// When a user clicks on the 'Save' button, changed settings would be
+		// saved.
+		saveBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -67,8 +65,8 @@ public class SettingActivity extends Activity {
 			@Override
 			public boolean onKey(View arg0, int keyCode, KeyEvent event) {
 				// If the event is a key-down event on the "enter" button
-				if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
-						(keyCode == KeyEvent.KEYCODE_ENTER)) {
+				if ((event.getAction() == KeyEvent.ACTION_DOWN)
+						&& (keyCode == KeyEvent.KEYCODE_ENTER)) {
 					saveNickname();
 					return true;
 				}
@@ -78,47 +76,50 @@ public class SettingActivity extends Activity {
 		});
 	}
 
-	//When a user clicks on the 'choose a image' button, the user is directed into the media folder to choose a image
-	public void chooseProfilePic(View v)
-	{
-		Intent imageChoosingIntent = new Intent(Intent.ACTION_PICK,
-	               android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-		startActivityForResult(imageChoosingIntent, SELECT_PICTURE);
-	}
-	
-
-
 	@Override
 	protected void onResume() {
+		// TODO Auto-generated method stub
 		super.onResume();
 		userDataSource.open();
 	}
-
+	
 	@Override
 	protected void onPause() {
+		// TODO Auto-generated method stub
 		super.onPause();
 		userDataSource.close();
 	}
+	
+	// When a user clicks on the 'choose a image' button, the user is directed
+	// into the media folder to choose a image
+	public void chooseProfilePic(View v) {
+		Intent imageChoosingIntent = new Intent(Intent.ACTION_PICK,
+				android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+		startActivityForResult(imageChoosingIntent, SELECT_PICTURE);
+	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) { 
-		super.onActivityResult(requestCode, resultCode, imageReturnedIntent); 
+	protected void onActivityResult(int requestCode, int resultCode,
+			Intent imageReturnedIntent) {
+		super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
 
-		switch(requestCode) { 
+		switch (requestCode) {
 		case SELECT_PICTURE:
-			if(resultCode == RESULT_OK){  
-				//Uri of the selected image by user
+			if (resultCode == RESULT_OK) {
+				// Uri of the selected image by user
 				Uri selectedImage = imageReturnedIntent.getData();
-				InputStream imageStream=null;
+				InputStream imageStream = null;
 				try {
-					imageStream = getContentResolver().openInputStream(selectedImage);
+					imageStream = getContentResolver().openInputStream(
+							selectedImage);
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				//Get bitmap format of the selected image
-				Bitmap yourSelectedImage = BitmapFactory.decodeStream(imageStream);
-				//Show the image in the ImageView
+				// Get bitmap format of the selected image
+				Bitmap yourSelectedImage = BitmapFactory
+						.decodeStream(imageStream);
+				// Show the image in the ImageView
 				image.setImageBitmap(yourSelectedImage);
 			}
 		}
@@ -127,40 +128,38 @@ public class SettingActivity extends Activity {
 	private void saveNickname() {
 		String newUsername = nickname.getText().toString();
 		Toast.makeText(getApplicationContext(),
-				"Your nickname is "+ newUsername,
-				Toast.LENGTH_SHORT).show();
+				"Your nickname is " + newUsername, Toast.LENGTH_SHORT).show();
 
 		// Save the new comment to the database
 		// TODO add own device address
-		User newUser = new UserImpl(newUsername, "not yet here", "dummy adrress");
+		User newUser = new UserImpl(newUsername, "not yet here",
+				"dummy adrress");
 		newUser.setIsPhoneUser(true);
 
 		List<User> allEntries = userDataSource.getAllEntries();
 		User oldUser = null;
 		for (User actUser : allEntries) {
-			if(actUser.isPhoneUser())
-			{
+			if (actUser.isPhoneUser()) {
 				oldUser = actUser;
 				userDataSource.deleteUser(actUser);
 			}
 		}
 
-		// reset db to have old messages with the new nickname TODO: not working correctly
 		chatMessDataSource = new ChatMessagesDataSource(this);
 		chatMessDataSource.open();
 		List<ChatMessage> chatMessages = chatMessDataSource.getAllEntries();
-		for (ChatMessage chatMessage : chatMessages) 
-		{
+		for (ChatMessage chatMessage : chatMessages) {
 			chatMessDataSource.deleteChatMessage(chatMessage);
 
-			if(chatMessage.getReceiverName().equals(oldUser.getUserName()))
+			if (chatMessage.getReceiverName().equals(oldUser.getUserName())) {
 				chatMessage.setReceiverName(newUsername);
-			else if(chatMessage.getSenderName().equals(oldUser.getUserName()))
+			} else if (chatMessage.getSenderName()
+					.equals(oldUser.getUserName())) {
 				chatMessage.setSenderName(newUsername);
+			}
 
 			chatMessDataSource.createEntry(chatMessage.getDBString());
 
-			// TODO also change in events
 		}
 		chatMessDataSource.close();
 
