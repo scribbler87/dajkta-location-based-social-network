@@ -4,18 +4,18 @@
     <item
         android:id="@+id/event_list"
         android:icon="@drawable/notifications"
-        android:title="Events"
+        android:title="@string/events"
         android:showAsAction="always" />
 
     <item
         android:id="@+id/new_event"
         android:icon="@drawable/events"
-        android:title="New Event"/>
+        android:title="@string/event"/>
 
     <item
         android:id="@+id/settings"
         android:icon="@drawable/settings"
-        android:title="Settings"/>
+        android:title="@string/settings"/>
 
 
 </menu>
