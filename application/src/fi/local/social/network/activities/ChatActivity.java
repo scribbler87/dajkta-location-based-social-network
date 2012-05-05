@@ -65,7 +65,7 @@ public class ChatActivity extends ServiceHelper {
 		address = extras.get("address").toString();
 
 		chatMessageDataSource = new ChatMessagesDataSource(this);
-		chatMessageDataSource.open();
+		
 
 		filterMyMessages(); // we also receive others messages
 
@@ -109,6 +109,7 @@ public class ChatActivity extends ServiceHelper {
 		Bundle extras = getIntent().getExtras();
 		userName = (String) extras.get("username");
 		receiverName = extras.get("receiver").toString();
+		chatMessageDataSource.open();
 	}
 
 	private void filterMyMessages() {
@@ -154,12 +155,12 @@ public class ChatActivity extends ServiceHelper {
 	@Override
 	protected void onPause() {
 		super.onPause();
+		cleanUpResources();
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		cleanUpResources();
 		stopService(new Intent(ChatActivity.this, BTService.class));
 	}
 
