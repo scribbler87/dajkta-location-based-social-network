@@ -3,11 +3,14 @@ package fi.local.social.network.activities;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.android.actionbarcompat.ActionBarActivity;
+
 import fi.local.social.network.R;
 import fi.local.social.network.db.Event;
 import fi.local.social.network.db.EventsDataSource;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class EventsActivity extends Activity {
+public class EventsActivity extends ActionBarActivity {
 	private EventsDataSource eventsDataSource;
 
 	@Override
@@ -45,6 +48,11 @@ public class EventsActivity extends Activity {
 		ListView listView=(ListView)findViewById(R.id.eventList);
 		listView.setAdapter(new EventItemAdapter(this,R.layout.event_list_item,events));
 	}
+	
+	public void onAddEventClick(View view) {
+		startActivity(new Intent(getApplicationContext(), NewEventActivity.class));
+	}
+	
 	public class EventItemAdapter extends ArrayAdapter<Event>
 	{
 		private ArrayList<Event> eventList;

@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     
+    <item android:id="@+id/menu_refresh"
+        android:title="@string/refresh"
+        android:icon="@drawable/ic_action_refresh"
+        android:orderInCategory="1"
+        android:showAsAction="always" />
+    
     <item
         android:id="@+id/event_list"
-        android:icon="@drawable/notifications"
-        android:title="Events"
+        android:icon="@drawable/ic_action_event"
+        android:title="@string/events"
         android:showAsAction="always" />
 
     <item
-        android:id="@+id/new_event"
-        android:icon="@drawable/events"
-        android:title="New Event"/>
-
-    <item
         android:id="@+id/settings"
-        android:icon="@drawable/settings"
-        android:title="Settings"/>
-
+        android:icon="@drawable/ic_action_settings"
+        android:title="@string/settings"/>
 
 </menu>

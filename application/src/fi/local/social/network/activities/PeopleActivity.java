@@ -171,14 +171,12 @@ public class PeopleActivity extends ServiceHelper {
 		case R.id.settings:
 			startActivity(new Intent(getApplicationContext(), SettingActivity.class));
 			return true;
-		case R.id.new_event:
-			startActivity(new Intent(getApplicationContext(), NewEventActivity.class));
-			return true;
 		default:
 			break;
 		}
 		return false;
 	}
+	
 	class IncomingHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
@@ -195,7 +193,7 @@ public class PeopleActivity extends ServiceHelper {
 				String deviceName = msg.getData().getString("deviceName");
 				
 				String username = "User " + address;
-				String profilePictureURI = "http://www.vugi.iki.fi/msp-api/profile_picture.jpeg";
+				String profilePictureURI = "http://www.vugi.iki.fi/msp-api/profilePictures/"+address;
 				
 				UserImpl userImpl = new UserImpl(deviceName, profilePictureURI, address);
 				

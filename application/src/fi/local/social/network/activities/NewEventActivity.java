@@ -1,5 +1,7 @@
 package fi.local.social.network.activities;
 
+import com.example.android.actionbarcompat.ActionBarActivity;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,7 +15,7 @@ import fi.local.social.network.db.Event;
 import fi.local.social.network.db.EventImpl;
 import fi.local.social.network.db.EventsDataSource;
 
-public class NewEventActivity extends Activity {
+public class NewEventActivity extends ActionBarActivity {
 
 	private EventsDataSource eventsDataSource;
 

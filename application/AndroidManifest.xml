@@ -19,7 +19,7 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".activities.PeopleActivity"
-            android:label="@string/app_name"
+            android:label="@string/peopleLabel"
             android:launchMode="singleTask" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,32 +28,27 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".btservice.BTActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:label="@string/app_name" >
-        </activity>
+            android:name=".activities.ChatActivity"
+            android:label="@string/chatLabel" />
+        <activity
+            android:name=".activities.SettingActivity"
+            android:label="@string/settingsLabel" />
+        <activity
+            android:name=".activities.EventsActivity"
+            android:label="@string/eventsLabel"
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".activities.NewEventActivity"
+            android:label="@string/newEventLabel" />
         <activity
             android:name=".activities.DeviceListActivity"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/select_device"
-            android:theme="@android:style/Theme.Dialog" />
+            android:theme="@android:style/Theme.Dialog" />      
         <activity
-            android:name=".activities.ChatActivity"
+            android:name=".btservice.BTActivity"
+            android:configChanges="orientation|keyboardHidden"
             android:label="@string/app_name" />
-        <activity
-            android:name=".activities.SettingActivity"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.EventsActivity"
-            android:label="@string/app_name"
-            android:launchMode="singleTask" />
-        <activity
-            android:name=".activities.DBActivity"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.NewEventActivity"
-            android:label="@string/app_name" >
-        </activity>
 
         <service android:name=".btservice.BluetoothChatService" >
         </service>
