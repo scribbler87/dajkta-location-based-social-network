@@ -28,32 +28,27 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".btservice.BTActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:label="@string/app_name" >
-        </activity>
-        <activity
-            android:name=".activities.DeviceListActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:label="@string/select_device"
-            android:theme="@android:style/Theme.Dialog" />
-        <activity
             android:name=".activities.ChatActivity"
-            android:label="@string/app_name" />
+            android:label="@string/chatLabel" />
         <activity
             android:name=".activities.SettingActivity"
-            android:label="@string/app_name" />
+            android:label="@string/settingsLabel" />
         <activity
             android:name=".activities.EventsActivity"
             android:label="@string/eventsLabel"
             android:launchMode="singleTask" />
         <activity
-            android:name=".activities.DBActivity"
-            android:label="@string/app_name" />
-        <activity
             android:name=".activities.NewEventActivity"
-            android:label="@string/app_name" >
-        </activity>
+            android:label="@string/newEventLabel" />
+        <activity
+            android:name=".activities.DeviceListActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="@string/select_device"
+            android:theme="@android:style/Theme.Dialog" />      
+        <activity
+            android:name=".btservice.BTActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="@string/app_name" />
 
         <service android:name=".btservice.BluetoothChatService" >
         </service>
