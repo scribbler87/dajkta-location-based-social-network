@@ -1,5 +1,6 @@
 package fi.local.social.network.activities;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,6 +66,8 @@ public class PeopleActivity extends ServiceHelper {
 
 		adapter = new ArrayAdapter<User>(this, R.layout.people_item, R.id.label, peopleNearby);
 
+		System.err.println();
+		
 		ListView listView = (ListView) findViewById(R.id.mylist);
 		listView.setAdapter((ListAdapter) adapter );
 
@@ -148,7 +151,8 @@ public class PeopleActivity extends ServiceHelper {
 		{
 			startActivity(new Intent(getApplicationContext(), SettingActivity.class));
 		}
-		doBindService(PeopleActivity.this);
+		//doBindService(PeopleActivity.this);
+		sendMessageToService("startDiscovery", "", BTService.MSG_START_DISCOVERY);
 	}
 
 	@Override
@@ -208,6 +212,12 @@ public class PeopleActivity extends ServiceHelper {
 			case BTService.MSG_REGISTERED_CLIENT:
 				System.err.println("startdiscovery");
 				sendMessageToService("startDiscovery", "", BTService.MSG_START_DISCOVERY);
+				break;
+			case BTService.MSG_REC_MESSAGE:
+				// receive a message from the bluetooth service
+				String str2 = msg.getData().getString("chatMessage");
+				System.err.println("received message: " + str2);
+				Toast.makeText(getApplicationContext(), str2, Toast.LENGTH_SHORT).show();
 				break;
 			default:
 				super.handleMessage(msg);

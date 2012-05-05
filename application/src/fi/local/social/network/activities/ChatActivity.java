@@ -161,8 +161,13 @@ public class ChatActivity extends ServiceHelper {
 			clearEditField();
 
 			// send the message to the bluetooth
-			
-			
+			// check if we are connected to adevice
+			if(BTService.mState == 3)
+			{
+				this.sendMessageToService("chatMessage", chatMessage.getMessage(), BTService.MSG_CHAT_MESSAGE);
+			}
+			else
+				Toast.makeText(getApplicationContext(), "You are not connected with the device.", Toast.LENGTH_LONG);
 		}
 	}
 
@@ -176,6 +181,7 @@ public class ChatActivity extends ServiceHelper {
 	protected void onPause() {
 		super.onPause();
 		cleanUpResources();
+		this.sendMessageToService("leaveChatActivity", "", BTService.LEAVE_CHATACTIVITY);
 	}
 
 	@Override
@@ -210,12 +216,14 @@ public class ChatActivity extends ServiceHelper {
 			switch (msg.what) {
 			case BTService.MSG_REC_MESSAGE:
 				// receive a message from the bluetooth service
-				String str1 = msg.getData().getString("chat_message");
+				String str1 = msg.getData().getString("chatMessage");
+				System.err.println("received message: " + str1);
 				Toast.makeText(getApplicationContext(), str1, Toast.LENGTH_SHORT).show();
 				break;
 			case BTService.MSG_REGISTERED_CLIENT:
 				sendMessageToService("address", address, BTService.MSG_START_CONNCETION);
 				break;
+				
 
 			default:
 				super.handleMessage(msg);
