@@ -6,8 +6,10 @@ public interface User {
 	
 	public long getID();
 	public void setID(long ID);
+	
 	public String getUserName();
 	public void setUserName(String uname);
+	
 	public String getProfilePicURI();
 	public void setProfilePicURI(String uri);
 	

@@ -17,12 +17,16 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -38,11 +42,15 @@ import fi.local.social.network.db.UserImpl;
 import fi.local.social.network.tools.ServiceHelper;
 
 import com.example.android.actionbarcompat.*;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 public class PeopleActivity extends ServiceHelper {
 
 	List<User> peopleNearby;
 	private UserDataSource userDatasource;
+	protected ImageLoader imageLoader = ImageLoader.getInstance();
+	
 	public static String USERNAME = "";
 	//	final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
 	private ArrayAdapter<User> adapter;
@@ -53,7 +61,14 @@ public class PeopleActivity extends ServiceHelper {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.people);
+		
+		// Initialize Messenger
 		this.mMessenger =  new Messenger(new IncomingHandler());
+		
+		
+		// Initialize imageLoader
+		ImageLoaderConfiguration config = ImageLoaderConfiguration.createDefault(this);
+		ImageLoader.getInstance().init(config);
 
 		// TODO: get real people and their names
 		// add some mockup values
@@ -63,8 +78,8 @@ public class PeopleActivity extends ServiceHelper {
 		//		peopleNearby.add(new UserImpl("Jason Stathon","add uri for pic"));
 		//		peopleNearby.add(new UserImpl("Joe Hu", "add uri for pic"));
 
-		adapter = new ArrayAdapter<User>(this, R.layout.people_item, R.id.label, peopleNearby);
-
+		adapter = new PeopleListAdapter(this, R.layout.people_item, R.id.label, peopleNearby);
+		
 		ListView listView = (ListView) findViewById(R.id.mylist);
 		listView.setAdapter((ListAdapter) adapter );
 
@@ -114,6 +129,7 @@ public class PeopleActivity extends ServiceHelper {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		imageLoader.stop();
 		try {
 			System.err.println("stop service");
 			//doUnbindService();
@@ -191,7 +207,11 @@ public class PeopleActivity extends ServiceHelper {
 			case BTService.MSG_NEW_ADDR:
 				// receive the new addr and put it into the listview
 				String address = msg.getData().getString("address");
-				UserImpl userImpl = new UserImpl(address, "add to uri", address);
+				String username = "User " + address;
+				String profilePictureURI = "http://www.vugi.iki.fi/msp-api/profile_picture.jpeg";
+				
+				UserImpl userImpl = new UserImpl(username, profilePictureURI, address);
+				
 				for(int i = 0; i < peopleNearby.size(); i++)
 				{
 					User user = peopleNearby.get(i);
@@ -214,8 +234,29 @@ public class PeopleActivity extends ServiceHelper {
 			}
 		}
 	}
+	
+	public class PeopleListAdapter extends ArrayAdapter<User> {
 
+		public PeopleListAdapter(Context context, int resourceId, int textViewResourceId, List<User> objects) {
+			super(context, resourceId, textViewResourceId, objects);
+		}
 
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			
+			User user = getItem(position);
+			
+			LayoutInflater inflater=getLayoutInflater();
+			View row=inflater.inflate(R.layout.people_item, parent, false);
+			
+			TextView label=(TextView)row.findViewById(R.id.label);
+			label.setText(user.getUserName());
+			
+			ImageView profilePicture=(ImageView)row.findViewById(R.id.profilePicture);
+			imageLoader.displayImage(user.getProfilePicURI(), profilePicture);
 
-
+			return row;
+		}
+	}
+	
 }
