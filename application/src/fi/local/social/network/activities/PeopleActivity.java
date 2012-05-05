@@ -70,16 +70,13 @@ public class PeopleActivity extends ServiceHelper {
 		// Initialize imageLoader
 		ImageLoaderConfiguration config = ImageLoaderConfiguration.createDefault(this);
 		ImageLoader.getInstance().init(config);
-
-		// TODO: get real people and their names
-		// add some mockup values
+		
 		peopleNearby = new ArrayList<User>();
+		// add some mockup values
 		//		peopleNearby.add(new UserImpl("Tom Cruise", "add uri for pic"));
 		//		peopleNearby.add(new UserImpl("Tom Hanks", "add uri for pic"));
 		//		peopleNearby.add(new UserImpl("Jason Stathon","add uri for pic"));
 		//		peopleNearby.add(new UserImpl("Joe Hu", "add uri for pic"));
-
-//		adapter = new ArrayAdapter<User>(this, R.layout.people_item, R.id.label, peopleNearby);
 
 		adapter = new PeopleListAdapter(this, R.layout.people_item, R.id.label, peopleNearby);
 		
@@ -198,6 +195,17 @@ public class PeopleActivity extends ServiceHelper {
 		case R.id.settings:
 			startActivity(new Intent(getApplicationContext(), SettingActivity.class));
 			return true;
+		case R.id.menu_refresh:
+            Toast.makeText(this, "Refreshing...", Toast.LENGTH_SHORT).show();
+            getActionBarHelper().setRefreshActionItemState(true);
+            getWindow().getDecorView().postDelayed(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            getActionBarHelper().setRefreshActionItemState(false);
+                        }
+                    }, 5000);
+            break;
 		default:
 			break;
 		}
