@@ -4,7 +4,7 @@
     <string name="app_name">Mobile neighbour</string>
     
     <!-- People activity -->
-	<string name="peopleLabel">People</string>
+	<string name="peopleLabel">People nearby</string>
 	<string name="refresh">Refresh</string>
 	
 	<!-- Chat activity -->
