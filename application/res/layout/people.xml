@@ -4,10 +4,12 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <ListView
+    <GridView
         android:id="@+id/mylist"
+        android:numColumns="2"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-    </ListView>
+        android:layout_height="match_parent"     
+        android:stretchMode="columnWidth" >
+    </GridView>
 
 </LinearLayout>

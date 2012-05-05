@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -47,6 +48,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 public class PeopleActivity extends ServiceHelper {
 
 	private static String APIPATH= "http://www.vugi.iki.fi/msp-api/getName.php?address=";
+	private static String PICTUREPATH= "http://www.vugi.iki.fi/msp-api/profilePictures/";
 	
 	List<User> peopleNearby;
 	private UserDataSource userDatasource;
@@ -77,17 +79,25 @@ public class PeopleActivity extends ServiceHelper {
 			.cacheInMemory()
 			.cacheOnDisc()
 			.build();
+		
+		// Initialize people nearby -list
 		peopleNearby = new ArrayList<User>();
 		
 		// add some mockup values
-		//peopleNearby.add(new UserImpl("Tom Cruise", "http://www.vugi.iki.fi/msp-api/profile_picture.jpeg","ABC"));
-
+		//peopleNearby.add(new UserImpl("Anil",PICTUREPATH+"anil.jpg","ABC"));
+		//peopleNearby.add(new UserImpl("Antti",PICTUREPATH+"antti.jpg","ABC"));
+		//peopleNearby.add(new UserImpl("Jens",PICTUREPATH+"jens.jpg","ABC"));
+		//peopleNearby.add(new UserImpl("Kalle",PICTUREPATH+"kalle.jpg","ABC"));
+		//peopleNearby.add(new UserImpl("Shichao",PICTUREPATH+"shichao.jpg","ABC"));
+		//peopleNearby.add(new UserImpl("Taneli",PICTUREPATH+"taneli.jpg","ABC"));
+		
+		// Create list adapter
 		adapter = new PeopleListAdapter(this, R.layout.people_item, R.id.label, peopleNearby);
 		
-		ListView listView = (ListView) findViewById(R.id.mylist);
-		listView.setAdapter((ListAdapter) adapter );
+		GridView gridView = (GridView) findViewById(R.id.mylist);
+		gridView.setAdapter((ListAdapter) adapter );
 
-		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Intent intent = new Intent(getApplicationContext() , ChatActivity.class);
@@ -284,7 +294,7 @@ public class PeopleActivity extends ServiceHelper {
 				String deviceName = msg.getData().getString("deviceName");
 				
 				String username = "User " + address;
-				String profilePictureURI = "http://www.vugi.iki.fi/msp-api/profilePictures/"+address;
+				String profilePictureURI = PICTUREPATH+address;
 				
 				UserImpl userImpl = new UserImpl(deviceName, profilePictureURI, address);
 				
