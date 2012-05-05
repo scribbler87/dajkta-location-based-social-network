@@ -4,6 +4,8 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
 
+import com.example.android.actionbarcompat.ActionBarActivity;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -25,7 +27,7 @@ import fi.local.social.network.db.User;
 import fi.local.social.network.db.UserDataSource;
 import fi.local.social.network.db.UserImpl;
 
-public class SettingActivity extends Activity {
+public class SettingActivity extends ActionBarActivity {
 	private static final int SELECT_PICTURE = 1;
 	private ImageView image;
 	// private Button selectPic;

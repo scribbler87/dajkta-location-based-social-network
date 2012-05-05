@@ -18,6 +18,8 @@ package fi.local.social.network.activities;
 
 import java.util.Set;
 
+import com.example.android.actionbarcompat.ActionBarActivity;
+
 import fi.local.social.network.R;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -44,7 +46,7 @@ import android.widget.TextView;
  * by the user, the MAC address of the device is sent back to the parent
  * Activity in the result Intent.
  */
-public class DeviceListActivity extends Activity {
+public class DeviceListActivity extends ActionBarActivity {
     // Debugging
     private static final String TAG = "DeviceListActivity";
     private static final boolean D = true;
