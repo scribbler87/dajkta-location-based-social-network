@@ -208,7 +208,7 @@ public class PeopleActivity extends ServiceHelper {
 				// receive the new addr and put it into the listview
 				String address = msg.getData().getString("address");
 				String username = "User " + address;
-				String profilePictureURI = "http://www.vugi.iki.fi/msp-api/profile_picture.jpeg";
+				String profilePictureURI = "http://www.vugi.iki.fi/msp-api/profilePictures/"+address;
 				
 				UserImpl userImpl = new UserImpl(username, profilePictureURI, address);
 				
