@@ -183,6 +183,10 @@ public class PeopleActivity extends ServiceHelper {
 		}
 		
 		//doBindService(PeopleActivity.this);
+		this.startDiscovery();
+	}
+	
+	public void startDiscovery(){
 		sendMessageToService("startDiscovery", "", BTService.MSG_START_DISCOVERY);
 	}
 
@@ -205,8 +209,11 @@ public class PeopleActivity extends ServiceHelper {
 		case R.id.settings:
 			startActivity(new Intent(getApplicationContext(), SettingActivity.class));
 			return true;
-		case R.id.menu_refresh:
+		case R.id.menu_refresh:	
+			this.startDiscovery();
             Toast.makeText(this, "Refreshing...", Toast.LENGTH_SHORT).show();
+            
+            // Show spinner for a while..
             getActionBarHelper().setRefreshActionItemState(true);
             getWindow().getDecorView().postDelayed(
                     new Runnable() {
