@@ -118,9 +118,6 @@ public class PeopleActivity extends ServiceHelper {
 	protected void onDestroy() {
 		super.onDestroy();
 		try {
-			System.err.println("stop service");
-			//doUnbindService();
-			//	stopService(new Intent(PeopleActivity.this, BTService.class));
 		} catch (Throwable t) {
 			Log.e("MainActivity", "Failed to unbind from the service", t);
 		}
@@ -132,6 +129,15 @@ public class PeopleActivity extends ServiceHelper {
 	//	doUnRegister();
 	}	
 
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+	}
+	
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+	}
 
 	@Override
 	protected void onResume() {
@@ -146,11 +152,13 @@ public class PeopleActivity extends ServiceHelper {
 				break;
 			}
 		}
+		
 		userDatasource.close();
 		if("".equals(USERNAME))
 		{
 			startActivity(new Intent(getApplicationContext(), SettingActivity.class));
 		}
+		
 		//doBindService(PeopleActivity.this);
 		sendMessageToService("startDiscovery", "", BTService.MSG_START_DISCOVERY);
 	}
@@ -213,11 +221,14 @@ public class PeopleActivity extends ServiceHelper {
 				System.err.println("startdiscovery");
 				sendMessageToService("startDiscovery", "", BTService.MSG_START_DISCOVERY);
 				break;
-			case BTService.MSG_REC_MESSAGE:
-				// receive a message from the bluetooth service
-				String str2 = msg.getData().getString("chatMessage");
-				System.err.println("received message: " + str2);
-				Toast.makeText(getApplicationContext(), str2, Toast.LENGTH_SHORT).show();
+//			case BTService.MSG_REC_MESSAGE:
+//				// receive a message from the bluetooth service
+//				String str2 = msg.getData().getString("chatMessage");
+//				System.err.println("received message: " + str2);
+//				Toast.makeText(getApplicationContext(), str2, Toast.LENGTH_SHORT).show();
+//				break;
+			case BTService.START_CHAT_AVTIVITY:
+				startActivity(new Intent(getApplicationContext(), ChatActivity.class));
 				break;
 			default:
 				super.handleMessage(msg);

@@ -188,13 +188,11 @@ public class ChatActivity extends ServiceHelper {
 	protected void onDestroy() {
 		super.onDestroy();
 		cleanUpResources();
-		stopService(new Intent(ChatActivity.this, BTService.class));
 	}
 
 	private void cleanUpResources() {
 		chatMessageDataSource.close();
 		try {
-			System.err.println("stop service");
 			//	stopService(new Intent(ChatActivity.this, BTService.class));
 		//	doUnbindService();
 		} catch (Throwable t) {
@@ -219,9 +217,17 @@ public class ChatActivity extends ServiceHelper {
 				String str1 = msg.getData().getString("chatMessage");
 				System.err.println("received message: " + str1);
 				Toast.makeText(getApplicationContext(), str1, Toast.LENGTH_SHORT).show();
+				ChatMessageImpl chatMessageImpl = new ChatMessageImpl();
+				chatMessageImpl.setMessage(str1);
+				chatMessageImpl.setSenderName("sender"); //TODO
+				chatList.add(chatMessageImpl);
+				adapter.notifyDataSetChanged();
 				break;
 			case BTService.MSG_REGISTERED_CLIENT:
 				sendMessageToService("address", address, BTService.MSG_START_CONNCETION);
+				break;
+			case BTService.CONNECTION_LOST:
+				startActivity(new Intent(getApplicationContext(), PeopleActivity.class));
 				break;
 				
 

@@ -5,16 +5,22 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 
 
+
+import android.app.ActivityManager.RunningServiceInfo;
+import android.app.ActivityManager;
+import android.app.Application;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -41,6 +47,7 @@ public class BTService extends Service{
 	public static final int MSG_CHAT_MESSAGE = 11;
 	public static final int LEAVE_CHATACTIVITY = 12;
 	public static final int CONNECTION_LOST = 13;
+	public static final int START_CHAT_AVTIVITY = 14;
 
 	private BluetoothAdapter mBluetoothAdapter = null;
 
@@ -66,6 +73,7 @@ public class BTService extends Service{
 	private AcceptThread mAcceptThread;
 	private ConnectThread mConnectThread;
 	private ConnectedThread mConnectedThread;
+//	private CheckVisablityThread checkVisablityThread;
 	private static boolean isRunning;
 
 	private static final boolean D = true;
@@ -99,10 +107,9 @@ public class BTService extends Service{
 				doDiscovery();
 				break;
 			case MSG_START_CONNCETION:
-				System.err.println("startttttttttttttttttttttttttt");
 				Bundle data = msg.getData();
 				String address = data.getString("address");
-				System.err.println("starting connection ? " + address);
+				System.err.println("starting connection to address:  " + address);
 				BluetoothDevice b = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address);
 				connect(b);
 				break;
@@ -115,13 +122,17 @@ public class BTService extends Service{
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 				}
-				
+
 				write(bytes);
 				break;
 			case LEAVE_CHATACTIVITY:
-				mConnectedThread.cancel();
-				mAcceptThread.start();
-				
+				// check if we are still in the connected thread
+				if(mState == 3)
+				{
+					start();
+				}
+
+
 				break;
 			default:
 				super.handleMessage(msg);
@@ -134,7 +145,7 @@ public class BTService extends Service{
 			Intent discoverableIntent = new Intent(
 					BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
 			discoverableIntent.putExtra(
-					BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0);
+					BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 120);
 			discoverableIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			startActivity(discoverableIntent);
 		}
@@ -150,6 +161,20 @@ public class BTService extends Service{
 	public void onCreate() {
 		super.onCreate();
 
+		
+//		this.stopSelf();
+//		ActivityManager systemService = (ActivityManager)getApplicationContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
+//		List<RunningServiceInfo> runningServices = systemService.getRunningServices(Integer.MAX_VALUE);
+//		for (RunningServiceInfo runningServiceInfo : runningServices) {
+//			if("fi.local.social.network.btservice.BtService".equals(runningServiceInfo.service.getClassName().toString()))
+//			{
+//				//runningServiceInfo.
+//				System.err.println("service is still running when we start our service");
+//			}
+//		}
+//		checkVisablityThread = new CheckVisablityThread();
+//		checkVisablityThread.start();
+
 		// is the bluetooth turned on?
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		// turn bt on if it not turned on
@@ -157,7 +182,7 @@ public class BTService extends Service{
 			mBluetoothAdapter.enable();
 
 
-		ensureDiscoverable();
+		
 
 
 		// define filter for broadcast
@@ -171,10 +196,9 @@ public class BTService extends Service{
 
 
 		// Register for broadcasts when a device is discovered
-		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
 		this.registerReceiver(broadCastReceiver, intFilter);
 		start();
-
+		ensureDiscoverable();
 		isRunning = true;
 	}
 
@@ -227,8 +251,8 @@ public class BTService extends Service{
 		}
 
 	}
-	
-	
+
+
 
 
 	// send the founded devices to the peopleactivity
@@ -251,42 +275,25 @@ public class BTService extends Service{
 		}
 
 	}
-	
-//		public static void sendMessageToUI(String message) {
-//			for(int i = 0; i < mClients.size() ; i++)
-//			{
-//				Messenger client = mClients.get(i);
-//
-//				Bundle b = new Bundle();
-//				b.putString("chatMessage", message);
-//				Message msg = Message.obtain(null, MSG_REC_MESSAGE);
-//				msg.setData(b);
-//				try {
-//					client.send(msg);
-//				} catch (RemoteException e) {
-//					e.printStackTrace();
-//				}
-//			}
 
-//		}
-		
-		public static void sendMessageToUI(String key, String data,  int MSG_TYPE) {
-			for(int i = 0; i < mClients.size() ; i++)
-			{
-				Messenger client = mClients.get(i);
 
-				Bundle b = new Bundle();
-				b.putString(key, data);
-				Message msg = Message.obtain(null, MSG_TYPE);
-				msg.setData(b);
-				try {
-					client.send(msg);
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				}
+	public static void sendMessageToUI(String key, String data,  int MSG_TYPE) {
+		for(int i = 0; i < mClients.size() ; i++)
+		{
+			Messenger client = mClients.get(i);
+
+			Bundle b = new Bundle();
+			b.putString(key, data);
+			Message msg = Message.obtain(null, MSG_TYPE);
+			msg.setData(b);
+			try {
+				client.send(msg);
+			} catch (RemoteException e) {
+				e.printStackTrace();
 			}
-
 		}
+
+	}
 
 	// Cool stuff
 
@@ -311,6 +318,9 @@ public class BTService extends Service{
 	private void connectionLost() {
 		setState(STATE_LISTEN);
 		sendMessageToUI("connectionLost", "", this.CONNECTION_LOST);
+		stop();
+		start();
+		sendMessageToUI("lostConnection", "", BTService.LEAVE_CHATACTIVITY);
 		// Send a failure message back to the Activity
 		// TODO send to activity
 	}
@@ -429,8 +439,7 @@ public class BTService extends Service{
 				// This is a blocking call and will only return on a
 				// successful connection or an exception
 				mmSocket.connect();
-				System.err.println("finnished connect");
-				
+
 			} catch (IOException e) {
 				connectionFailed();
 				// Close the socket
@@ -488,14 +497,18 @@ public class BTService extends Service{
 			if (D) Log.d(TAG, "BEGIN mAcceptThread" + this);
 			setName("AcceptThread");
 			BluetoothSocket socket = null;
+//			if(!checkVisablityThread.isAlive())
+//				checkVisablityThread.start();
 
 			// Listen to the server socket if we're not connectedeplyTo
 			while (mState != STATE_CONNECTED) {
 				try {
+
+
 					// This is a blocking call and will only return on a
 					// successful connection or an exception
 					socket = mmServerSocket.accept();
-					ensureDiscoverable();
+
 				} catch (IOException e) {
 					Log.e(TAG, "accept() failed", e);
 					break;
@@ -567,26 +580,34 @@ public class BTService extends Service{
 			Log.i(TAG, "BEGIN mConnectedThread");
 			byte[] buffer = new byte[1024];
 			int bytes;
-
+			
+			sendMessageToUI("startChatActivity", "", START_CHAT_AVTIVITY);
 			// Keep listening to the InputStream while connected
 			while (true) {
 				try {
 					// Read from the InputStream
 					bytes = mmInStream.read(buffer);
 					String receivedMessage = new String(buffer,"UTF-16LE");
-					
+
 					// Send the obtained bytes to the UI Activity
 					buffer = null;
 					buffer = new byte[1024];
-					
+
 					sendMessageToUI("chatMessage",receivedMessage,MSG_REC_MESSAGE);
-					
+
 					Log.i(TAG, receivedMessage);
 				} catch (Exception e) {
 					Log.e(TAG, "disconnected", e);
+					try {
+						mmInStream.close();
+						mmOutStream.close();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+					
 					connectionLost();
 					break;
-				} // TODO add more excptions
+				}
 			}
 		}
 
@@ -617,6 +638,9 @@ public class BTService extends Service{
 			}
 		}
 	}
+	
+
+
 
 
 
