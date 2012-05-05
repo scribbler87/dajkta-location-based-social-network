@@ -44,8 +44,6 @@ public class ChatActivity extends ServiceHelper {
 	private ListView chatHistoryListView;
 	private String userName;
 	private String receiverName;
-	// final Messenger mMessenger = new Messenger(new IncomingHandler()); //
-	// Target we publish for clients to send messages to IncomingHandler.
 	public String address;
 
 	@Override
@@ -126,9 +124,7 @@ public class ChatActivity extends ServiceHelper {
 		if (message.length() > 0) {
 			System.err.println(message);
 
-			// TODO: get it from the network or somewhere else
 			// generating string for storing in db
-
 			ChatMessage tmpMessage = new ChatMessageImpl();
 			tmpMessage.setMessage(message);
 			tmpMessage.setReceiverName(receiverName);
@@ -150,8 +146,8 @@ public class ChatActivity extends ServiceHelper {
 				this.sendMessageToService("chatMessage", chatMessage.getMessage(), BTService.MSG_CHAT_MESSAGE);
 			}
 			else
-				Toast.makeText(getApplicationContext(), "You are not connected with the device.", Toast.LENGTH_LONG);
-
+				Toast.makeText(getApplicationContext(), "You are not connected with the device." +
+						"\nPlease try again later.", Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -175,13 +171,6 @@ public class ChatActivity extends ServiceHelper {
 
 	private void cleanUpResources() {
 		chatMessageDataSource.close();
-		try {
-		//	doUnbindService();
-			// stopService(new Intent(ChatActivity.this, BTService.class));
-			// doUnbindService();
-		} catch (Throwable t) {
-			Log.e("MainActivity", "Failed to unbind from the service", t);
-		}
 	}
 
 	public ArrayAdapter<ChatMessage> getAdapter() {
@@ -208,9 +197,8 @@ public class ChatActivity extends ServiceHelper {
 				chatList.add(chatMessageImpl);
 				adapter.notifyDataSetChanged();
 
-				Toast.makeText(getApplicationContext(), str1,
+				Toast.makeText(getApplicationContext(),"ReceivedMessage: " + str1,
 						Toast.LENGTH_SHORT).show();
-
 				break;
 			case BTService.MSG_REGISTERED_CLIENT:
 				sendMessageToService("address", address,
@@ -219,8 +207,9 @@ public class ChatActivity extends ServiceHelper {
 			case BTService.CONNECTION_LOST:
 				startActivity(new Intent(getApplicationContext(), PeopleActivity.class));
 				break;
-				
-
+			case BTService.CONNECTION_FAILED:
+				startActivity(new Intent(getApplicationContext(), PeopleActivity.class));
+				break;
 			default:
 				super.handleMessage(msg);
 			}

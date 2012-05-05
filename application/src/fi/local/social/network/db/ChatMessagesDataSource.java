@@ -67,6 +67,12 @@ public class ChatMessagesDataSource implements DataSource{
 
 		String[] allColumnNames = dbHelper.getAllColumnNames(MySQLiteHelper.TABLE_CHATMESSAGES);
 		
+		if(database == null)
+			{
+			System.err.println("Database has not been initialized");
+			return chatMessages;
+			}
+		// TODO BUG
 		Cursor cursor = database.query(MySQLiteHelper.TABLE_CHATMESSAGES,
 				allColumnNames, null, null, null, null, null);
 

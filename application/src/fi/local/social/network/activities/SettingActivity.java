@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 import fi.local.social.network.R;
+import fi.local.social.network.btservice.BTService;
 import fi.local.social.network.db.ChatMessage;
 import fi.local.social.network.db.ChatMessagesDataSource;
 import fi.local.social.network.db.User;
@@ -33,6 +34,7 @@ public class SettingActivity extends Activity {
 	private EditText nickname;
 	private UserDataSource userDataSource;
 	private ChatMessagesDataSource chatMessDataSource;
+	private Button stopServiceButton;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -74,18 +76,41 @@ public class SettingActivity extends Activity {
 				return false;
 			}
 		});
+		
+		
+		stopServiceButton = (Button) findViewById(R.id.stopService);
+		
+		if(BTService.isRunning())
+			stopServiceButton.setText("Stop-Service");
+		else
+			stopServiceButton.setText("Start-Service");
+			
+		
+		stopServiceButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				if("Stop-Service".equals(stopServiceButton.getText()))
+				{
+					stopService(new Intent(SettingActivity.this, BTService.class));
+					stopServiceButton.setText("Start-Service");
+				}
+				else
+				{
+					startService(new Intent(SettingActivity.this, BTService.class));
+					stopServiceButton.setText("Stop-Service");
+				}
+			}
+		});
 	}
 
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 		userDataSource.open();
 	}
 	
 	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub
 		super.onPause();
 		userDataSource.close();
 	}
@@ -167,4 +192,5 @@ public class SettingActivity extends Activity {
 
 		startActivity(new Intent(getApplicationContext(), PeopleActivity.class));
 	}
+	
 }

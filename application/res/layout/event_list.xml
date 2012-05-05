@@ -16,6 +16,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_margin="5" android:text="Create event"/>
+         android:text="Create event"/>
+<!--         android:layout_margin="5"  -->
+       
 
 </RelativeLayout>

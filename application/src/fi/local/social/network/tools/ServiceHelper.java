@@ -15,6 +15,9 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import fi.local.social.network.R;
 import fi.local.social.network.activities.PeopleActivity;
 import fi.local.social.network.btservice.BTService;
 
@@ -41,6 +44,8 @@ public abstract class ServiceHelper extends ActionBarActivity{
 			}
 			Log.i(TAG ,"Attached.");
 			sendMessageToService("msg_register", "", BTService.MSG_REGISTER_CLIENT);
+			
+			
 			// In this case the service has crashed before we could even do anything with it
 			
 		}

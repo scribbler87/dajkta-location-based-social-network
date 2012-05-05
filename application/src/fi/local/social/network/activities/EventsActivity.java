@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fi.local.social.network.R;
-import fi.local.social.network.db.ChatMessage;
-import fi.local.social.network.db.ChatMessagesDataSource;
 import fi.local.social.network.db.Event;
 import fi.local.social.network.db.EventsDataSource;
 import android.app.Activity;
@@ -20,7 +18,6 @@ import android.widget.TextView;
 
 public class EventsActivity extends Activity {
 	private EventsDataSource eventsDataSource;
-	private ListView lvEventsHist;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

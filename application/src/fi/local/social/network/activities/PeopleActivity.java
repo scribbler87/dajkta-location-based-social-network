@@ -1,22 +1,14 @@
 package fi.local.social.network.activities;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
-import android.app.ListActivity;
-import android.bluetooth.BluetoothDevice;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
-import android.os.RemoteException;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,23 +18,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import fi.local.social.network.R;
-import fi.local.social.network.activities.ChatActivity.IncomingHandler;
 import fi.local.social.network.btservice.BTService;
-import fi.local.social.network.btservice.BTService;
-import fi.local.social.network.db.EventImpl;
 import fi.local.social.network.db.User;
 import fi.local.social.network.db.UserDataSource;
 import fi.local.social.network.db.UserImpl;
 import fi.local.social.network.tools.ServiceHelper;
 
-import com.example.android.actionbarcompat.*;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
@@ -66,20 +54,13 @@ public class PeopleActivity extends ServiceHelper {
 		// Initialize Messenger
 		this.mMessenger =  new Messenger(new IncomingHandler());
 		
-		
 		// Initialize imageLoader
 		ImageLoaderConfiguration config = ImageLoaderConfiguration.createDefault(this);
 		ImageLoader.getInstance().init(config);
 
-		// TODO: get real people and their names
+		// TODO: get real people and their names, we now use the device name at the moment
 		// add some mockup values
 		peopleNearby = new ArrayList<User>();
-		//		peopleNearby.add(new UserImpl("Tom Cruise", "add uri for pic"));
-		//		peopleNearby.add(new UserImpl("Tom Hanks", "add uri for pic"));
-		//		peopleNearby.add(new UserImpl("Jason Stathon","add uri for pic"));
-		//		peopleNearby.add(new UserImpl("Joe Hu", "add uri for pic"));
-
-//		adapter = new ArrayAdapter<User>(this, R.layout.people_item, R.id.label, peopleNearby);
 
 		adapter = new PeopleListAdapter(this, R.layout.people_item, R.id.label, peopleNearby);
 		
@@ -89,18 +70,15 @@ public class PeopleActivity extends ServiceHelper {
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				Toast.makeText(getApplicationContext(), "kjhkj", Toast.LENGTH_SHORT).show();
 				Intent intent = new Intent(getApplicationContext() , ChatActivity.class);
 				Bundle b = new Bundle();
 				b.putString("username", USERNAME);
 				b.putString("receiver", view.toString());// TODO check if this works
 				String s = view.toString();
 				System.err.println("viewtostring " + s);
-				b.putString("address", peopleNearby.get(position).getAddress()); // TODO how to get the adress from the according user??
+				b.putString("address", peopleNearby.get(position).getAddress()); 
 				intent.putExtras(b);
 				startActivity(intent);
-
-
 
 			}
 		});
@@ -123,8 +101,7 @@ public class PeopleActivity extends ServiceHelper {
 			startActivity(new Intent(getApplicationContext(), SettingActivity.class));
 		}
 
-		// ********************bind to the bluetooth service
-
+		// ******************** bind to the bluetooth service
 		doBindService(PeopleActivity.this);
 		
 	}
@@ -133,16 +110,12 @@ public class PeopleActivity extends ServiceHelper {
 	protected void onDestroy() {
 		super.onDestroy();
 		imageLoader.stop();
-		try {
-		} catch (Throwable t) {
-			Log.e("MainActivity", "Failed to unbind from the service", t);
-		}
+		stopService(getIntent());
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-	//	doUnRegister();
 	}	
 
 	@Override
@@ -219,17 +192,18 @@ public class PeopleActivity extends ServiceHelper {
 			case BTService.MSG_NEW_ADDR:
 				// receive the new addr and put it into the listview
 				String address = msg.getData().getString("address");
+				String deviceName = msg.getData().getString("deviceName");
+				
 				String username = "User " + address;
 				String profilePictureURI = "http://www.vugi.iki.fi/msp-api/profile_picture.jpeg";
 				
-				UserImpl userImpl = new UserImpl(username, profilePictureURI, address);
+				UserImpl userImpl = new UserImpl(deviceName, profilePictureURI, address);
 				
 				for(int i = 0; i < peopleNearby.size(); i++)
 				{
 					User user = peopleNearby.get(i);
 					if(address.equals(user.getAddress()))
 					{
-						// TODO set refresh flag
 						return;
 					}
 				}
@@ -241,12 +215,9 @@ public class PeopleActivity extends ServiceHelper {
 				System.err.println("startdiscovery");
 				sendMessageToService("startDiscovery", "", BTService.MSG_START_DISCOVERY);
 				break;
-//			case BTService.MSG_REC_MESSAGE:
-//				// receive a message from the bluetooth service
-//				String str2 = msg.getData().getString("chatMessage");
-//				System.err.println("received message: " + str2);
-//				Toast.makeText(getApplicationContext(), str2, Toast.LENGTH_SHORT).show();
-//				break;
+			case BTService.CONNECTION_FAILED:
+				Toast.makeText(getApplicationContext(), "Could not connect at the moment. Try again.", Toast.LENGTH_SHORT).show();
+				break;
 			case BTService.START_CHAT_AVTIVITY:
 				startActivity(new Intent(getApplicationContext(), ChatActivity.class));
 				break;
