@@ -5,22 +5,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 
 
 
-import android.app.ActivityManager.RunningServiceInfo;
-import android.app.ActivityManager;
-import android.app.Application;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -48,10 +43,10 @@ public class BTService extends Service{
 	public static final int LEAVE_CHATACTIVITY = 12;
 	public static final int CONNECTION_LOST = 13;
 	public static final int START_CHAT_AVTIVITY = 14;
+	public static final int CONNECTION_FAILED = 15;
 
 	private BluetoothAdapter mBluetoothAdapter = null;
 
-	private ArrayList<String> devicesAddr;
 
 	/**
 	 * Target we publish for clients to send messages to IncomingHandler.
@@ -67,7 +62,7 @@ public class BTService extends Service{
 
 	// TODO: Change this
 	// Unique UUID for this application
-	private static final UUID MY_UUID = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
+	private static final UUID MY_UUID = UUID.fromString("04c6093b-0000-1000-8000-00805f9b34fb");//fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
 
 	public static int mState = -1;
 	private AcceptThread mAcceptThread;
@@ -256,7 +251,7 @@ public class BTService extends Service{
 
 
 	// send the founded devices to the peopleactivity
-	public static void sendAddrToPeopleActivity(String addr) {
+	public static void sendAddrToPeopleActivity(String addr, String deviceName) {
 		System.err.println("addres: " + addr);
 		for(int i = 0; i < mClients.size() ; i++)
 		{
@@ -264,12 +259,12 @@ public class BTService extends Service{
 
 			Bundle b = new Bundle();
 			b.putString("address", addr);
+			b.putString("deviceName", deviceName);
 			Message msg = Message.obtain(null, MSG_NEW_ADDR);
 			msg.setData(b);
 			try {
 				client.send(msg);
 			} catch (RemoteException e) {
-				// TODO mClients.remove(i);?? 
 				e.printStackTrace();
 			}
 		}
@@ -317,7 +312,7 @@ public class BTService extends Service{
 
 	private void connectionLost() {
 		setState(STATE_LISTEN);
-		sendMessageToUI("connectionLost", "", this.CONNECTION_LOST);
+		sendMessageToUI("connectionLost", "", CONNECTION_LOST);
 		stop();
 		start();
 		sendMessageToUI("lostConnection", "", BTService.LEAVE_CHATACTIVITY);
@@ -335,6 +330,7 @@ public class BTService extends Service{
 
 	private void connectionFailed() {
 		setState(STATE_LISTEN);
+		sendMessageToUI("connectionFailed", "", CONNECTION_FAILED);
 
 		// Send a failure message back to the Activity
 		// TODO send to activity
@@ -438,6 +434,7 @@ public class BTService extends Service{
 			try {
 				// This is a blocking call and will only return on a
 				// successful connection or an exception
+				System.err.println("Try to connect.");
 				mmSocket.connect();
 
 			} catch (IOException e) {
@@ -579,14 +576,13 @@ public class BTService extends Service{
 		public void run() {
 			Log.i(TAG, "BEGIN mConnectedThread");
 			byte[] buffer = new byte[1024];
-			int bytes;
 			
 			sendMessageToUI("startChatActivity", "", START_CHAT_AVTIVITY);
 			// Keep listening to the InputStream while connected
 			while (true) {
 				try {
 					// Read from the InputStream
-					bytes = mmInStream.read(buffer);
+					mmInStream.read(buffer);
 					String receivedMessage = new String(buffer,"UTF-16LE");
 
 					// Send the obtained bytes to the UI Activity
@@ -620,9 +616,8 @@ public class BTService extends Service{
 				System.err.println("start sending message");
 				mmOutStream.write(buffer);
 				System.err.println("finished sending message");
-				// Share the sent message back to the UI Activity
-				//mHandler.obtainMessage(BTActivity.MESSAGE_WRITE, -1, -1, buffer).sendToTarget();
-				// TODO: todo
+				
+				// TODO: Share the sent message back to the UI Activity
 				Log.i(TAG, buffer.toString());
 			} catch (IOException e) {
 				Log.e(TAG, "Exception during write", e);
