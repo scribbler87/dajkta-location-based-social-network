@@ -31,7 +31,6 @@ import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import fi.local.social.network.R;
@@ -161,7 +160,7 @@ public class PeopleActivity extends ServiceHelper {
 		for (User user : allEntries) {
 			if(user.isPhoneUser())
 			{
-				this.USERNAME = user.getUserName();
+				USERNAME = user.getUserName();
 				break;
 			}
 		}
@@ -315,7 +314,7 @@ public class PeopleActivity extends ServiceHelper {
 			case BTService.CONNECTION_FAILED:
 				Toast.makeText(getApplicationContext(), "Could not connect at the moment. Try again.", Toast.LENGTH_SHORT).show();
 				break;
-				
+
 			case BTService.START_CHAT_AVTIVITY:
 				Intent intent = new Intent(getApplicationContext() , ChatActivity.class);
 				Bundle b = new Bundle();
@@ -323,7 +322,7 @@ public class PeopleActivity extends ServiceHelper {
 				b.putString("receiver", ADDRESS);// TODO needs to come from the network
 				b.putString("address", ADDRESS); 
 				intent.putExtras(b);
-				startActivity(new Intent(getApplicationContext(), ChatActivity.class));
+				startActivity(intent);
 				break;
 				
 			default:
