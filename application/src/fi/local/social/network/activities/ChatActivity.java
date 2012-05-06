@@ -108,6 +108,8 @@ public class ChatActivity extends ServiceHelper {
 		userName = (String) extras.get("username");
 		receiverName = extras.get("receiver").toString();
 		chatMessageDataSource.open();
+		
+		
 	}
 
 	private void filterMyMessages() {
