@@ -50,9 +50,9 @@ public class ChatActivity extends ServiceHelper {
 		chatList = new ArrayList<ChatMessage>();
 
 		Bundle extras = getIntent().getExtras();
-		userName = (String) extras.get("username");
-		receiverName = extras.get("receiver").toString();
-		address = extras.get("address").toString();
+		userName = extras.getString("username");
+		receiverName = extras.getString("receiver");
+		address = extras.getString("address");
 
 		chatMessageDataSource = new ChatMessagesDataSource(this);
 		
