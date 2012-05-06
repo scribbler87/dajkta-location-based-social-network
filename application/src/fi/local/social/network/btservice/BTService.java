@@ -7,6 +7,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import fi.local.social.network.activities.ZeroAvailableInputStream;
+
 
 
 
@@ -40,7 +42,7 @@ public class BTService extends Service{
 	public static final int MSG_REGISTERED_CLIENT = 9;
 	public static final int MSG_PING = 10;
 	public static final int MSG_CHAT_MESSAGE = 11;
-	public static final int LEAVE_CHATACTIVITY = 12;
+	public static final int LEAVED_CHATACTIVITY = 12;
 	public static final int CONNECTION_LOST = 13;
 	public static final int START_CHAT_AVTIVITY = 14;
 	public static final int CONNECTION_FAILED = 15;
@@ -68,7 +70,7 @@ public class BTService extends Service{
 	private AcceptThread mAcceptThread;
 	private ConnectThread mConnectThread;
 	private ConnectedThread mConnectedThread;
-//	private CheckVisablityThread checkVisablityThread;
+	//	private CheckVisablityThread checkVisablityThread;
 	private static boolean isRunning;
 
 	private static final boolean D = true;
@@ -120,14 +122,10 @@ public class BTService extends Service{
 
 				write(bytes);
 				break;
-			case LEAVE_CHATACTIVITY:
-				// check if we are still in the connected thread
-				if(mState == 3)
-				{
-					start();
-				}
-
-
+			case LEAVED_CHATACTIVITY:
+				// connection is over, restart everything
+				stop();
+				start();
 				break;
 			default:
 				super.handleMessage(msg);
@@ -152,23 +150,24 @@ public class BTService extends Service{
 		return mMessenger.getBinder();
 	}
 
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
 
-		
-//		this.stopSelf();
-//		ActivityManager systemService = (ActivityManager)getApplicationContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
-//		List<RunningServiceInfo> runningServices = systemService.getRunningServices(Integer.MAX_VALUE);
-//		for (RunningServiceInfo runningServiceInfo : runningServices) {
-//			if("fi.local.social.network.btservice.BtService".equals(runningServiceInfo.service.getClassName().toString()))
-//			{
-//				//runningServiceInfo.
-//				System.err.println("service is still running when we start our service");
-//			}
-//		}
-//		checkVisablityThread = new CheckVisablityThread();
-//		checkVisablityThread.start();
+
+		//		this.stopSelf();
+		//		ActivityManager systemService = (ActivityManager)getApplicationContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
+		//		List<RunningServiceInfo> runningServices = systemService.getRunningServices(Integer.MAX_VALUE);
+		//		for (RunningServiceInfo runningServiceInfo : runningServices) {
+		//			if("fi.local.social.network.btservice.BtService".equals(runningServiceInfo.service.getClassName().toString()))
+		//			{
+		//				//runningServiceInfo.
+		//				System.err.println("service is still running when we start our service");
+		//			}
+		//		}
+		//		checkVisablityThread = new CheckVisablityThread();
+		//		checkVisablityThread.start();
 
 		// is the bluetooth turned on?
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -177,7 +176,7 @@ public class BTService extends Service{
 			mBluetoothAdapter.enable();
 
 
-		
+
 
 
 		// define filter for broadcast
@@ -185,8 +184,6 @@ public class BTService extends Service{
 		intFilter.addAction(BluetoothDevice.ACTION_FOUND);
 		intFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
 		intFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-
-
 
 
 
@@ -208,6 +205,7 @@ public class BTService extends Service{
 		super.onDestroy();
 		mBluetoothAdapter.cancelDiscovery();
 		isRunning = false;
+		stop();
 	}
 
 	/**
@@ -215,8 +213,6 @@ public class BTService extends Service{
 	 */
 	private void doDiscovery() {
 		Log.d(TAG , "doDiscovery()");
-
-
 
 		// If we're already discovering, stop it
 		if (mBluetoothAdapter.isDiscovering()) {
@@ -290,7 +286,6 @@ public class BTService extends Service{
 
 	}
 
-	// Cool stuff
 
 	public synchronized void start() {
 		if (D) Log.d(TAG, "start");
@@ -312,28 +307,22 @@ public class BTService extends Service{
 
 	private void connectionLost() {
 		setState(STATE_LISTEN);
-		sendMessageToUI("connectionLost", "", CONNECTION_LOST);
 		stop();
 		start();
-		sendMessageToUI("lostConnection", "", BTService.LEAVE_CHATACTIVITY);
+
 		// Send a failure message back to the Activity
-		// TODO send to activity
+		sendMessageToUI("connectionLost", "", CONNECTION_LOST);
 	}
 
 	private synchronized void setState(int state) {
 		if (D) Log.d(TAG, "setState() " + mState + " -> " + state);
 		mState = state;
-
-		// Give the new state to the Handler so the UI Activity can update
-		// TODO send to activity
 	}
 
 	private void connectionFailed() {
 		setState(STATE_LISTEN);
-		sendMessageToUI("connectionFailed", "", CONNECTION_FAILED);
-
 		// Send a failure message back to the Activity
-		// TODO send to activity
+		sendMessageToUI("connectionFailed", "", CONNECTION_FAILED);
 	}
 
 	/**
@@ -494,8 +483,8 @@ public class BTService extends Service{
 			if (D) Log.d(TAG, "BEGIN mAcceptThread" + this);
 			setName("AcceptThread");
 			BluetoothSocket socket = null;
-//			if(!checkVisablityThread.isAlive())
-//				checkVisablityThread.start();
+			//			if(!checkVisablityThread.isAlive())
+			//				checkVisablityThread.start();
 
 			// Listen to the server socket if we're not connectedeplyTo
 			while (mState != STATE_CONNECTED) {
@@ -563,7 +552,9 @@ public class BTService extends Service{
 
 			// Get the BluetoothSocket input and output streams
 			try {
-				tmpIn = socket.getInputStream();
+//				tmpIn = socket.getInputStream();
+				// TODO is there a bug in android?
+				tmpIn =  new ZeroAvailableInputStream(socket.getInputStream());
 				tmpOut = socket.getOutputStream();
 			} catch (IOException e) {
 				Log.e(TAG, "temp sockets not created", e);
@@ -576,13 +567,15 @@ public class BTService extends Service{
 		public void run() {
 			Log.i(TAG, "BEGIN mConnectedThread");
 			byte[] buffer = new byte[1024];
-			
+
 			sendMessageToUI("startChatActivity", "", START_CHAT_AVTIVITY);
 			// Keep listening to the InputStream while connected
 			while (true) {
 				try {
+					System.err.println("before read");
 					// Read from the InputStream
-					mmInStream.read(buffer);
+					int x = mmInStream.read(buffer);
+					System.err.println("after read: " + x);
 					String receivedMessage = new String(buffer,"UTF-16LE");
 
 					// Send the obtained bytes to the UI Activity
@@ -600,7 +593,7 @@ public class BTService extends Service{
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
-					
+
 					connectionLost();
 					break;
 				}
@@ -616,7 +609,7 @@ public class BTService extends Service{
 				System.err.println("start sending message");
 				mmOutStream.write(buffer);
 				System.err.println("finished sending message");
-				
+
 				// TODO: Share the sent message back to the UI Activity
 				Log.i(TAG, buffer.toString());
 			} catch (IOException e) {
@@ -633,7 +626,7 @@ public class BTService extends Service{
 			}
 		}
 	}
-	
+
 
 
 

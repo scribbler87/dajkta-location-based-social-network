@@ -83,15 +83,7 @@ public class PeopleActivity extends ServiceHelper {
 		// Initialize people nearby -list
 		peopleNearby = new ArrayList<User>();
 		
-		// add some mockup values
-		/*
-		peopleNearby.add(new UserImpl("Anil",PICTUREPATH+"anil.jpg","ABC"));
-		peopleNearby.add(new UserImpl("Antti",PICTUREPATH+"antti.jpg","ABC"));
-		peopleNearby.add(new UserImpl("Jens",PICTUREPATH+"jens.jpg","ABC"));
-		peopleNearby.add(new UserImpl("Kalle",PICTUREPATH+"kalle.jpg","ABC"));
-		peopleNearby.add(new UserImpl("Shichao",PICTUREPATH+"shichao.jpg","ABC"));
-		peopleNearby.add(new UserImpl("Taneli",PICTUREPATH+"taneli.jpg","ABC"));
-		*/
+	
 		
 		// Create list adapter
 		adapter = new PeopleListAdapter(this, R.layout.people_item, R.id.label, peopleNearby);
@@ -105,9 +97,8 @@ public class PeopleActivity extends ServiceHelper {
 				Intent intent = new Intent(getApplicationContext() , ChatActivity.class);
 				Bundle b = new Bundle();
 				b.putString("username", USERNAME);
-				b.putString("receiver", view.toString());// TODO check if this works
+				b.putString("receiver", view.toString());
 				String s = view.toString();
-				System.err.println("viewtostring " + s);
 				b.putString("address", peopleNearby.get(position).getAddress()); 
 				intent.putExtras(b);
 				startActivity(intent);
@@ -325,6 +316,13 @@ public class PeopleActivity extends ServiceHelper {
 				Toast.makeText(getApplicationContext(), "Could not connect at the moment. Try again.", Toast.LENGTH_SHORT).show();
 				break;
 			case BTService.START_CHAT_AVTIVITY:
+				Intent intent = new Intent(getApplicationContext() , ChatActivity.class);
+				Bundle b = new Bundle();
+				b.putString("username", USERNAME);
+				b.putString("receiver", "mockup");// TODO needs to come from the network
+				b.putString("address", "mockup"); 
+				intent.putExtras(b);
+				
 				startActivity(new Intent(getApplicationContext(), ChatActivity.class));
 				break;
 			default:
