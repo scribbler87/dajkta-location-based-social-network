@@ -535,6 +535,11 @@ public class BTService extends Service{
                         case STATE_CONNECTING:
                             // Situation normal. Start the connected thread.
                             connected(socket, socket.getRemoteDevice());
+                            try {
+								socket.close();
+							} catch (IOException e1) {
+								e1.printStackTrace();
+							}
                             break;
                         case STATE_NONE:
                         case STATE_CONNECTED:
