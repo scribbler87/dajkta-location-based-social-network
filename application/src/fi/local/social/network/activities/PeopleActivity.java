@@ -285,8 +285,8 @@ public class PeopleActivity extends ServiceHelper {
 
 			case BTService.MSG_NEW_ADDR:
 				// receive the new addr and put it into the listview
-				String address = msg.getData().getString("address");
-				String deviceName = msg.getData().getString("deviceName");
+				String address =  msg.getData().getString("address");
+				String deviceName =  msg.getData().getString("deviceName");
 				
 				String username = "User " + address;
 				String profilePictureURI = PICTUREPATH+address;
@@ -324,6 +324,11 @@ public class PeopleActivity extends ServiceHelper {
 				intent.putExtras(b);
 				
 				startActivity(new Intent(getApplicationContext(), ChatActivity.class));
+				break;
+			case BTService.MSG_CHAT_MESSAGE:
+				Bundle data2 = msg.getData();
+				String d =  data2.getString("chatMessage");
+				Toast.makeText(getApplicationContext(), "m: " + d, Toast.LENGTH_SHORT).show();
 				break;
 			default:
 				super.handleMessage(msg);
