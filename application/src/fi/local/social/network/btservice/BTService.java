@@ -1,11 +1,12 @@
 package fi.local.social.network.btservice;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -117,7 +118,7 @@ public class BTService extends Service{
 				
 			case MSG_CHAT_MESSAGE:
 				Bundle chatMessage = msg.getData();
-				String message = chatMessage.getString("chatMessage");
+				String message = chatMessage.getString("chatMessage") + "<!MSG>"; // TODO small protocoll
 				byte[] bytes = null;
 				try {
 					bytes = message.getBytes("UTF-16LE");
@@ -373,7 +374,7 @@ public class BTService extends Service{
 		mConnectedThread.start();
 
 		//TODO Send the name of the connected device back to the UI Activity
-
+		
 
 		setState(STATE_CONNECTED);
 		sendMessageToUI("startChatActivity", "", START_CHAT_AVTIVITY);
@@ -552,14 +553,6 @@ public class BTService extends Service{
 						case STATE_CONNECTING:
 							// Situation normal. Start the connected thread.
 							connected(socket, socket.getRemoteDevice());
-							Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-							intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-							Bundle b = new Bundle();
-							b.putString("username", "mockup");
-							b.putString("receiver", "mockup");// TODO needs to come from the network
-							b.putString("address", "mockup"); 
-							intent.putExtras(b);
-							getApplication().startActivity(intent);
 							break;
 						case STATE_NONE:
 						case STATE_CONNECTED:
@@ -619,15 +612,44 @@ public class BTService extends Service{
 			Log.i(TAG, "BEGIN mConnectedThread");
 			byte[] buffer = new byte[1024];
 			int bytes;
-			
+//			byte b;
+			String string;
 			// Keep listening to the InputStream while connected
+			String end = "<!MSG>";
 			while (true) {
+				
+				
 				try {
+//					byte[] buffer = new byte[1024];
+//					int bytes;
+//					String end = "<!MSG>";
+//					StringBuilder curMsg = new StringBuilder();
+//
+//					while (-1 != (bytes = mmInStream.read(buffer))) {
+//						System.err.println("curmsg: " + curMsg.toString());
+//					    curMsg.append(new String(buffer, 0, bytes, Charset.forName("UTF-8")));
+//					    int endIdx = curMsg.indexOf(end);
+//					    if (endIdx != -1) {
+//					        String fullMessage = curMsg.substring(0, endIdx + end.length());
+//					        curMsg.delete(0, endIdx + end.length());
+//					        // Now send fullMessage
+//					        System.err.println(fullMessage);
+//					       // sendMessageToUI("chatMessage", fullMessage, MSG_CHAT_MESSAGE);
+//					    }
+//					}
+					
 					// Read from the InputStream
-					bytes = mmInStream.read(buffer);
-
-
-					sendMessageToUI("chatMessage", new String(buffer,"UTF-16LE"), MSG_CHAT_MESSAGE);
+					//					bytes = mmInStream.read(buffer);
+//					buffer = new byte[mmInStream.available()];
+					bytes =  mmInStream.read(buffer);
+//					System.err.println("received message size: " + bytes);
+					string = new String(buffer,"UTF-16LE");
+					int indexOf = string.indexOf(end);
+					string = string.substring(0, indexOf);
+					if(!"".equals(string))
+						sendMessageToUI("chatMessage", string, MSG_CHAT_MESSAGE);
+					
+					
 				} catch (IOException e) {
 					Log.e(TAG, "disconnected", e);
 					connectionLost();
@@ -657,6 +679,7 @@ public class BTService extends Service{
 		 */
 		public void write(byte[] buffer) {
 			try {
+				System.err.println("Write method. Size Buffer: " + buffer.length);
 				mmOutStream.write(buffer);
 
 			} catch (IOException e) {

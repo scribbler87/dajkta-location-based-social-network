@@ -116,7 +116,6 @@ public class ChatActivity extends ServiceHelper {
 	private void sendMessage(String message) {
 		// Check that there's actually something to send
 		if (message.length() > 0) {
-			System.err.println(message);
 
 			// generating string for storing in db
 			ChatMessage tmpMessage = new ChatMessageImpl();
@@ -129,7 +128,6 @@ public class ChatActivity extends ServiceHelper {
 					.createEntry(tmpMessage.getDBString());
 
 			chatList.add(chatMessage);
-			// adapter.add(chatMessage);
 			adapter.notifyDataSetChanged();
 			clearEditField();
 
@@ -184,14 +182,20 @@ public class ChatActivity extends ServiceHelper {
 
 				String receivedMessage = msg.getData().getString("chatMessage");
 				System.err.println("received message: " + receivedMessage);
-				ChatMessageImpl chatMessageImpl = new ChatMessageImpl();
-				chatMessageImpl.setMessage(receivedMessage);
-				chatMessageImpl.setSenderName("sender"); //TODO
-				chatList.add(chatMessageImpl);
+				ChatMessage tmpMessage = new ChatMessageImpl();
+				tmpMessage.setMessage(receivedMessage);
+				tmpMessage.setReceiverName(userName);
+				tmpMessage.setSenderName(receiverName); 
+				
+				// Save the new comment to the database
+				ChatMessage chatMessage = (ChatMessage) chatMessageDataSource
+						.createEntry(tmpMessage.getDBString());
+				
+				chatList.add(chatMessage);
 				adapter.notifyDataSetChanged();
 
-				Toast.makeText(getApplicationContext(),"ReceivedMessage: " + receivedMessage,
-						Toast.LENGTH_SHORT).show();
+//				Toast.makeText(getApplicationContext(),"ReceivedMessage: " + receivedMessage,
+//						Toast.LENGTH_SHORT).show();
 				break;
 				
 				
