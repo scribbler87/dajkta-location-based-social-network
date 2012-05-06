@@ -326,8 +326,6 @@ public class BTService extends Service{
 		// Send a failure message back to the Activity
 		sendMessageToUI("connectionLost", "", CONNECTION_LOST);
 		if (D) Log.d(TAG, "Starting method stop");
-		//stop();
-		//start();
 
 	
 	}
@@ -520,7 +518,12 @@ public class BTService extends Service{
                     // successful connection or an exception
                     socket = mmServerSocket.accept();
                 } catch (IOException e) {
-                    Log.e(TAG, "accept() failed", e);
+                	try {
+                		Log.e(TAG, "close socket in accept thread");
+						socket.close();
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					} Log.e(TAG, "accept() failed", e);
                     break;
                 }
 
@@ -537,7 +540,8 @@ public class BTService extends Service{
                         case STATE_CONNECTED:
                             // Either not ready or already connected. Terminate new socket.
                             try {
-                                socket.close();
+                            	 Log.e(TAG, "close socket in accept thread");
+                                 socket.close();
                             } catch (IOException e) {
                                 Log.e(TAG, "Could not close unwanted socket", e);
                             }
@@ -597,9 +601,7 @@ public class BTService extends Service{
                     // Read from the InputStream
                     bytes = mmInStream.read(buffer);
 
-                    // TODO Send the obtained bytes to the UI Activity
-//                    mHandöer.obtainMessage(BTActivity.MESSAGE_READ, bytes, -1, buffer)
-//                            .sendToTarget();
+
                     sendMessageToUI("chatMessage", new String(buffer,"UTF-16LE"), MSG_CHAT_MESSAGE);
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
