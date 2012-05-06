@@ -435,26 +435,16 @@ public class BTService extends Service{
 
             // Get a BluetoothSocket for a connection with the
             // given BluetoothDevice
-            try {
-                //tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
-            	Method m = device.getClass().getMethod("createRfcommSocket", new Class[] {int.class});
-                tmp = (BluetoothSocket) m.invoke(device, 1);
+                try {
+					tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+//            	Method m = device.getClass().getMethod("createRfcommSocket", new Class[] {int.class});
+//                tmp = (BluetoothSocket) m.invoke(device, 1);
 
 //            } catch (IOException e) {
 //                Log.e(TAG, "create() failed", e);
-            } catch (NoSuchMethodException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
             mmSocket = tmp;
         }
 
@@ -628,6 +618,21 @@ public class BTService extends Service{
                     break;
                 }
             }
+            try {
+				this.mmInStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+            try {
+				this.mmOutStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+            try {
+				this.mmSocket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
         }
 
         /**
