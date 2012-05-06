@@ -98,6 +98,8 @@ public class ChatActivity extends ServiceHelper {
 		userName = (String) extras.get("username");
 		receiverName = extras.get("receiver").toString();
 		chatMessageDataSource.open();
+		
+		
 	}
 
 	private void filterMyMessages() {
@@ -149,7 +151,7 @@ public class ChatActivity extends ServiceHelper {
 	protected void onPause() {
 		super.onPause();
 		cleanUpResources();
-		this.sendMessageToService("leaveChatActivity", "", BTService.LEAVE_CHATACTIVITY);
+		this.sendMessageToService("leaveChatActivity", "", BTService.LEAVED_CHATACTIVITY);
 	}
 
 	@Override

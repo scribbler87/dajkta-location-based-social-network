@@ -28,7 +28,8 @@
         </activity>
         <activity
             android:name=".activities.ChatActivity"
-            android:label="@string/chatLabel" />
+            android:label="@string/chatLabel" 
+            android:launchMode="singleTask"/>
         <activity
             android:name=".activities.SettingActivity"
             android:label="@string/settingsLabel" />
