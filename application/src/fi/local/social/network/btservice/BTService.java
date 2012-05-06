@@ -548,6 +548,11 @@ public class BTService extends Service{
                             connected(socket, socket.getRemoteDevice());
                             Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
                 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                			Bundle b = new Bundle();
+            				b.putString("username", "mockup");
+            				b.putString("receiver", "mockup");// TODO needs to come from the network
+            				b.putString("address", "mockup"); 
+            				intent.putExtras(b);
                 			getApplication().startActivity(intent);
                             break;
                         case STATE_NONE:
