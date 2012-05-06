@@ -44,13 +44,33 @@
 						        android:layout_width="0px"
 						        android:layout_weight="0.5"
 						        android:layout_height="wrap_content"
-						        android:text="Start from:" />
+						        android:clickable="true"
+						        android:onClick="chooseStartTime"
+						        android:text="Start: (date " />
+						    <TextView
+						        android:id="@+id/eventStartTimeHour"
+						        android:layout_width="0px"
+						        android:layout_weight="0.5"
+						        android:layout_height="wrap_content"
+						        android:clickable="true"
+						        android:onClick="chooseStartTimeHour"
+						        android:text="time)" />
 							<TextView
 						        android:id="@+id/eventEndTime"
 						        android:layout_width="0px"
 						        android:layout_weight="0.5"
 						        android:layout_height="wrap_content"
-						        android:text="Last until:" />
+						        android:clickable="true"
+						        android:onClick="chooseEndTime"
+						        android:text="End: (date " />
+							<TextView
+						        android:id="@+id/eventEndTime"
+						        android:layout_width="0px"
+						        android:layout_weight="0.5"
+						        android:layout_height="wrap_content"
+						        android:clickable="true"
+						        android:onClick="chooseEndTimeHour"
+						        android:text="time)" />
 				    	</TableRow>
 				    	<TableRow>
 						    <TextView

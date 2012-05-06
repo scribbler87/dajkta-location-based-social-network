@@ -5,18 +5,23 @@ import java.io.InputStream;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.widget.Button;			
-
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 import fi.local.social.network.R;
 import fi.local.social.network.db.Event;
@@ -26,6 +31,7 @@ import fi.local.social.network.db.EventsDataSource;
 public class NewEventActivity extends Activity {
 
 	private static final int SELECT_PICTURE = 1;
+	private TextView eventStartTimeValue,eventEndTimeValue;
 	private EditText title=null;
 	private EditText content=null;
 	private ImageView image=null;
@@ -39,11 +45,78 @@ public class NewEventActivity extends Activity {
 	private String sUri;
 	private long startTime;
 	private long endTime;
+	private final int START_DATE_DIALOG_ID=100;
+	private final int END_DATE_DIALOG_ID=101;
+	private final int START_TIME_PICKER_ID=200;
+	private final int END_TIME_PICKER_ID=201;
+	private int year, month, day, hour, minute;
+	
+	private TimePickerDialog.OnTimeSetListener timePickerListenerStart=
+		new TimePickerDialog.OnTimeSetListener() {
+			
+			@Override
+			public void onTimeSet(TimePicker view, int selectedHour, int selectedMinute) {
+				// TODO Auto-generated method stub
+				hour=selectedHour;
+				minute=selectedMinute;
+				eventStartTimeValue.setText(eventStartTimeValue.getText().toString()+" "+
+						String.valueOf(hour)+":"+String.valueOf(minute));
+				
+			}
+		};
+
+	private TimePickerDialog.OnTimeSetListener timePickerListenerEnd=
+		new TimePickerDialog.OnTimeSetListener() {
+			
+			@Override
+			public void onTimeSet(TimePicker view, int selectedHour, int selectedMinute) {
+				// TODO Auto-generated method stub
+				hour=selectedHour;
+				minute=selectedMinute;
+				eventEndTimeValue.setText(eventEndTimeValue.getText().toString()+" "+
+						String.valueOf(hour)+":"+String.valueOf(minute));
+				
+			}
+		};
+			
+	private DatePickerDialog.OnDateSetListener datePickerListenerStart=
+		new DatePickerDialog.OnDateSetListener() {
+		
+		//When dialog is closed, method below gets called
+		@Override
+		public void onDateSet(DatePicker view, int selectedYear, int selectedMonth,
+				int selectedDay) {
+			// TODO Auto-generated method stub
+			year=selectedYear;
+			month=selectedMonth;
+			day=selectedDay;
+			eventStartTimeValue.setText(""+(month+1)+"-"+day+"-"+year);
+		
+		}
+	};
+
+	private DatePickerDialog.OnDateSetListener datePickerListenerEnd=
+		new DatePickerDialog.OnDateSetListener() {
+		
+		//When dialog is closed, method below gets called
+		@Override
+		public void onDateSet(DatePicker view, int selectedYear, int selectedMonth,
+				int selectedDay) {
+			// TODO Auto-generated method stub
+			year=selectedYear;
+			month=selectedMonth;
+			day=selectedDay;
+			eventEndTimeValue.setText(""+(month+1)+"-"+day+"-"+year);
+		
+		}
+	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.newevent);
+		eventEndTimeValue=(TextView)findViewById(R.id.eventEndTimeValue);
+		eventStartTimeValue=(TextView)findViewById(R.id.eventStartTimeValue);
 		title=(EditText)findViewById(R.id.newEventTitle);
 		content=(EditText)findViewById(R.id.newEventContent);
 		image=(ImageView)findViewById(R.id.imgView);
@@ -66,8 +139,6 @@ public class NewEventActivity extends Activity {
 			image.setImageBitmap(bitmapTemp);
 			bitmap=bitmapTemp;
 		}
-
-
 
 		//When a user clicks on the 'choose a image' button, the user is directed into the media folder to choose a image
 		chooseImageBtn.setOnClickListener(new OnClickListener(){
@@ -130,7 +201,38 @@ public class NewEventActivity extends Activity {
 
 		});
 	}
-
+	
+	//When a user clicks on the label "date" besides "Start from", date dialog is initiated
+	public void chooseStartTime(View v){
+		showDialog(START_DATE_DIALOG_ID);
+	}
+	//When a user clicks on the label "date" besides "Last Until:", date dialog is initiated
+	public void chooseEndTime(View v){
+		showDialog(END_DATE_DIALOG_ID);
+	}
+	//When a user clicks on the label "time" besides "Start from", date dialog is initiated
+	public void chooseStartTimeHour(View v){
+		showDialog(START_TIME_PICKER_ID);
+	}
+	//When a user clicks on the label "time" besides "Last Until:", time picker dialog is initiated
+	public void chooseEndTimeHour(View v){
+		showDialog(END_TIME_PICKER_ID);
+	}
+	@Override
+	protected Dialog onCreateDialog(int id){
+		switch(id){
+		case START_DATE_DIALOG_ID:
+			return new DatePickerDialog(this, datePickerListenerStart, year, month, day);
+		case END_DATE_DIALOG_ID:
+			return new DatePickerDialog(this, datePickerListenerEnd, year, month, day);
+		case START_TIME_PICKER_ID:
+			return new TimePickerDialog(this, timePickerListenerStart, hour, minute,true);
+		case END_TIME_PICKER_ID:
+			return new TimePickerDialog(this, timePickerListenerEnd, hour, minute,true);
+		}
+		return null;
+	}
+	
 	private void sendNewEvent() 
 	{
 		Event event = new EventImpl(startTime, endTime, sTitle, sContent, PeopleActivity.USERNAME, sUri);
