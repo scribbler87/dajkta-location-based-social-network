@@ -616,25 +616,25 @@ public class BTService extends Service{
                     sendMessageToUI("chatMessage", new String(buffer,"UTF-16LE"), MSG_CHAT_MESSAGE);
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
-                    connectionLost();
-                    break;
+                    //connectionLost();
+                    //break;
                 }
             }
-            try {
-				this.mmInStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-            try {
-				this.mmOutStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-            try {
-				this.mmSocket.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+//            try {
+//				this.mmInStream.close();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//            try {
+//				this.mmOutStream.close();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//            try {
+//				this.mmSocket.close();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
         }
 
         /**
