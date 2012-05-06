@@ -333,6 +333,8 @@ public class BTService extends Service{
 	}
 
 	private synchronized void setState(int state) {
+		if(mState == 2 && state == 3)
+			sendMessageToUI("startChat", "", START_CHAT_AVTIVITY);
 		if (D) Log.d(TAG, "setState() " + mState + " -> " + state);
 		mState = state;
 	}

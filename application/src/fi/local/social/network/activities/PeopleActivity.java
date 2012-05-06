@@ -330,6 +330,7 @@ public class PeopleActivity extends ServiceHelper {
 				String d =  data2.getString("chatMessage");
 				Toast.makeText(getApplicationContext(), "m: " + d, Toast.LENGTH_SHORT).show();
 				break;
+				
 			default:
 				super.handleMessage(msg);
 			}
