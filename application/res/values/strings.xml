@@ -4,8 +4,10 @@
     <string name="app_name">Mobile neighbour</string>
     
     <!-- People activity -->
-	<string name="peopleLabel">People</string>
+	<string name="peopleLabel">People nearby</string>
 	<string name="refresh">Refresh</string>
+	<string name="emptyHeader">No users nearby</string>
+	<string name="emptyText">Wait for search to end or try refreshing"</string>
 	
 	<!-- Chat activity -->
 	<string name="chatLabel">Chat</string>

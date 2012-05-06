@@ -4,27 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fi.local.social.network.R;
-import fi.local.social.network.activities.PeopleActivity.IncomingHandler;
 import fi.local.social.network.btservice.BTService;
 import fi.local.social.network.db.ChatMessage;
 import fi.local.social.network.db.ChatMessageImpl;
 import fi.local.social.network.db.ChatMessagesDataSource;
-import fi.local.social.network.db.User;
-import fi.local.social.network.db.UserImpl;
 import fi.local.social.network.tools.ServiceHelper;
 
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;

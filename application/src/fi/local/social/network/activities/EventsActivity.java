@@ -8,7 +8,6 @@ import com.example.android.actionbarcompat.ActionBarActivity;
 import fi.local.social.network.R;
 import fi.local.social.network.db.Event;
 import fi.local.social.network.db.EventsDataSource;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
