@@ -96,7 +96,7 @@ public class PeopleActivity extends ServiceHelper {
 		// Create list adapter
 		adapter = new PeopleListAdapter(this, R.layout.people_item, R.id.label, peopleNearby);
 		
-		GridView gridView = (GridView) findViewById(R.id.mylist);
+		GridView gridView = (GridView)findViewById(R.id.mylist);
 		gridView.setAdapter((ListAdapter) adapter );
 
 		gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

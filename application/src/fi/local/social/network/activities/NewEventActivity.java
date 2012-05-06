@@ -139,6 +139,7 @@ public class NewEventActivity extends ActionBarActivity {
 		}
 
 		//When a user clicks on the 'choose a image' button, the user is directed into the media folder to choose a image
+		/*
 		chooseImageBtn.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
@@ -148,6 +149,7 @@ public class NewEventActivity extends ActionBarActivity {
 				startActivityForResult(imageChoosingIntent, SELECT_PICTURE);
 			}
 		});
+		*/
 
 		
 		Button sendBtn = (Button) findViewById(R.id.sendBtn);

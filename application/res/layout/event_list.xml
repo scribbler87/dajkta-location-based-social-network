@@ -16,7 +16,9 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-         android:text="Create event"/>
+        android:clickable="true"
+        android:onClick="onAddEventClick"
+        android:text="Create event"/>
        
 
 </RelativeLayout>
