@@ -330,6 +330,7 @@ public class BTService extends Service{
 	private void connectionLost() {
 		if (D) Log.d(TAG, "Inside method: connectionLost");
 		setState(STATE_LISTEN);
+		System.gc();
 		// Send a failure message back to the Activity
 		sendMessageToUI("connectionLost", "", CONNECTION_LOST);
 		if (D) Log.d(TAG, "Starting method stop");
@@ -345,6 +346,7 @@ public class BTService extends Service{
 	private void connectionFailed() {
 		if (D) Log.d(TAG, "Inside method: connectionFailed");
 		setState(STATE_LISTEN);
+		System.gc();
 		// Send a failure message back to the Activity
 		sendMessageToUI("connectionFailed", "", CONNECTION_FAILED);
 	}
@@ -657,9 +659,6 @@ public class BTService extends Service{
 			try {
 				mmOutStream.write(buffer);
 
-				// TODO Share the sent message back to the UI Activity
-				//                mHandler.obtainMessage(BTActivity.MESSAGE_WRITE, -1, -1, buffer)
-				//                        .sendToTarget();
 			} catch (IOException e) {
 				Log.e(TAG, "Exception during write", e);
 			}

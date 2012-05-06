@@ -195,9 +195,6 @@ public class ChatActivity extends ServiceHelper {
 						Toast.LENGTH_SHORT).show();
 				break;
 				
-//			case BTService.CONNECTION_LOST:
-//				startActivity(new Intent(getApplicationContext(), PeopleActivity.class));
-//				break;
 				
 			default:
 				super.handleMessage(msg);
