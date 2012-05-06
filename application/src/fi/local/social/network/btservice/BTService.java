@@ -110,8 +110,12 @@ public class BTService extends Service{
 				Bundle data = msg.getData();
 				String address = data.getString("address");
 				System.err.println("starting connection to address:  " + address);
-				BluetoothDevice b = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address);
-				connect(b);
+				if(mState != 3)
+				{
+					BluetoothDevice b = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address);
+					connect(b);
+				}
+				
 				break;
 			case MSG_CHAT_MESSAGE:
 				Bundle chatMessage = msg.getData();
