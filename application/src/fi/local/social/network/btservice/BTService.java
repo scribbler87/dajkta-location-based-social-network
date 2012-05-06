@@ -1,16 +1,14 @@
 package fi.local.social.network.btservice;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import fi.local.social.network.activities.ChatActivity;
+import fi.local.social.network.activities.PeopleActivity;
+
 
 
 
@@ -377,6 +375,7 @@ public class BTService extends Service{
 		
 
 		setState(STATE_CONNECTED);
+		PeopleActivity.RECEIVER_NAME = device.getName();
 		sendMessageToUI("startChatActivity", "", START_CHAT_AVTIVITY);
 	}
 
@@ -611,41 +610,19 @@ public class BTService extends Service{
 		public void run() {
 			Log.i(TAG, "BEGIN mConnectedThread");
 			byte[] buffer = new byte[1024];
-			int bytes;
-//			byte b;
 			String string;
+			
+			String endTag = "<!MSG>";
 			// Keep listening to the InputStream while connected
-			String end = "<!MSG>";
 			while (true) {
 				
 				
 				try {
-//					byte[] buffer = new byte[1024];
-//					int bytes;
-//					String end = "<!MSG>";
-//					StringBuilder curMsg = new StringBuilder();
-//
-//					while (-1 != (bytes = mmInStream.read(buffer))) {
-//						System.err.println("curmsg: " + curMsg.toString());
-//					    curMsg.append(new String(buffer, 0, bytes, Charset.forName("UTF-8")));
-//					    int endIdx = curMsg.indexOf(end);
-//					    if (endIdx != -1) {
-//					        String fullMessage = curMsg.substring(0, endIdx + end.length());
-//					        curMsg.delete(0, endIdx + end.length());
-//					        // Now send fullMessage
-//					        System.err.println(fullMessage);
-//					       // sendMessageToUI("chatMessage", fullMessage, MSG_CHAT_MESSAGE);
-//					    }
-//					}
-					
 					// Read from the InputStream
-					//					bytes = mmInStream.read(buffer);
-//					buffer = new byte[mmInStream.available()];
-					bytes =  mmInStream.read(buffer);
-//					System.err.println("received message size: " + bytes);
+					mmInStream.read(buffer);
 					string = new String(buffer,"UTF-16LE");
-					int indexOf = string.indexOf(end);
-					string = string.substring(0, indexOf);
+					int indexOfEndMessage = string.indexOf(endTag);
+					string = string.substring(0, indexOfEndMessage);
 					if(!"".equals(string))
 						sendMessageToUI("chatMessage", string, MSG_CHAT_MESSAGE);
 					

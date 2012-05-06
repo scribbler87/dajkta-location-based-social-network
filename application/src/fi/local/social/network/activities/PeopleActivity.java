@@ -55,7 +55,8 @@ public class PeopleActivity extends ServiceHelper {
 	protected ImageLoader imageLoader = ImageLoader.getInstance();
 	
 	public static String USERNAME = "";
-	private static String ADDRESS = "";
+	public static String RECEIVER_ADDRESS = "";
+	public static String RECEIVER_NAME = "";
 	//	final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
 	private ArrayAdapter<User> adapter;
 	private DisplayImageOptions options;
@@ -98,9 +99,12 @@ public class PeopleActivity extends ServiceHelper {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				User user = peopleNearby.get(position);
-				ADDRESS = user.getAddress();
+				RECEIVER_ADDRESS = user.getAddress();
+				RECEIVER_NAME = user.getUserName();
+				String receiverName = user.getUserName();
 				Bundle b = new Bundle();
-				b.putString("address", ADDRESS);
+				b.putString("address", RECEIVER_ADDRESS);
+				b.putString("receiverName", RECEIVER_NAME);
 				sendBundleToService(b,  BTService.MSG_START_CONNCETION);
 			}
 		});
@@ -172,8 +176,6 @@ public class PeopleActivity extends ServiceHelper {
 			startActivity(new Intent(getApplicationContext(), SettingActivity.class));
 		}
 		
-		//doBindService(PeopleActivity.this);
-	//	this.startDiscovery();
 	}
 	
 	public void startDiscovery(){
@@ -316,8 +318,8 @@ public class PeopleActivity extends ServiceHelper {
 				Intent intent = new Intent(getApplicationContext() , ChatActivity.class);
 				Bundle b = new Bundle();
 				b.putString("username", USERNAME);
-				b.putString("receiver", ADDRESS);// TODO needs to come from the network
-				b.putString("address", ADDRESS); 
+				b.putString("receiver", RECEIVER_ADDRESS);// TODO needs to come from the network
+				b.putString("address", RECEIVER_ADDRESS); 
 				intent.putExtras(b);
 				startActivity(intent);
 				break;

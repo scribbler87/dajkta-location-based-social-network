@@ -1,6 +1,8 @@
 package fi.local.social.network.activities;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import fi.local.social.network.R;
@@ -54,8 +56,9 @@ public class ChatActivity extends ServiceHelper {
 		receiverName = extras.getString("receiver");
 		address = extras.getString("address");
 
-		chatMessageDataSource = new ChatMessagesDataSource(this);
-		
+		if(chatMessageDataSource == null)
+			chatMessageDataSource = new ChatMessagesDataSource(this);
+		chatMessageDataSource.open();
 
 		filterMyMessages(); // we also receive others messages
 
@@ -108,10 +111,21 @@ public class ChatActivity extends ServiceHelper {
 		List<ChatMessage> allMessages = chatMessageDataSource.getAllEntries();
 		for (ChatMessage chatMessage : allMessages) {
 			if (chatMessage.getReceiverName().equals(receiverName)
-					|| chatMessage.getSenderName().equals(receiverName))
+					|| chatMessage.getSenderName().equals(receiverName) || 
+					chatMessage.getReceiverName().equals(PeopleActivity.RECEIVER_NAME)
+					|| chatMessage.getSenderName().equals(PeopleActivity.RECEIVER_NAME) )
 				chatList.add(chatMessage);
 		}
+		
+//		 Collections.sort(chatList, new Comparator<ChatMessage>(){
+//	           public int compare (ChatMessage m1, ChatMessage m2){
+//	               return m1.getTime().compareTo(m2.getTime());
+//	           }
+//	       });
+
 	}
+	
+	
 
 	private void sendMessage(String message) {
 		// Check that there's actually something to send
@@ -120,8 +134,8 @@ public class ChatActivity extends ServiceHelper {
 			// generating string for storing in db
 			ChatMessage tmpMessage = new ChatMessageImpl();
 			tmpMessage.setMessage(message);
-			tmpMessage.setReceiverName(receiverName);
-			tmpMessage.setSenderName(userName);
+			tmpMessage.setReceiverName(PeopleActivity.RECEIVER_NAME);
+			tmpMessage.setSenderName(PeopleActivity.USERNAME);
 
 			// Save the new comment to the database
 			ChatMessage chatMessage = (ChatMessage) chatMessageDataSource
@@ -184,8 +198,8 @@ public class ChatActivity extends ServiceHelper {
 				System.err.println("received message: " + receivedMessage);
 				ChatMessage tmpMessage = new ChatMessageImpl();
 				tmpMessage.setMessage(receivedMessage);
-				tmpMessage.setReceiverName(userName);
-				tmpMessage.setSenderName(receiverName); 
+				tmpMessage.setReceiverName(PeopleActivity.USERNAME);
+				tmpMessage.setSenderName(PeopleActivity.RECEIVER_NAME); 
 				
 				// Save the new comment to the database
 				ChatMessage chatMessage = (ChatMessage) chatMessageDataSource

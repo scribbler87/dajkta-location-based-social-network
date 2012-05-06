@@ -46,6 +46,8 @@ public class ChatMessagesDataSource implements DataSource{
 		values.put(MySQLiteHelper.COLUMN_SENDERNAME, sender);
 		values.put(MySQLiteHelper.COLUMN_RECEIVERNAME, receiver);
 		values.put(MySQLiteHelper.COLUMN_CHATMESSAGE, message);
+		if(!database.isOpen())
+			database = dbHelper.getReadableDatabase();
 		long insertId = database.insert(MySQLiteHelper.TABLE_CHATMESSAGES, null,values);
 		
 		String[] allColumnNames = dbHelper.getAllColumnNames(MySQLiteHelper.TABLE_CHATMESSAGES);
