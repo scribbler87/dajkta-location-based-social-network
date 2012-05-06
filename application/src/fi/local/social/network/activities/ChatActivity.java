@@ -182,16 +182,15 @@ public class ChatActivity extends ServiceHelper {
 			case BTService.MSG_CHAT_MESSAGE:
 				// receive a message from the bluetooth service
 
-				String str1 = msg.getData().getString("chatMessage");
-				System.err.println("received message: " + str1);
-				Toast.makeText(getApplicationContext(), str1, Toast.LENGTH_SHORT).show();
+				String receivedMessage = msg.getData().getString("chatMessage");
+				System.err.println("received message: " + receivedMessage);
 				ChatMessageImpl chatMessageImpl = new ChatMessageImpl();
-				chatMessageImpl.setMessage(str1);
+				chatMessageImpl.setMessage(receivedMessage);
 				chatMessageImpl.setSenderName("sender"); //TODO
 				chatList.add(chatMessageImpl);
 				adapter.notifyDataSetChanged();
 
-				Toast.makeText(getApplicationContext(),"ReceivedMessage: " + str1,
+				Toast.makeText(getApplicationContext(),"ReceivedMessage: " + receivedMessage,
 						Toast.LENGTH_SHORT).show();
 				break;
 				

@@ -12,6 +12,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -198,7 +199,8 @@ public class PeopleActivity extends ServiceHelper {
 		case R.id.settings:
 			startActivity(new Intent(getApplicationContext(), SettingActivity.class));
 			return true;
-		case R.id.menu_refresh:	
+		case R.id.menu_refresh:
+			ensureDiscoverable();
 			this.startDiscovery();
             Toast.makeText(this, "Refreshing...", Toast.LENGTH_SHORT).show();
             
@@ -306,11 +308,6 @@ public class PeopleActivity extends ServiceHelper {
 				new HTTPNameRequest().execute(address);
 				break;
 				
-//			case BTService.MSG_REGISTERED_CLIENT:
-//				System.err.println("startdiscovery");
-//				sendMessageToService("startDiscovery", "", BTService.MSG_START_DISCOVERY);
-//				break;
-				
 			case BTService.CONNECTION_FAILED:
 				Toast.makeText(getApplicationContext(), "Could not connect at the moment. Try again.", Toast.LENGTH_SHORT).show();
 				break;
@@ -328,6 +325,18 @@ public class PeopleActivity extends ServiceHelper {
 			default:
 				super.handleMessage(msg);
 			}
+		}
+	}
+	
+	private void ensureDiscoverable() {
+		if (true) Log.d(TAG, "Inside method: ensureDiscoverable");
+		if (BTService.mBluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+			Intent discoverableIntent = new Intent(
+					BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+			discoverableIntent.putExtra(
+					BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 120);
+			discoverableIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(discoverableIntent);
 		}
 	}
 	

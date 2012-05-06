@@ -50,7 +50,7 @@ public class BTService extends Service{
 	public static final int START_CHAT_AVTIVITY = 14;
 	public static final int CONNECTION_FAILED = 15;
 
-	private BluetoothAdapter mBluetoothAdapter = null;
+	public static BluetoothAdapter mBluetoothAdapter = null;
 
 
 	/**
