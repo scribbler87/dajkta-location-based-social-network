@@ -1,38 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="4dp" >
 
     <ImageView
-        android:id="@+id/icon"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginLeft="4dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="4dp"
-    	android:layout_marginBottom="4dp"
+        android:id="@+id/profilePicture"
+        android:layout_width="fill_parent"
+        android:layout_height="120dp"
+    	android:scaleType="centerCrop"
         android:src="@drawable/profile_default" >
     </ImageView>
 
     <TextView
         android:id="@+id/label"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_toRightOf="@id/icon"
+        android:layout_marginTop="4dp"
         android:text="@+id/label"
-        android:textSize="20sp">
+        android:textSize="20sp"   
+        android:scrollHorizontally="false"
+        android:ellipsize="none">
     </TextView>
-    
-    <ImageView
-        android:id="@+id/chatIcon"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_centerVertical="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:src="@drawable/ic_chat_light" >
-    </ImageView>
 
-</RelativeLayout>
+</LinearLayout>

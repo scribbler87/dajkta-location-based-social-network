@@ -11,18 +11,28 @@ public class UserImpl implements User {
 			+ MySQLiteHelper.COLUMN_USERNAME + " text not null, " 
 			+ MySQLiteHelper.COLUMN_PICPROFILEURI + " text not null, " 
 			+ MySQLiteHelper.COLUMN_PHONEUSER + " int );";
-	
+	// TODO add address to db
 	private String username;
 	private String profilePicUri;
+	private String address;
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
 	private long ID;
 
 	private Timestamp time;
 
 	private boolean isPhoneUser;
 	
-	public UserImpl(String uname, String uri) {
+	public UserImpl(String uname, String uri, String address) {
 		this.username = uname;
 		this.profilePicUri = uri;
+		this.address = address;
 	}
 	
 	public UserImpl(){

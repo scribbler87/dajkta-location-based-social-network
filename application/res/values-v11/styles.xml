@@ -19,9 +19,10 @@
     <style name="AppTheme" parent="android:style/Theme.Holo">
         <item name="android:actionBarStyle">@style/ActionBar</item>
         <item name="android:windowContentOverlay">@drawable/actionbar_shadow</item>
+        <item name="android:actionOverflowButtonStyle">@android:style/Widget.Holo.Light.ActionButton.Overflow</item>
     </style>
 
-    <style name="ActionBar" parent="android:style/Widget.Holo.ActionBar">
+    <style name="ActionBar" parent="android:style/Widget.Holo.Light.ActionBar.Solid">
         <!-- <item name="android:background">#eee</item> -->
         <item name="android:titleTextStyle">@style/ActionBarTitle</item>
         <item name="android:icon">@drawable/ic_launcher_msp</item>

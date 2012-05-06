@@ -34,7 +34,7 @@
 				        android:id="@+id/newEventContent"
 				        android:layout_width="fill_parent"
 				        android:layout_height="166dp"
-				        android:scrollbars="vertical" />
+				        android:scrollbars="vertical"/>
 				    <TableLayout
 				        android:layout_width="fill_parent"
 				        android:layout_height="wrap_content">
@@ -93,18 +93,10 @@
 				        android:layout_height="wrap_content"
 				        android:layout_gravity="center" />
 				    <Button
-				        android:id="@+id/chooseImageBtn"
-				        android:layout_width="fill_parent"
-				        android:layout_height="wrap_content"
-				        
-				        android:text="Choose a image" />
-				    
-				    <Button
 				        android:id="@+id/sendBtn"
 				        android:layout_width="fill_parent"
 				        android:layout_height="wrap_content"
 				        android:text="Send Event" />
-				
 				</LinearLayout>
 		</ScrollView>
 </LinearLayout>

@@ -1,93 +1,124 @@
 package fi.local.social.network.activities;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
-import android.app.ListActivity;
-import android.bluetooth.BluetoothDevice;
-import android.content.ComponentName;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
-import android.os.RemoteException;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import fi.local.social.network.R;
-import fi.local.social.network.btservice.BluetoothChatService;
-import fi.local.social.network.db.EventImpl;
+import fi.local.social.network.btservice.BTService;
 import fi.local.social.network.db.User;
 import fi.local.social.network.db.UserDataSource;
 import fi.local.social.network.db.UserImpl;
-import com.example.android.actionbarcompat.*;
+import fi.local.social.network.tools.ServiceHelper;
 
-public class PeopleActivity extends ActionBarActivity {
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
+public class PeopleActivity extends ServiceHelper {
+
+	private static String APIPATH= "http://www.vugi.iki.fi/msp-api/getName.php?address=";
+	private static String PICTUREPATH= "http://www.vugi.iki.fi/msp-api/profilePictures/";
 	
 	List<User> peopleNearby;
 	private UserDataSource userDatasource;
+	protected ImageLoader imageLoader = ImageLoader.getInstance();
+	
 	public static String USERNAME = "";
+	//	final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
+	private ArrayAdapter<User> adapter;
+	private DisplayImageOptions options;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		
+
 		setContentView(R.layout.people);
 		
-		// TODO: get real people and their names
-		// add some mockup values
+		// Initialize Messenger
+		this.mMessenger =  new Messenger(new IncomingHandler());
+		
+		// Initialize imageLoader
+		ImageLoaderConfiguration config = ImageLoaderConfiguration.createDefault(this);
+		ImageLoader.getInstance().init(config);
+		
+		// Initialize options for loaded images 
+		options = new DisplayImageOptions.Builder()
+			.showImageForEmptyUrl(R.drawable.profile_default)
+			.showStubImage(R.drawable.profile_default)
+			.cacheInMemory()
+			.cacheOnDisc()
+			.build();
+		
+		// Initialize people nearby -list
 		peopleNearby = new ArrayList<User>();
-		peopleNearby.add(new UserImpl("Alex Yang", "add uri for pic"));
-		peopleNearby.add(new UserImpl("Tom Cruise", "add uri for pic"));
-		peopleNearby.add(new UserImpl("Tom Hanks", "add uri for pic"));
-		peopleNearby.add(new UserImpl("Jason Stathon","add uri for pic"));
-		peopleNearby.add(new UserImpl("Joe Hu", "add uri for pic"));
+		
+		// add some mockup values
+		/*
+		peopleNearby.add(new UserImpl("Anil",PICTUREPATH+"anil.jpg","ABC"));
+		peopleNearby.add(new UserImpl("Antti",PICTUREPATH+"antti.jpg","ABC"));
+		peopleNearby.add(new UserImpl("Jens",PICTUREPATH+"jens.jpg","ABC"));
+		peopleNearby.add(new UserImpl("Kalle",PICTUREPATH+"kalle.jpg","ABC"));
+		peopleNearby.add(new UserImpl("Shichao",PICTUREPATH+"shichao.jpg","ABC"));
+		peopleNearby.add(new UserImpl("Taneli",PICTUREPATH+"taneli.jpg","ABC"));
+		*/
+		
+		// Create list adapter
+		adapter = new PeopleListAdapter(this, R.layout.people_item, R.id.label, peopleNearby);
+		
+		GridView gridView = (GridView) findViewById(R.id.mylist);
+		gridView.setAdapter((ListAdapter) adapter );
 
-		ArrayAdapter<User> adapter = new ArrayAdapter<User>(this, R.layout.people_item, R.id.label, peopleNearby);
-		
-		ListView listView = (ListView) findViewById(R.id.mylist);
-		listView.setAdapter((ListAdapter) adapter );
-		
-		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				
-				startActivityForResult( (new Intent(getApplicationContext(), DeviceListActivity.class)),
-						BluetoothChatService.REQUEST_CONNECT_DEVICE );
-				Message message = Message.obtain(null, BluetoothChatService.MSG_SEND_EVENT);
-//				Bundle b = new Bundle();
-//				b.putString("str1", buffer.toString());
-				//		message.setData(b);
-				try {
-					mService.send(message);
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				}
+				Intent intent = new Intent(getApplicationContext() , ChatActivity.class);
+				Bundle b = new Bundle();
+				b.putString("username", USERNAME);
+				b.putString("receiver", view.toString());// TODO check if this works
+				String s = view.toString();
+				System.err.println("viewtostring " + s);
+				b.putString("address", peopleNearby.get(position).getAddress()); 
+				intent.putExtras(b);
+				startActivity(intent);
 
-				// TODO
-//				Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-//				intent.putExtra("username", this.USERNAME);
-//				Object o = this.getListAdapter().getItem(position);
-//				String receiverName = o.toString();
-//				intent.putExtra("receiver", receiverName.toString());
-//				startActivity(intent);
-				
 			}
 		});
 		
+		gridView.setEmptyView(findViewById(R.id.empty));
+
+
+		// ***********check if we have a username, if not lets create one********************
 		userDatasource = new UserDataSource(this);
 		userDatasource.open();
 		List<User> allEntries = userDatasource.getAllEntries();
@@ -103,28 +134,33 @@ public class PeopleActivity extends ActionBarActivity {
 		{
 			startActivity(new Intent(getApplicationContext(), SettingActivity.class));
 		}
+
+		// ******************** bind to the bluetooth service
+		doBindService(PeopleActivity.this);
 		
-		ComponentName startService = startService(new Intent(PeopleActivity.this, BluetoothChatService.class));
-		if(startService != null)
-		{
-			
-			doBindService();
-		}
-		else
-			System.err.println("NULL");
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		try {
-			stopService(new Intent(PeopleActivity.this, BluetoothChatService.class));
-			doUnbindService();
-		} catch (Throwable t) {
-			Log.e("MainActivity", "Failed to unbind from the service", t);
-		}
+		imageLoader.stop();
+		stopService(getIntent());
 	}
 
+	@Override
+	protected void onPause() {
+		super.onPause();
+	}	
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+	}
+	
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+	}
 
 	@Override
 	protected void onResume() {
@@ -139,11 +175,19 @@ public class PeopleActivity extends ActionBarActivity {
 				break;
 			}
 		}
+		
 		userDatasource.close();
 		if("".equals(USERNAME))
 		{
 			startActivity(new Intent(getApplicationContext(), SettingActivity.class));
 		}
+		
+		//doBindService(PeopleActivity.this);
+		this.startDiscovery();
+	}
+	
+	public void startDiscovery(){
+		sendMessageToService("startDiscovery", "", BTService.MSG_START_DISCOVERY);
 	}
 
 	@Override
@@ -165,122 +209,152 @@ public class PeopleActivity extends ActionBarActivity {
 		case R.id.settings:
 			startActivity(new Intent(getApplicationContext(), SettingActivity.class));
 			return true;
-		case R.id.new_event:
-			startActivity(new Intent(getApplicationContext(), NewEventActivity.class));
-			return true;
-		case R.id.device_list:
-			startActivity(new Intent(getApplicationContext(), DeviceListActivity.class));
-			return true;
+		case R.id.menu_refresh:	
+			this.startDiscovery();
+            Toast.makeText(this, "Refreshing...", Toast.LENGTH_SHORT).show();
+            
+            // Show spinner for a while..
+            getActionBarHelper().setRefreshActionItemState(true);
+            getWindow().getDecorView().postDelayed(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            getActionBarHelper().setRefreshActionItemState(false);
+                        }
+                    }, 10000);
+            break;
 		default:
 			break;
 		}
 		return false;
 	}
-
-	// staff for connection to service***************************
-	Messenger mService = null;
-	boolean mIsBound;
-
-	private String TAG = "Service Connection";
-
-	private ServiceConnection mConnection = new ServiceConnection() {
+	
+	class HTTPNameRequest extends AsyncTask<String, String, String>{
 		
+		private String address;
+		private String TAG = "HTTPNameRequest";
 
-		public void onServiceConnected(ComponentName className, IBinder service) {
-			mService = new Messenger(service);
-			Log.i(TAG ,"Attached.");
-			try {
-				Message msg = Message.obtain(null, BluetoothChatService.MSG_REGISTER_CLIENT);
-				mService.send(msg);
-				Message msg2 = Message.obtain(null, BluetoothChatService.MSG_SEND_EVENT);
-				mService.send(msg2);
-				
-			} catch (RemoteException e) {
-				// In this case the service has crashed before we could even do anything with it
-			}
-		}
-		public void sendMsg(Message m)
-		{
-			try {
-				mService.send(m);
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
-		}
+	    @Override
+	    protected String doInBackground(String... btAddress) {
+	    	
+	    	this.address = btAddress[0];
+	    	Log.d(TAG,"Starting request for address: " + address);
+	    	
+	        HttpClient httpclient = new DefaultHttpClient();
+	        HttpResponse response;
+	        String responseString = null;
+	        try {
+	            response = httpclient.execute(new HttpGet(PeopleActivity.APIPATH + address));
+	            StatusLine statusLine = response.getStatusLine();
+	            
+	            if(statusLine.getStatusCode() == HttpStatus.SC_OK){
+	                ByteArrayOutputStream out = new ByteArrayOutputStream();
+	                response.getEntity().writeTo(out);
+	                out.close();
+	                responseString = out.toString();
+	            } else{
+	                response.getEntity().getContent().close();
+	                throw new IOException(statusLine.getReasonPhrase());
+	            }
+	        } catch (IOException e) {
+	        	Log.e(TAG,"Got IOException");
+	            //TODO Handle problems..
+	        }
+	        return responseString;
+	    }
 
-		public void onServiceDisconnected(ComponentName className) {
-			// This is called when the connection with the service has been unexpectedly disconnected - process crashed.
-			mService = null;
-			Log.i(TAG , "Disconnected.");
-		}
-	};
-
-	void doBindService() {
-		bindService(new Intent(this, BluetoothChatService.class), mConnection, Context.BIND_AUTO_CREATE);
-		mIsBound = true;
-		Log.i(TAG ,"Binding.");
-	}
-	void doUnbindService() {
-		if (mIsBound) {
-			// If we have received the service, and hence registered with it, then now is the time to unregister.
-			if (mService != null) {
-				try {
-					Message msg = Message.obtain(null, BluetoothChatService.MSG_UNREGISTER_CLIENT);
-					mService.send(msg);
-				} catch (RemoteException e) {
-					// There is nothing special we need to do if the service has crashed.
+	    @Override
+	    protected void onPostExecute(String result) {
+	        super.onPostExecute(result);
+	        if (result != null){
+	        	Log.d(TAG,"Result for adress " + address + ": " + result);
+	        	for(int i = 0; i < peopleNearby.size(); i++) {
+					User user = peopleNearby.get(i);
+					if(this.address.equals(user.getAddress())){
+						Log.d(TAG,"Setting user name for: " + user.getAddress());
+						user.setUserName(result);
+						adapter.notifyDataSetChanged();
+						return;
+					}
 				}
+	        }
+	        
+	    }
+	}
+	
+	class IncomingHandler extends Handler {
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case BTService.MSG_REC_EVENT:
+				// receive a message from the bluetooth service
+				String str1 = msg.getData().getString("chat");
+				Toast.makeText(getApplicationContext(), str1, Toast.LENGTH_SHORT).show();
+				break;
+
+			case BTService.MSG_NEW_ADDR:
+				// receive the new addr and put it into the listview
+				String address = msg.getData().getString("address");
+				String deviceName = msg.getData().getString("deviceName");
+				
+				String username = "User " + address;
+				String profilePictureURI = PICTUREPATH+address;
+				
+				UserImpl userImpl = new UserImpl(deviceName, profilePictureURI, address);
+				
+				for(int i = 0; i < peopleNearby.size(); i++)
+				{
+					User user = peopleNearby.get(i);
+					if(address.equals(user.getAddress()))
+					{
+						return;
+					}
+				}
+				peopleNearby.add(userImpl);
+				adapter.notifyDataSetChanged();
+				
+				// Start a HTTP request to get the username from server based on Bluetooth address
+				new HTTPNameRequest().execute(address);
+				
+				break;
+			case BTService.MSG_REGISTERED_CLIENT:
+				System.err.println("startdiscovery");
+				sendMessageToService("startDiscovery", "", BTService.MSG_START_DISCOVERY);
+				break;
+			case BTService.CONNECTION_FAILED:
+				Toast.makeText(getApplicationContext(), "Could not connect at the moment. Try again.", Toast.LENGTH_SHORT).show();
+				break;
+			case BTService.START_CHAT_AVTIVITY:
+				startActivity(new Intent(getApplicationContext(), ChatActivity.class));
+				break;
+			default:
+				super.handleMessage(msg);
 			}
-			// Detach our existing connection.
-			unbindService(mConnection);
-			mIsBound = false;
-			Log.i(TAG ,"Unbinding.");
 		}
 	}
 	
-    class IncomingHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-//            case BluetoothChatService.MSG_SET_INT_VALUE:
-//                //textIntValue.setText("Int Message: " + msg.arg1);
-//                break;
-            case BluetoothChatService.MSG_REC_EVENT:
-                String str1 = msg.getData().getString("str1");
-//                textStrValue.setText("Str Message: " + str1);
-                Toast.makeText(getApplicationContext(), str1, Toast.LENGTH_SHORT).show();
-                break;
-            default:
-                super.handleMessage(msg);
-            }
-        }
-    }
-    
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		switch (requestCode) {
-		case BluetoothChatService.REQUEST_CONNECT_DEVICE:
-			// When DeviceListActivity returns with a device to connect
-			if (resultCode == Activity.RESULT_OK) {
-				// Get the device MAC address
-				String address = data.getExtras().getString(
-						DeviceListActivity.EXTRA_DEVICE_ADDRESS);
-//				// Get the BLuetoothDevice object
-//				BluetoothDevice device = mBluetoothAdapter
-//						.getRemoteDevice(address);
-//				// Attempt to connect to the device
-//				
-//				mChatService.connect(device);
-				Message msg2 = Message.obtain(null, BluetoothChatService.MSG_DEVICE_ADDRESS);
-				Bundle b = new Bundle();
-				b.putString("address", address);
-				try {
-					mService.send(msg2);
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				}
-			}
-			break;
+	public class PeopleListAdapter extends ArrayAdapter<User> {
 
+		public PeopleListAdapter(Context context, int resourceId, int textViewResourceId, List<User> objects) {
+			super(context, resourceId, textViewResourceId, objects);
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			
+			User user = getItem(position);
+			
+			LayoutInflater inflater=getLayoutInflater();
+			View row=inflater.inflate(R.layout.people_item, parent, false);
+			
+			TextView label=(TextView)row.findViewById(R.id.label);
+			label.setText(user.getUserName());
+			
+			ImageView profilePicture=(ImageView)row.findViewById(R.id.profilePicture);
+			imageLoader.displayImage(user.getProfilePicURI(), profilePicture, options);
+
+			return row;
 		}
 	}
+	
 }

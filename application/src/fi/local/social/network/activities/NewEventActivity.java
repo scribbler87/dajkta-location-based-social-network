@@ -1,17 +1,10 @@
 package fi.local.social.network.activities;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -23,12 +16,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.example.android.actionbarcompat.ActionBarActivity;
+
 import fi.local.social.network.R;
 import fi.local.social.network.db.Event;
 import fi.local.social.network.db.EventImpl;
 import fi.local.social.network.db.EventsDataSource;
 
-public class NewEventActivity extends Activity {
+public class NewEventActivity extends ActionBarActivity {
 
 	private static final int SELECT_PICTURE = 1;
 	private TextView eventStartTimeValue,eventEndTimeValue;
@@ -84,8 +80,7 @@ public class NewEventActivity extends Activity {
 		
 		//When dialog is closed, method below gets called
 		@Override
-		public void onDateSet(DatePicker view, int selectedYear, int selectedMonth,
-				int selectedDay) {
+		public void onDateSet(DatePicker view, int selectedYear, int selectedMonth,int selectedDay) {
 			// TODO Auto-generated method stub
 			year=selectedYear;
 			month=selectedMonth;
@@ -110,17 +105,20 @@ public class NewEventActivity extends Activity {
 		
 		}
 	};
+	private EventsDataSource eventsDataSource1;
+
 
 	@Override
-	public void onCreate(Bundle savedInstanceState){
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.newevent);
+
 		eventEndTimeValue=(TextView)findViewById(R.id.eventEndTimeValue);
 		eventStartTimeValue=(TextView)findViewById(R.id.eventStartTimeValue);
 		title=(EditText)findViewById(R.id.newEventTitle);
 		content=(EditText)findViewById(R.id.newEventContent);
 		image=(ImageView)findViewById(R.id.imgView);
-		chooseImageBtn=(Button)findViewById(R.id.chooseImageBtn);
+		//chooseImageBtn=(Button)findViewById(R.id.chooseImageBtn);
 		sendBtn=(Button)findViewById(R.id.sendBtn);
 		selectedImage = null;
 		sTitle = title.getEditableText().toString();
@@ -151,54 +149,45 @@ public class NewEventActivity extends Activity {
 			}
 		});
 
-		//When a user clicks on the 'Send Event' button, the newly created event would be sent to all nearby devices
-		sendBtn.setOnClickListener(new OnClickListener(){
+		
+		Button sendBtn = (Button) findViewById(R.id.sendBtn);
+
+		// open db
+		eventsDataSource = new EventsDataSource(getApplicationContext());
+		
+
+		// When a user clicks on the 'Send Event' button, the newly created
+		// event would be sent to all nearby devices
+		sendBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(getApplicationContext(),
+				Toast.makeText(
+						getApplicationContext(),
 						"The message is supposed to be sent to nearby devices.",
 						Toast.LENGTH_SHORT).show();
 
+
+				EditText title = (EditText) findViewById(R.id.newEventTitle);
+				String sTitle = title.getEditableText().toString();
+				EditText content = (EditText) findViewById(R.id.newEventContent);
+				String sContent = content.getEditableText().toString();
+				
 				sTitle = title.getEditableText().toString();
+				
 				sContent = content.getEditableText().toString();
-				if(selectedImage != null)
-					sUri = selectedImage.toString();
 
-				if("".equals(sTitle))
-				{
-					Toast.makeText(getApplicationContext(),	"Please add a title.",
+				if (sTitle.equals("")) {
+					Toast.makeText(getApplicationContext(),
+							"Please add a title.", Toast.LENGTH_SHORT).show();
+				} else if (sContent.equals("")) {
+					Toast.makeText(getApplicationContext(),
+							"Please add a content description.",
 							Toast.LENGTH_SHORT).show();
-					return;
-				}else if("".equals(sContent))
-				{
-					Toast.makeText(getApplicationContext(),	"Please add a content description.",
-							Toast.LENGTH_SHORT).show();
-					return;
+				} else {
+					sendNewEvent(sTitle, sContent);
 				}
-				// TODO check start and endtime if they are the default values????
-				else if("".equals(sUri))
-				{
-					AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(NewEventActivity.this);
-					myAlertDialog.setTitle("Picture");
-					myAlertDialog.setMessage("You want choose a picutre for your Event?");
-					myAlertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
-
-						public void onClick(DialogInterface arg0, int arg1) {
-							// do nothing and return, so that the user can add the pic
-						}});
-					myAlertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
-
-						public void onClick(DialogInterface arg0, int arg1) {
-							// store the event in the db and send it to bt
-							// TODO add start- and endtime
-							sendNewEvent();
-						}});
-					myAlertDialog.show();
-				}
-				sendNewEvent();
 			}
-
 		});
 	}
 	
@@ -236,54 +225,31 @@ public class NewEventActivity extends Activity {
 	private void sendNewEvent() 
 	{
 		Event event = new EventImpl(startTime, endTime, sTitle, sContent, PeopleActivity.USERNAME, sUri);
+	}
+
+	private void sendNewEvent(String sTitle, String sContent) {
+		Event event = new EventImpl(0L, 0L, sTitle, sContent,
+				PeopleActivity.USERNAME, null);
 		eventsDataSource.createEntry(event.getDBString());
-		
+
 		startActivity(new Intent(getApplicationContext(), EventsActivity.class));
 	}
+
 	@Override
 	protected void onPause() {
 		super.onPause();
 		eventsDataSource.close();
 	}
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		eventsDataSource.close();
 	}
+
 	@Override
 	protected void onResume() {
 		super.onResume();
 		eventsDataSource.open();
 	}
 
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) { 
-		super.onActivityResult(requestCode, resultCode, imageReturnedIntent); 
-
-		switch(requestCode) { 
-		case SELECT_PICTURE:
-			if(resultCode == RESULT_OK){  
-				//Uri of the selected image by user
-				selectedImage = imageReturnedIntent.getData();
-				InputStream imageStream=null;
-				try {
-					imageStream = getContentResolver().openInputStream(selectedImage);
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				}
-				//Get bitmap format of the selected image
-				Bitmap yourSelectedImage = BitmapFactory.decodeStream(imageStream);
-				//Show the image in the ImageView
-				image.setImageBitmap(yourSelectedImage);
-				bitmap=yourSelectedImage;//Store the bitmap of image in case of screen rotation
-			}
-		}
-	}
-
-	//Save the bitmap representation of the image when screen rotates and restore it upon completion of rotation.
-	@Override
-	public Object onRetainNonConfigurationInstance(){
-		return bitmap;
-	}
 }

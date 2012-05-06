@@ -81,7 +81,7 @@ public class BluetoothChatService extends Service
 
 	// Intent request codes
 	public static final int REQUEST_CONNECT_DEVICE = 1;
-	private static final int REQUEST_ENABLE_BT = 2;
+//	private static final int REQUEST_ENABLE_BT = 2;
 
 	static final int MSG_SET_INT_VALUE = 3;
 	public static final int MSG_DEVICE_ADDRESS = 15;
@@ -207,7 +207,6 @@ public class BluetoothChatService extends Service
 //		mAdapter = BluetoothAdapter.getDefaultAdapter();
 		mState = STATE_NONE;
 		//mHandler = handler;
-
 	}
 
 
@@ -396,7 +395,8 @@ public class BluetoothChatService extends Service
 	 */
 	private void connectionLost() {
 		setState(STATE_LISTEN);
-
+		this.stop();
+		this.start();
 		// Send a failure message back to the Activity
 		// TODO send to activity
 	}
