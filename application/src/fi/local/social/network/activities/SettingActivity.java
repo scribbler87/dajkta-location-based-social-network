@@ -1,6 +1,7 @@
 package fi.local.social.network.activities;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,18 +17,26 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 
 import com.example.android.actionbarcompat.ActionBarActivity;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -58,6 +67,7 @@ public class SettingActivity extends ActionBarActivity {
 	private UserDataSource userDataSource;
 	private ChatMessagesDataSource chatMessDataSource;
 	private Button stopServiceButton;
+	private Uri imageURI = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -82,7 +92,7 @@ public class SettingActivity extends ActionBarActivity {
 
 			@Override
 			public void onClick(View v) {
-				saveNickname();
+				saveUser();
 			}
 		});
 
@@ -92,7 +102,7 @@ public class SettingActivity extends ActionBarActivity {
 				// If the event is a key-down event on the "enter" button
 				if ((event.getAction() == KeyEvent.ACTION_DOWN)
 						&& (keyCode == KeyEvent.KEYCODE_ENTER)) {
-					saveNickname();
+					saveUser();
 					return true;
 				}
 
@@ -164,6 +174,8 @@ public class SettingActivity extends ActionBarActivity {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				this.imageURI = selectedImage;
+				Log.d("SettingActivity",imageURI.toString());
 				// Get bitmap format of the selected image
 				Bitmap yourSelectedImage = BitmapFactory
 						.decodeStream(imageStream);
@@ -173,7 +185,7 @@ public class SettingActivity extends ActionBarActivity {
 		}
 	}
 
-	private void saveNickname() {
+	private void saveUser() {
 		String newUsername = nickname.getText().toString();
 		Toast.makeText(getApplicationContext(),
 				"Your nickname is " + newUsername, Toast.LENGTH_SHORT).show();
@@ -225,11 +237,19 @@ public class SettingActivity extends ActionBarActivity {
 		startActivity(new Intent(getApplicationContext(), PeopleActivity.class));
 	}
 	
-class HTTPSaveSettings extends AsyncTask<String, String, String>{
-		
-		
+	public String getRealPathFromURI(Uri contentUri) {
+        String[] proj = { MediaStore.Images.Media.DATA };
+        Cursor cursor = managedQuery(contentUri, proj, null, null, null);
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        return cursor.getString(column_index);
+    }
+	
+	class HTTPSaveSettings extends AsyncTask<String, String, String>{
+			
 		private String address;
 		private String name;
+		private String image;
 		private String TAG = "HTTPSaveSettings";
 
 	    @Override
@@ -237,17 +257,20 @@ class HTTPSaveSettings extends AsyncTask<String, String, String>{
 	    	
 	    	this.address = params[0];
 	    	this.name = params[1];
+	    	this.image = getRealPathFromURI(imageURI);
 	    	Log.d(TAG,"Starting request for address: " + address);
 	    	
 	        HttpClient httpclient = new DefaultHttpClient();
+	        HttpContext localContext = new BasicHttpContext();
 	        HttpPost httppost = new HttpPost(SettingActivity.AddUserURL);
 	        
-	        // Add your data
-	        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-	        nameValuePairs.add(new BasicNameValuePair("address", address));
-	        nameValuePairs.add(new BasicNameValuePair("name", name));
+	        MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+	        
 	        try {
-				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+	        	entity.addPart("address", new StringBody(address));
+				entity.addPart("name", new StringBody(name));
+				entity.addPart("file", new FileBody(new File(this.image)));
+				httppost.setEntity(entity);
 			} catch (UnsupportedEncodingException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -256,9 +279,10 @@ class HTTPSaveSettings extends AsyncTask<String, String, String>{
 	        HttpResponse response;
 	        String responseString = null;
 	        try {
-	            response = httpclient.execute(httppost);
-	            StatusLine statusLine = response.getStatusLine();
+	        	Log.e(TAG,"executing request " + httppost.getRequestLine());
+	            response = httpclient.execute(httppost, localContext);
 	            
+	            StatusLine statusLine = response.getStatusLine();
 	            if(statusLine.getStatusCode() == HttpStatus.SC_OK){
 	                ByteArrayOutputStream out = new ByteArrayOutputStream();
 	                response.getEntity().writeTo(out);
@@ -270,6 +294,7 @@ class HTTPSaveSettings extends AsyncTask<String, String, String>{
 	            }
 	        } catch (IOException e) {
 	        	Log.e(TAG,"Got IOException");
+	        	e.printStackTrace();
 	            //TODO Handle problems..
 	        }
 	        return responseString;
