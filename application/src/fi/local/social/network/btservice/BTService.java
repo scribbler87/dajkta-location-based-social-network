@@ -558,12 +558,12 @@ public class BTService extends Service{
                         case STATE_NONE:
                         case STATE_CONNECTED:
                             // Either not ready or already connected. Terminate new socket.
-//                            try {
-//                            	 Log.e(TAG, "close socket in accept thread");
-//                               //  socket.close();
-//                            } catch (IOException e) {
-//                                Log.e(TAG, "Could not close unwanted socket", e);
-//                            }
+                            try {
+                            	 Log.e(TAG, "close socket in accept thread");
+                                socket.close();
+                            } catch (IOException e) {
+                                Log.e(TAG, "Could not close unwanted socket", e);
+                            }
                             break;
                         }
                     }
