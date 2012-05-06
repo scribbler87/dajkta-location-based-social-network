@@ -602,8 +602,10 @@ public class BluetoothChatService extends Service
 			try {
 				mmOutStream.write(buffer);
 
+				
+				Handler mHandler = new Handler();
 				// Share the sent message back to the UI Activity
-				//mHandler.obtainMessage(BTActivity.MESSAGE_WRITE, -1, -1, buffer).sendToTarget();
+				mHandler.obtainMessage(BTActivity.MESSAGE_WRITE, -1, -1, buffer).sendToTarget();
 				// TODO: todo
 				Log.i(TAG, buffer.toString());
 			} catch (IOException e) {
