@@ -146,6 +146,11 @@ public class ChatActivity extends ServiceHelper {
 	private void clearEditField() {
 		edittext.setText("");
 	}
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		finish();
+	}
 
 	@Override
 	protected void onPause() {
