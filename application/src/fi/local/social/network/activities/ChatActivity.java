@@ -40,6 +40,8 @@ public class ChatActivity extends ServiceHelper {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.chat);
+		
+		doBindService(ChatActivity.this);
 
 		this.mMessenger = new Messenger(new IncomingHandler());
 
@@ -88,7 +90,7 @@ public class ChatActivity extends ServiceHelper {
 			}
 		});
 
-		doBindService(ChatActivity.this);
+		
 	}
 
 	@Override
@@ -146,17 +148,12 @@ public class ChatActivity extends ServiceHelper {
 	private void clearEditField() {
 		edittext.setText("");
 	}
-	@Override
-	public void onBackPressed() {
-		super.onBackPressed();
-		finish();
-	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 		cleanUpResources();
-		this.sendMessageToService("leaveChatActivity", "", BTService.LEAVED_CHATACTIVITY);
+//		this.sendMessageToService("leaveChatActivity", "", BTService.LEAVED_CHATACTIVITY);
 	}
 
 	@Override
@@ -182,7 +179,7 @@ public class ChatActivity extends ServiceHelper {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case BTService.MSG_REC_MESSAGE:
+			case BTService.MSG_CHAT_MESSAGE:
 				// receive a message from the bluetooth service
 
 				String str1 = msg.getData().getString("chatMessage");
@@ -197,16 +194,11 @@ public class ChatActivity extends ServiceHelper {
 				Toast.makeText(getApplicationContext(),"ReceivedMessage: " + str1,
 						Toast.LENGTH_SHORT).show();
 				break;
-			case BTService.MSG_REGISTERED_CLIENT:
-				sendMessageToService("address", address,
-						BTService.MSG_START_CONNCETION);
-				break;
-			case BTService.CONNECTION_LOST:
-				startActivity(new Intent(getApplicationContext(), PeopleActivity.class));
-				break;
-			case BTService.CONNECTION_FAILED:
-				startActivity(new Intent(getApplicationContext(), PeopleActivity.class));
-				break;
+				
+//			case BTService.CONNECTION_LOST:
+//				startActivity(new Intent(getApplicationContext(), PeopleActivity.class));
+//				break;
+				
 			default:
 				super.handleMessage(msg);
 			}

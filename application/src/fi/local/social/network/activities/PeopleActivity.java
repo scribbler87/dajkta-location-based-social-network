@@ -55,6 +55,7 @@ public class PeopleActivity extends ServiceHelper {
 	protected ImageLoader imageLoader = ImageLoader.getInstance();
 	
 	public static String USERNAME = "";
+	private static String ADDRESS = "";
 	//	final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
 	private ArrayAdapter<User> adapter;
 	private DisplayImageOptions options;
@@ -92,17 +93,15 @@ public class PeopleActivity extends ServiceHelper {
 		gridView.setAdapter((ListAdapter) adapter );
 
 		gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		
+
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				Intent intent = new Intent(getApplicationContext() , ChatActivity.class);
+				User user = peopleNearby.get(position);
+				ADDRESS = user.getAddress();
 				Bundle b = new Bundle();
-				b.putString("username", USERNAME);
-				b.putString("receiver", view.toString());
-				String s = view.toString();
-				b.putString("address", peopleNearby.get(position).getAddress()); 
-				intent.putExtras(b);
-				startActivity(intent);
-
+				b.putString("address", ADDRESS);
+				sendBundleToService(b,  BTService.MSG_START_CONNCETION);
 			}
 		});
 		
@@ -312,23 +311,19 @@ public class PeopleActivity extends ServiceHelper {
 				System.err.println("startdiscovery");
 				sendMessageToService("startDiscovery", "", BTService.MSG_START_DISCOVERY);
 				break;
+				
 			case BTService.CONNECTION_FAILED:
 				Toast.makeText(getApplicationContext(), "Could not connect at the moment. Try again.", Toast.LENGTH_SHORT).show();
 				break;
+				
 			case BTService.START_CHAT_AVTIVITY:
 				Intent intent = new Intent(getApplicationContext() , ChatActivity.class);
 				Bundle b = new Bundle();
 				b.putString("username", USERNAME);
-				b.putString("receiver", "mockup");// TODO needs to come from the network
-				b.putString("address", "mockup"); 
+				b.putString("receiver", ADDRESS);// TODO needs to come from the network
+				b.putString("address", ADDRESS); 
 				intent.putExtras(b);
-				
 				startActivity(new Intent(getApplicationContext(), ChatActivity.class));
-				break;
-			case BTService.MSG_CHAT_MESSAGE:
-				Bundle data2 = msg.getData();
-				String d =  data2.getString("chatMessage");
-				Toast.makeText(getApplicationContext(), "m: " + d, Toast.LENGTH_SHORT).show();
 				break;
 				
 			default:

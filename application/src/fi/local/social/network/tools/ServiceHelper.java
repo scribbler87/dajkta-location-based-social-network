@@ -70,6 +70,23 @@ public abstract class ServiceHelper extends ActionBarActivity{
 	};
 
 
+	protected void sendBundleToService(Bundle b, int MSG) {
+		if (mIsBound) {
+			if (mService != null) {
+				try {
+
+					Message msg = Message.obtain(null, MSG);
+					msg.setData(b);
+
+					msg.replyTo = mMessenger;
+					mService.send(msg);
+				} catch (RemoteException e) {
+				}
+			}
+			else
+				System.err.println("mService was null");
+		}
+	}
 
 	protected void sendMessageToService(String key, String data, int MSG) {
 		if (mIsBound) {
