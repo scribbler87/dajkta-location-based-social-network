@@ -115,7 +115,7 @@ public class PeopleActivity extends ServiceHelper {
 		for (User user : allEntries) {
 			if(user.isPhoneUser())
 			{
-				this.USERNAME = user.getUserName();
+				USERNAME = user.getUserName();
 				break;
 			}
 		}
