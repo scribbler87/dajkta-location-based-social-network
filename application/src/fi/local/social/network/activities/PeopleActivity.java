@@ -172,7 +172,7 @@ public class PeopleActivity extends ServiceHelper {
 		}
 		
 		//doBindService(PeopleActivity.this);
-		this.startDiscovery();
+	//	this.startDiscovery();
 	}
 	
 	public void startDiscovery(){
@@ -304,12 +304,12 @@ public class PeopleActivity extends ServiceHelper {
 				
 				// Start a HTTP request to get the username from server based on Bluetooth address
 				new HTTPNameRequest().execute(address);
+				break;
 				
-				break;
-			case BTService.MSG_REGISTERED_CLIENT:
-				System.err.println("startdiscovery");
-				sendMessageToService("startDiscovery", "", BTService.MSG_START_DISCOVERY);
-				break;
+//			case BTService.MSG_REGISTERED_CLIENT:
+//				System.err.println("startdiscovery");
+//				sendMessageToService("startDiscovery", "", BTService.MSG_START_DISCOVERY);
+//				break;
 				
 			case BTService.CONNECTION_FAILED:
 				Toast.makeText(getApplicationContext(), "Could not connect at the moment. Try again.", Toast.LENGTH_SHORT).show();
