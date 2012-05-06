@@ -9,6 +9,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import fi.local.social.network.activities.ChatActivity;
+
 
 
 
@@ -333,8 +335,6 @@ public class BTService extends Service{
 	}
 
 	private synchronized void setState(int state) {
-//		if(mState == 2 && state == 3)
-//			sendMessageToUI("startChat", "", START_CHAT_AVTIVITY);
 		if (D) Log.d(TAG, "setState() " + mState + " -> " + state);
 		mState = state;
 	}
@@ -546,6 +546,9 @@ public class BTService extends Service{
                         case STATE_CONNECTING:
                             // Situation normal. Start the connected thread.
                             connected(socket, socket.getRemoteDevice());
+                            Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+                			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                			getApplication().startActivity(intent);
                             break;
                         case STATE_NONE:
                         case STATE_CONNECTED:
