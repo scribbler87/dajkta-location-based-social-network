@@ -34,19 +34,69 @@
 				        android:id="@+id/newEventContent"
 				        android:layout_width="fill_parent"
 				        android:layout_height="166dp"
-				        android:scrollbars="vertical" />
+				        android:scrollbars="vertical"/>
+				    <TableLayout
+				        android:layout_width="fill_parent"
+				        android:layout_height="wrap_content">
+				        <TableRow>
+						    <TextView
+						        android:id="@+id/eventStartTime"
+						        android:layout_width="0px"
+						        android:layout_weight="0.5"
+						        android:layout_height="wrap_content"
+						        android:clickable="true"
+						        android:onClick="chooseStartTime"
+						        android:text="Start: (date " />
+						    <TextView
+						        android:id="@+id/eventStartTimeHour"
+						        android:layout_width="0px"
+						        android:layout_weight="0.5"
+						        android:layout_height="wrap_content"
+						        android:clickable="true"
+						        android:onClick="chooseStartTimeHour"
+						        android:text="time)" />
+							<TextView
+						        android:id="@+id/eventEndTime"
+						        android:layout_width="0px"
+						        android:layout_weight="0.5"
+						        android:layout_height="wrap_content"
+						        android:clickable="true"
+						        android:onClick="chooseEndTime"
+						        android:text="End: (date " />
+							<TextView
+						        android:id="@+id/eventEndTime"
+						        android:layout_width="0px"
+						        android:layout_weight="0.5"
+						        android:layout_height="wrap_content"
+						        android:clickable="true"
+						        android:onClick="chooseEndTimeHour"
+						        android:text="time)" />
+				    	</TableRow>
+				    	<TableRow>
+						    <TextView
+						        android:id="@+id/eventStartTimeValue"
+						        android:layout_width="0px"
+						        android:layout_weight="0.5"
+						        android:layout_height="wrap_content"
+						        android:text="" />
+						    <TextView
+						        android:id="@+id/eventEndTimeValue"
+						        android:layout_width="0px"
+						        android:layout_weight="0.5"
+						        android:layout_height="wrap_content"
+						        android:text="" />
+				    	</TableRow>
+				    </TableLayout>
 				    <ImageView
 				        android:id="@+id/imgView"
 				        android:layout_width="wrap_content"
 				        android:layout_height="wrap_content"
 				        android:layout_gravity="center" />
-				    
 				    <Button
 				        android:id="@+id/sendBtn"
 				        android:layout_width="fill_parent"
 				        android:layout_height="wrap_content"
 				        android:text="Send Event" />
-				
 				</LinearLayout>
 		</ScrollView>
 </LinearLayout>

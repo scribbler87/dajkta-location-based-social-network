@@ -136,6 +136,7 @@ public class BTService extends Service{
 	}
 
 	private void ensureDiscoverable() {
+		if (D) Log.d(TAG, "Inside method: ensureDiscoverable");
 		if (mBluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
 			Intent discoverableIntent = new Intent(
 					BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
@@ -154,6 +155,7 @@ public class BTService extends Service{
 
 	@Override
 	public void onCreate() {
+		if (D) Log.d(TAG, "Inside method: onCreate");
 		super.onCreate();
 
 		
@@ -205,7 +207,9 @@ public class BTService extends Service{
 
 	@Override
 	public void onDestroy() {
+		if (D) Log.d(TAG, "Inside method: onDestroy");
 		super.onDestroy();
+		if (D) Log.d(TAG, "Cancelling discovery");
 		mBluetoothAdapter.cancelDiscovery();
 		isRunning = false;
 	}
@@ -214,16 +218,19 @@ public class BTService extends Service{
 	 * Start device discover with the BluetoothAdapter
 	 */
 	private void doDiscovery() {
-		Log.d(TAG , "doDiscovery()");
+		if (D) Log.d(TAG, "Inside method: doDiscovery");
 
 
 
 		// If we're already discovering, stop it
-		if (mBluetoothAdapter.isDiscovering()) {
+		if (mBluetoothAdapter.isDiscovering())
+		{
+			if (D) Log.d(TAG, "Cancelling discovery");
 			mBluetoothAdapter.cancelDiscovery();
 		}
 
 		// Request discover from BluetoothAdapter
+		if (D) Log.d(TAG, "Starting discovery");
 		mBluetoothAdapter.startDiscovery();
 	}
 
@@ -273,6 +280,7 @@ public class BTService extends Service{
 
 
 	public static void sendMessageToUI(String key, String data,  int MSG_TYPE) {
+		System.err.println("Inside method: sendMessageToUI");
 		for(int i = 0; i < mClients.size() ; i++)
 		{
 			Messenger client = mClients.get(i);
@@ -293,7 +301,7 @@ public class BTService extends Service{
 	// Cool stuff
 
 	public synchronized void start() {
-		if (D) Log.d(TAG, "start");
+		if (D) Log.d(TAG, "Inside method: start");
 
 		// Cancel any thread attempting to make a connection
 		if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
@@ -302,17 +310,23 @@ public class BTService extends Service{
 		if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
 
 		// Start the thread to listen on a BluetoothServerSocket
-		if (mAcceptThread == null) {
+		if (mAcceptThread == null)
+		{
+			if (D) Log.d(TAG, "Starting a new AcceptThread");
 			mAcceptThread = new AcceptThread();
 			mAcceptThread.start();
 		}
+		else
+			if (D) Log.d(TAG, "Did not start a new AcceptThread!");
 		setState(STATE_LISTEN);
 	}
 
 
 	private void connectionLost() {
+		if (D) Log.d(TAG, "Inside method: connectionLost");
 		setState(STATE_LISTEN);
 		sendMessageToUI("connectionLost", "", CONNECTION_LOST);
+		if (D) Log.d(TAG, "Starting method stop");
 		stop();
 		start();
 		sendMessageToUI("lostConnection", "", BTService.LEAVE_CHATACTIVITY);
@@ -329,6 +343,7 @@ public class BTService extends Service{
 	}
 
 	private void connectionFailed() {
+		if (D) Log.d(TAG, "Inside method: connectionFailed");
 		setState(STATE_LISTEN);
 		sendMessageToUI("connectionFailed", "", CONNECTION_FAILED);
 
@@ -342,7 +357,7 @@ public class BTService extends Service{
 
 
 	public synchronized void connected(BluetoothSocket socket, BluetoothDevice device) {
-		if (D) Log.d(TAG, "connected");
+		if (D) Log.d(TAG, "Inside method: connected");
 
 		// Cancel the thread that completed the connection
 		if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
@@ -364,6 +379,7 @@ public class BTService extends Service{
 	}
 
 	public synchronized void connect(BluetoothDevice device) {
+		if (D) Log.d(TAG, "Inside method: connect");
 		if (D) Log.d(TAG, "connect to: " + device);
 
 		// Cancel any thread attempting to make a connection
@@ -381,7 +397,7 @@ public class BTService extends Service{
 	}
 
 	public synchronized void stop() {
-		if (D) Log.d(TAG, "stop");
+		if (D) Log.d(TAG, "Inside method: stop");
 		if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
 		if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
 		if (mAcceptThread != null) {mAcceptThread.cancel(); mAcceptThread = null;}
@@ -394,6 +410,7 @@ public class BTService extends Service{
 	 * @see ConnectedThread#write(byte[])
 	 */
 	public void write(byte[] out) {
+		if (D) Log.d(TAG, "Inside method: write");
 		// Create temporary object
 		ConnectedThread r;
 		// Synchronize a copy of the ConnectedThread
@@ -404,27 +421,32 @@ public class BTService extends Service{
 		// Perform the write unsynchronized
 		r.write(out);
 	}
-
-	private class ConnectThread extends Thread {
+	
+	private class ConnectThread extends Thread	{
+		
 		private final BluetoothSocket mmSocket;
 		private final BluetoothDevice mmDevice;
-
-		public ConnectThread(BluetoothDevice device) {
+		
+		public ConnectThread(BluetoothDevice device)
+		{
+			if (D) Log.d(TAG, "Inside constructor of ConnectThread");
 			mmDevice = device;
 			BluetoothSocket tmp = null;
 
 			// Get a BluetoothSocket for a connection with the
 			// given BluetoothDevice
 			try {
+				if (D) Log.d(TAG, "Trying to create mmSocket in ConnectThread");
 				tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
 			} catch (IOException e) {
-				Log.e(TAG, "create() failed", e);
+				Log.e(TAG, "mmSocket creating failed in ConnectThread!", e);
 			}
 			mmSocket = tmp;
 		}
 
-		public void run() {
-			Log.i(TAG, "BEGIN mConnectThread");
+		public void run()
+		{
+			Log.i(TAG, "BEGIN mConnectThread (run)");
 			setName("ConnectThread");
 
 			// Always cancel discovery because it will slow down a connection
@@ -434,34 +456,39 @@ public class BTService extends Service{
 			try {
 				// This is a blocking call and will only return on a
 				// successful connection or an exception
-				System.err.println("Try to connect.");
+				if (D) Log.d(TAG, "Trying to connect mmSocket in ConnectThread.run()");
 				mmSocket.connect();
 
 			} catch (IOException e) {
+				if (D) Log.d(TAG, "Failed to connect in ConnectThread.run()");
 				connectionFailed();
 				// Close the socket
 				try {
+					if (D) Log.d(TAG, "Trying to close mmSocket in ConnectThread.run()");
 					mmSocket.close();
 				} catch (IOException e2) {
-					Log.e(TAG, "unable to close() socket during connection failure", e2);
+					Log.e(TAG, "Unable to close() socket in ConnectThread.run()", e2);
 				}
 				// Start the service over to restart listening mode
+				if (D) Log.d(TAG, "Calling BTService.this.start from ConnectThread.run");
 				BTService.this.start();
 				return;
 			}
 
 			// Reset the ConnectThread because we're done
 			synchronized (BTService.this) {
+				if (D) Log.d(TAG, "Setting mConnectThread to null");
 				mConnectThread = null;
 			}
 
 			// Start the connected thread
-			System.err.println("Start connected thread");
+			if (D) Log.d(TAG, "Calling connected-method from ConnectThread.run");
 			connected(mmSocket, mmDevice);
 		}
 
 		public void cancel() {
 			try {
+				if (D) Log.d(TAG, "Trying to close mmSocket in ConnectThread.cancel");
 				mmSocket.close();
 			} catch (IOException e) {
 				Log.e(TAG, "close() of connect socket failed", e);
@@ -483,15 +510,16 @@ public class BTService extends Service{
 
 			// Create a new listening server socket
 			try {
+				if (D) Log.d(TAG, "Trying to create mmServerSocket in AcceptThread");
 				tmp = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(NAME, MY_UUID);
 			} catch (IOException e) {
-				Log.e(TAG, "listen() failed", e);
+				Log.e(TAG, "mmSocket creating failed in ConnectThread!", e);
 			}
 			mmServerSocket = tmp;
 		}
 
 		public void run() {
-			if (D) Log.d(TAG, "BEGIN mAcceptThread" + this);
+			if (D) Log.d(TAG, "BEGIN mAcceptThread (run)" + this);
 			setName("AcceptThread");
 			BluetoothSocket socket = null;
 //			if(!checkVisablityThread.isAlive())
@@ -500,33 +528,36 @@ public class BTService extends Service{
 			// Listen to the server socket if we're not connectedeplyTo
 			while (mState != STATE_CONNECTED) {
 				try {
-
-
+					if (D) Log.d(TAG, "Trying to listen for a connection in AcceptThread.run (accept)");
+					if (D) Log.d(TAG, "Trying to connect socket from mmServerSocket");
 					// This is a blocking call and will only return on a
 					// successful connection or an exception
 					socket = mmServerSocket.accept();
 
 				} catch (IOException e) {
-					Log.e(TAG, "accept() failed", e);
+					Log.e(TAG, "mmServerSocket listening failed, socket not created in AcceptThread.run", e);
 					break;
 				}
 
 				// If a connection was accepted
 				if (socket != null) {
+					if (D) Log.d(TAG, "Socket connection successfull in AcceptThread.run");
 					synchronized (BTService.this) {
 						switch (mState) {
 						case STATE_LISTEN:
 						case STATE_CONNECTING:
 							// Situation normal. Start the connected thread.
+							if (D) Log.d(TAG, "Calling connected from AcceptThread.run");
 							connected(socket, socket.getRemoteDevice());
 							break;
 						case STATE_NONE:
 						case STATE_CONNECTED:
 							// Either not ready or already connected. Terminate new socket.
 							try {
+								if (D) Log.d(TAG, "We are already connected? Trying to close socket in AcceptThread.run");
 								socket.close();
 							} catch (IOException e) {
-								Log.e(TAG, "Could not close unwanted socket", e);
+								Log.e(TAG, "Failed to close the socket!", e);
 							}
 							break;
 						}
@@ -537,11 +568,12 @@ public class BTService extends Service{
 		}
 
 		public void cancel() {
-			if (D) Log.d(TAG, "cancel " + this);
+			if (D) Log.d(TAG, "Inside method cancel in AcceptThread");
 			try {
+				if (D) Log.d(TAG, "Trying to close mmServerSocket in AcceptThread.cancel");
 				mmServerSocket.close();
 			} catch (IOException e) {
-				Log.e(TAG, "close() of server failed", e);
+				Log.e(TAG, "Failed to close mmServerSocket in AcceptThread.cancel", e);
 			}
 		}
 	}
@@ -556,17 +588,18 @@ public class BTService extends Service{
 		private final OutputStream mmOutStream;
 
 		public ConnectedThread(BluetoothSocket socket) {
-			Log.d(TAG, "create ConnectedThread");
+			Log.d(TAG, "In the constructor of ConnectedThread");
 			mmSocket = socket;
 			InputStream tmpIn = null;
 			OutputStream tmpOut = null;
 
 			// Get the BluetoothSocket input and output streams
 			try {
+				if (D) Log.d(TAG, "Trying to get inputStream and outputStream from socket in ConnectedThread");
 				tmpIn = socket.getInputStream();
 				tmpOut = socket.getOutputStream();
 			} catch (IOException e) {
-				Log.e(TAG, "temp sockets not created", e);
+				Log.e(TAG, "Failed to get inputStream or outputStream from socket in ConnectedThread", e);
 			}
 
 			mmInStream = tmpIn;
@@ -574,7 +607,7 @@ public class BTService extends Service{
 		}
 
 		public void run() {
-			Log.i(TAG, "BEGIN mConnectedThread");
+			Log.i(TAG, "BEGIN mConnectedThread (run)");
 			byte[] buffer = new byte[1024];
 			
 			sendMessageToUI("startChatActivity", "", START_CHAT_AVTIVITY);
@@ -582,6 +615,7 @@ public class BTService extends Service{
 			while (true) {
 				try {
 					// Read from the InputStream
+					Log.i(TAG, "Trying to read from mmInStream in ConnectedThread.run");
 					mmInStream.read(buffer);
 					String receivedMessage = new String(buffer,"UTF-16LE");
 
@@ -593,11 +627,13 @@ public class BTService extends Service{
 
 					Log.i(TAG, receivedMessage);
 				} catch (Exception e) {
-					Log.e(TAG, "disconnected", e);
+					Log.e(TAG, "Encountered an exception (while reading inputstream?) in ConnectedThread.run", e);
 					try {
+						if (D) Log.d(TAG, "Trying to close streams in ConnectedThread.run");
 						mmInStream.close();
 						mmOutStream.close();
 					} catch (IOException e1) {
+						if (D) Log.e(TAG, "Closing streams in ConnectedThread.run failed!", e1);
 						e1.printStackTrace();
 					}
 					
@@ -613,9 +649,9 @@ public class BTService extends Service{
 		 */
 		public void write(byte[] buffer) {
 			try {
-				System.err.println("start sending message");
+				if (D) Log.d(TAG, "In ConnectedThread.write, trying to write the buffer");
 				mmOutStream.write(buffer);
-				System.err.println("finished sending message");
+				if (D) Log.d(TAG, "In ConnectedThread.write, buffer written!");
 				
 				// TODO: Share the sent message back to the UI Activity
 				Log.i(TAG, buffer.toString());
@@ -627,18 +663,11 @@ public class BTService extends Service{
 
 		public void cancel() {
 			try {
+				if (D) Log.d(TAG, "In ConnectedThread.cancel, trying to close mmSocket");
 				mmSocket.close();
 			} catch (IOException e) {
-				Log.e(TAG, "close() of connect socket failed", e);
+				Log.e(TAG, "In ConnectedThread.cancel, closing of mmSocket failed!", e);
 			}
 		}
 	}
-	
-
-
-
-
-
-
-
 }
