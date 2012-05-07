@@ -1,6 +1,9 @@
 package fi.local.social.network.activities;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import android.app.AlertDialog;
@@ -31,16 +34,6 @@ public class EventsActivity extends ActionBarActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.event_list);
-		//ArrayList<Event> events= new ArrayList<Event>();
-		//        EventItem e1=new EventItem("Party","Party at T1 at 3:46pm on April 20th");
-		//        EventItem e2=new EventItem("Lecture","Lecture at T1 at 3:46pm on April 20th");
-		//        EventItem e3=new EventItem("Reunion","Reunion at T1 at 3:46pm on April 20th");
-		//        EventItem e4=new EventItem("Something","Party at T1 at 3:46pm on April 20th");
-		//        events.add(e1);
-		//        events.add(e2);
-		//        events.add(e3);
-		//        events.add(e4);
-		//        
 
 
 		events=(ArrayList<Event>)getLastNonConfigurationInstance();
@@ -59,14 +52,7 @@ public class EventsActivity extends ActionBarActivity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position,
 					long id) {
-				// TODO Auto-generated method stub
-				/*
-				TextView username=(TextView)view.findViewById(R.id.eventUsername);
-				TextView title=(TextView)view.findViewById(R.id.eventTitle);
-				TextView content=(TextView)view.findViewById(R.id.eventContent);
-				TextView startTime=(TextView)view.findViewById(R.id.eventFrom);
-				TextView endTime=(TextView)view.findViewById(R.id.eventTo);
-				*/
+
 				AlertDialog.Builder builder =new AlertDialog.Builder(EventsActivity.this);
 				Event e=events.get(position);
 				String title=e.getTitle();
@@ -80,18 +66,22 @@ public class EventsActivity extends ActionBarActivity {
 			        	   EventsActivity.this.finish();
 			           }
 			       });*/
-//				AlertDialog alert = builder.create();
-//				alert.setTitle("Title: "+title.getText().toString());
-//				alert.setMessage("Owner: "+username.getText().toString()+
-//						         "\nContent: "+content.getText().toString()+"\nStart Time: "+startTime.getText().toString()+
-//						         "\nEnd Time: "+endTime.getText().toString());
-//				alert.setButton("OK", new DialogInterface.OnClickListener() {
-//				      public void onClick(DialogInterface dialog, int which) {
-//				 
-//				       //here you can add functions
-//				       EventsActivity.this.closeContextMenu();//finish();
-//				    } });
-//				alert.show();
+				
+				Calendar startDate = new GregorianCalendar();
+				
+				
+				AlertDialog alert = builder.create();
+				alert.setTitle("Title: "+title);
+				alert.setMessage("Owner: "+username+
+						         "\nContent: "+content+"\nStart Time: "+e.getStartTime().getDate()+
+						         "\nEnd Time: "+e.getEndTime().getDate());
+				alert.setButton("OK", new DialogInterface.OnClickListener() {
+				      public void onClick(DialogInterface dialog, int which) {
+				 
+				       //here you can add functions
+				       EventsActivity.this.closeContextMenu();//finish();
+				    } });
+				alert.show();
 				
 				//Toast.makeText(getApplicationContext(), username.getText().toString(), Toast.LENGTH_SHORT).show();
 				//view.findViewWithTag(tag)
