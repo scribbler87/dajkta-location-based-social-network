@@ -45,7 +45,7 @@ public class NewEventActivity extends ActionBarActivity {
 	private final int END_DATE_DIALOG_ID=101;
 	private final int START_TIME_PICKER_ID=200;
 	private final int END_TIME_PICKER_ID=201;
-	private int year, month, day, hour, minute;
+	private int year, month, day, hour, minute, endYear, endMonth, endDay;
 	
 	private TimePickerDialog.OnTimeSetListener timePickerListenerStart=
 		new TimePickerDialog.OnTimeSetListener() {
@@ -98,10 +98,10 @@ public class NewEventActivity extends ActionBarActivity {
 		public void onDateSet(DatePicker view, int selectedYear, int selectedMonth,
 				int selectedDay) {
 			// TODO Auto-generated method stub
-			year=selectedYear;
-			month=selectedMonth;
-			day=selectedDay;
-			eventEndTimeValue.setText(""+(month+1)+"-"+day+"-"+year);
+			endYear=selectedYear;
+			endMonth=selectedMonth;
+			endDay=selectedDay;
+			eventEndTimeValue.setText(""+(endMonth+1)+"-"+endDay+"-"+endYear);
 		
 		}
 	};
@@ -117,6 +117,18 @@ public class NewEventActivity extends ActionBarActivity {
 		eventStartTimeValue=(TextView)findViewById(R.id.eventStartTimeValue);
 		title=(EditText)findViewById(R.id.newEventTitle);
 		content=(EditText)findViewById(R.id.newEventContent);
+		
+		//Restore data when screen rotation happens
+		if(DataToRetain.title!=null)
+			title.setText(DataToRetain.title);
+		if(DataToRetain.content!=null)
+			content.setText(DataToRetain.content);
+		if(DataToRetain.startTime!=null)
+			eventStartTimeValue.setText(DataToRetain.startTime);
+		if(DataToRetain.endTime!=null)
+			eventEndTimeValue.setText(DataToRetain.endTime);
+		
+		
 		image=(ImageView)findViewById(R.id.imgView);
 		//chooseImageBtn=(Button)findViewById(R.id.chooseImageBtn);
 		sendBtn=(Button)findViewById(R.id.sendBtn);
@@ -253,5 +265,13 @@ public class NewEventActivity extends ActionBarActivity {
 		super.onResume();
 		eventsDataSource.open();
 	}
-
+	//Save the text when screen rotation happens and restore it upon completion of the rotation.
+	@Override
+    public Object onRetainNonConfigurationInstance(){
+    	DataToRetain.title=title.getText().toString();
+    	DataToRetain.content=content.getText().toString();
+    	DataToRetain.startTime=eventStartTimeValue.getText().toString();
+    	DataToRetain.endTime=eventEndTimeValue.getText().toString();
+		return null;
+    }
 }
