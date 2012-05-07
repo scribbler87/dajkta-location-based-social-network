@@ -51,6 +51,11 @@ public class BTService extends Service {
 	private static final String MESSAGE_ENCODING = "UTF-16";
 
 	public static BluetoothAdapter mBluetoothAdapter = null;
+	
+	private static final String EVENT_MSG_END_TAG = "<!EVT>";
+	private static final String CHAT_MSG_END_TAG = "<!MSG>";
+	private static final String CHAT_MSG_START_TAG = "<MSG>";
+	private static final String EVENT_MSG_START_TAG = "<EVT>";
 
 	/**
 	 * Target we publish for clients to send messages to IncomingHandler.
@@ -120,8 +125,8 @@ public class BTService extends Service {
 
 			case MSG_CHAT_MESSAGE:
 				Bundle chatData = msg.getData();
-				String message = "<MSG>" + chatData.getString("chatMessage")
-						+ "<!MSG>"; // TODO small protocoll
+				String message = CHAT_MSG_START_TAG + chatData.getString("chatMessage")
+						+ CHAT_MSG_END_TAG; // TODO small protocoll
 				byte[] chatBytes = null;
 				// try {
 				chatBytes = message.getBytes();// MESSAGE_ENCODING);
@@ -131,18 +136,6 @@ public class BTService extends Service {
 				write(chatBytes);
 				break;
 
-			// case MSG_EVENT:
-			// Bundle eventData = msg.getData();
-			// String eventMessage = eventData.getString("eventMessage")
-			// +"<!EVT>";
-			// byte[] eventBytes = null;
-			// try {
-			// eventBytes = eventMessage.getBytes(MESSAGE_ENCODING);
-			// } catch (UnsupportedEncodingException e) {
-			// e.printStackTrace();
-			// }
-			// write(eventBytes);
-			// break;
 
 			default:
 				super.handleMessage(msg);
@@ -173,21 +166,6 @@ public class BTService extends Service {
 		if (D)
 			Log.d(TAG, "Inside method: onCreate");
 		super.onCreate();
-
-		// this.stopSelf();
-		// ActivityManager systemService =
-		// (ActivityManager)getApplicationContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
-		// List<RunningServiceInfo> runningServices =
-		// systemService.getRunningServices(Integer.MAX_VALUE);
-		// for (RunningServiceInfo runningServiceInfo : runningServices) {
-		// if("fi.local.social.network.btservice.BtService".equals(runningServiceInfo.service.getClassName().toString()))
-		// {
-		// //runningServiceInfo.
-		// System.err.println("service is still running when we start our service");
-		// }
-		// }
-		// checkVisablityThread = new CheckVisablityThread();
-		// checkVisablityThread.start();
 
 		// is the bluetooth turned on?
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -392,13 +370,12 @@ public class BTService extends Service {
 		mConnectedThread = new ConnectedThread(socket);
 		mConnectedThread.start();
 
-		// TODO Send the name of the connected device back to the UI Activity
-
+		// Send the name of the connected device back to the UI Activity
 		setState(STATE_CONNECTED);
 		PeopleActivity.RECEIVER_NAME = device.getName();
 		sendMessageToUI("startChatActivity", "", START_CHAT_AVTIVITY);
 
-		// TODO send all events
+		// send all events
 		DataSource eventsDataSource = new EventsDataSource(
 				getApplicationContext());
 		List<Event> events = (List<Event>) eventsDataSource.getAllEntries();
@@ -644,10 +621,7 @@ public class BTService extends Service {
 	 * incoming and outgoing transmissions.
 	 */
 	private class ConnectedThread extends Thread {
-		private static final String EVENT_MSG_END_TAG = "<!EVT>";
-		private static final String CHAT_MSG_END_TAG = "<!MSG>";
-		private static final String CHAT_MSG_START_TAG = "<MSG>";
-		private static final String EVENT_MSG_START_TAG = "<EVT>";
+		
 		private final BluetoothSocket mmSocket;
 		private final InputStream mmInStream;
 		private final OutputStream mmOutStream;
@@ -685,7 +659,7 @@ public class BTService extends Service {
 					mmInStream.read(buffer);
 					string = new String(buffer);// , MESSAGE_ENCODING);
 					if (string.startsWith(CHAT_MSG_START_TAG)) {
-						// TODO use protocoll here
+						// use protocoll here
 						// example chatmessages
 						int indexOfEndMessage = string
 								.indexOf(CHAT_MSG_END_TAG);
@@ -713,11 +687,13 @@ public class BTService extends Service {
 							ev.setProfilePicURI("");
 							ev.setID(5);
 							ev.setUser(user);
-							ev.setTimestamp(new Timestamp(System.currentTimeMillis()));
 							ev.setStartTime(new Timestamp(System.currentTimeMillis()));
 							ev.setEndTime(new Timestamp(System.currentTimeMillis()));
+							
 							String eventString = ev.getDBString();
-							 eventDataSource.createEntry(eventString);
+							 		eventDataSource.createEntry(eventString);
+							 
+							 
 						} else {
 							throw new RuntimeException(
 									"Something wrong with the messages"

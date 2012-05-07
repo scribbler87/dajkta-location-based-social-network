@@ -109,19 +109,15 @@ public class ChatActivity extends ServiceHelper {
 
 	private void filterMyMessages() {
 		List<ChatMessage> allMessages = chatMessageDataSource.getAllEntries();
-		for (ChatMessage chatMessage : allMessages) {
-			if (chatMessage.getReceiverName().equals(receiverName)
-					|| chatMessage.getSenderName().equals(receiverName) || 
-					chatMessage.getReceiverName().equals(PeopleActivity.RECEIVER_NAME)
+		for (ChatMessage chatMessage : allMessages) 
+		{
+			if (chatMessage.getReceiverName().equals(PeopleActivity.RECEIVER_NAME)
 					|| chatMessage.getSenderName().equals(PeopleActivity.RECEIVER_NAME) )
+			{
 				chatList.add(chatMessage);
+			}
 		}
-		
-//		 Collections.sort(chatList, new Comparator<ChatMessage>(){
-//	           public int compare (ChatMessage m1, ChatMessage m2){
-//	               return m1.getTime().compareTo(m2.getTime());
-//	           }
-//	       });
+		Collections.sort(chatList);
 
 	}
 	

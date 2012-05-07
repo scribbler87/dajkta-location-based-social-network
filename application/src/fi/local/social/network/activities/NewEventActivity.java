@@ -155,7 +155,7 @@ public class NewEventActivity extends ActionBarActivity {
 
 		// open db
 		eventsDataSource = new EventsDataSource(getApplicationContext());
-		eventsDataSource.open();
+		
 
 		/*
 		Bitmap bitmapTemp=(Bitmap)getLastNonConfigurationInstance();
@@ -252,6 +252,8 @@ public class NewEventActivity extends ActionBarActivity {
 
 
 	private void sendNewEvent(String sTitle, String sContent) {
+		eventsDataSource.open();
+		
 		GregorianCalendar evStart = 
 				new GregorianCalendar(this.startYear,startMonth,startDay,startHour,startMinute);
 		GregorianCalendar evEnd = 
@@ -261,6 +263,8 @@ public class NewEventActivity extends ActionBarActivity {
 				evEnd.getTimeInMillis(), sTitle, sContent,
 				PeopleActivity.USERNAME, null);
 		eventsDataSource.createEntry(event.getDBString());
+		
+		eventsDataSource.close();
 
 		startActivity(new Intent(getApplicationContext(), EventsActivity.class));
 	}
@@ -268,7 +272,6 @@ public class NewEventActivity extends ActionBarActivity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		eventsDataSource.close();
 	}
 
 	@Override
@@ -279,7 +282,6 @@ public class NewEventActivity extends ActionBarActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		eventsDataSource.open();
 		initializeTimeValues();
 	}
 

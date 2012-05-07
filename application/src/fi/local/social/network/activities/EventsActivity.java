@@ -23,12 +23,15 @@ import android.widget.AdapterView.OnItemClickListener;
 import com.example.android.actionbarcompat.ActionBarActivity;
 
 import fi.local.social.network.R;
+import fi.local.social.network.activities.EventsActivity.EventItemAdapter;
 import fi.local.social.network.db.Event;
 import fi.local.social.network.db.EventsDataSource;
 
 public class EventsActivity extends ActionBarActivity {
 	private EventsDataSource eventsDataSource;
 	private ArrayList<Event> events;
+	private ListView listView;
+	private EventItemAdapter eventItemAdapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -45,10 +48,11 @@ public class EventsActivity extends ActionBarActivity {
 			eventsDataSource.close();
 		}
 
-		ListView listView=(ListView)findViewById(R.id.eventList);
-		listView.setAdapter(new EventItemAdapter(this,R.layout.event_list_item,events));
+		listView=(ListView)findViewById(R.id.eventList);
+		eventItemAdapter = new EventItemAdapter(this,R.layout.event_list_item,events);
+		listView.setAdapter(eventItemAdapter);
+		
 		listView.setOnItemClickListener(new OnItemClickListener(){
-
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position,
 					long id) {
@@ -59,22 +63,13 @@ public class EventsActivity extends ActionBarActivity {
 				String username=e.getUser();
 				String content=e.getDescription();
 				
-				/*builder.setMessage("Content: "+content.getText().toString()).setTitle("Title: "+title.getText().toString())
-			       .setCancelable(false)
-			       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-			           public void onClick(DialogInterface dialog, int id) {
-			        	   EventsActivity.this.finish();
-			           }
-			       });*/
-				
 				Calendar startDate = new GregorianCalendar();
-				
 				
 				AlertDialog alert = builder.create();
 				alert.setTitle("Title: "+title);
 				alert.setMessage("Owner: "+username+
-						         "\nContent: "+content+"\nStart Time: "+e.getStartTime().getDate()+
-						         "\nEnd Time: "+e.getEndTime().getDate());
+						         "\nContent: "+content+"\nStart Time: "+e.getStartTime().toGMTString()+
+						         "\nEnd Time: "+e.getEndTime().toGMTString());
 				alert.setButton("OK", new DialogInterface.OnClickListener() {
 				      public void onClick(DialogInterface dialog, int which) {
 				 
@@ -82,13 +77,24 @@ public class EventsActivity extends ActionBarActivity {
 				       EventsActivity.this.closeContextMenu();//finish();
 				    } });
 				alert.show();
-				
-				//Toast.makeText(getApplicationContext(), username.getText().toString(), Toast.LENGTH_SHORT).show();
-				//view.findViewWithTag(tag)
-				
 			}
-			
 		});
+		
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		events=(ArrayList<Event>)getLastNonConfigurationInstance();
+		if(events==null){
+			events=new ArrayList<Event>();
+			eventsDataSource = new EventsDataSource(getApplicationContext());
+			eventsDataSource.open();
+			events.addAll(eventsDataSource.getAllEntries());
+			eventsDataSource.close();
+			eventItemAdapter.notifyDataSetChanged();
+		}
+		
 	}
 	
 	public void onAddEventClick(View view) {

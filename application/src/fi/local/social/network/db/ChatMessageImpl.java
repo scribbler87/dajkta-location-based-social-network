@@ -104,5 +104,15 @@ public class ChatMessageImpl implements ChatMessage{
 		
 		return res;
 	}
+
+	@Override
+	public int compareTo(ChatMessage cm) {
+	        if (this.getTime().getTime() < cm.getTime().getTime())
+	            return -1;
+	        else if (this.getTime().getTime() == cm.getTime().getTime())
+	            return 0;
+	        else
+	            return 1;
+	}
 	
 }

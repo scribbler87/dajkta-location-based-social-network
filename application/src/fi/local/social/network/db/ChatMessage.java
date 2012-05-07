@@ -2,7 +2,7 @@ package fi.local.social.network.db;
 
 import java.sql.Timestamp;
 
-public interface ChatMessage {
+public interface ChatMessage  extends Comparable<ChatMessage>{
 
 	public long getID();
 	public void setID(long ID);
@@ -23,5 +23,6 @@ public interface ChatMessage {
 	
 	public String getDBString();
 	
+	public int compareTo(ChatMessage cm);
 	
 }
