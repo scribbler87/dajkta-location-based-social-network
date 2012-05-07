@@ -78,6 +78,7 @@ public class BTService extends Service {
 	private AcceptThread mAcceptThread;
 	private ConnectThread mConnectThread;
 	private ConnectedThread mConnectedThread;
+	private List<Event> events;
 	// private CheckVisablityThread checkVisablityThread;
 	private static boolean isRunning;
 
@@ -129,10 +130,11 @@ public class BTService extends Service {
 						+ CHAT_MSG_END_TAG; // TODO small protocoll
 				byte[] chatBytes = null;
 				// try {
-				chatBytes = message.getBytes();// MESSAGE_ENCODING);
-				// } catch (UnsupportedEncodingException e) {
-				// e.printStackTrace();
-				// }
+				try {
+					chatBytes = message.getBytes("UTF-16LE");
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
 				write(chatBytes);
 				break;
 
@@ -375,14 +377,6 @@ public class BTService extends Service {
 		PeopleActivity.RECEIVER_NAME = device.getName();
 		sendMessageToUI("startChatActivity", "", START_CHAT_AVTIVITY);
 
-		// send all events
-		DataSource eventsDataSource = new EventsDataSource(
-				getApplicationContext());
-		List<Event> events = (List<Event>) eventsDataSource.getAllEntries();
-
-		String keke = "<EVT>keijo<!EVT>";
-		write(keke.getBytes());
-		eventsDataSource.close();
 
 	}
 
@@ -648,16 +642,37 @@ public class BTService extends Service {
 			Log.i(TAG, "BEGIN mConnectedThread");
 			byte[] buffer = new byte[1024];
 			String string;
-			 DataSource eventDataSource = new
-			 EventsDataSource(getApplicationContext());
-			 eventDataSource.open();
+			// get all events
+			DataSource eventsDataSource = new EventsDataSource(
+					getApplicationContext());
+			eventsDataSource.open();
+			events = (List<Event>) eventsDataSource.getAllEntries();
+			eventsDataSource.close();
+			int actEvent = 0;
 			// Keep listening to the InputStream while connected
 			while (true) {
 
 				try {
+					if(events != null)
+					{
+						if(actEvent < events.size())
+						{
+							Log.d("ConnectedThread", "sending Event" );
+							Event event = events.get(actEvent);
+							String eventString = event.getDBString();
+							eventString = EVENT_MSG_START_TAG + eventString + EVENT_MSG_END_TAG;
+							mmOutStream.write(eventString.getBytes("UTF-16LE"));
+							actEvent++;
+						}
+						else
+						{
+							events = null;
+						}
+					}
+					
 					// Read from the InputStream
 					mmInStream.read(buffer);
-					string = new String(buffer);// , MESSAGE_ENCODING);
+					string = new String(buffer,"UTF-16LE");// , MESSAGE_ENCODING);
 					if (string.startsWith(CHAT_MSG_START_TAG)) {
 						// use protocoll here
 						// example chatmessages
@@ -674,24 +689,11 @@ public class BTService extends Service {
 						if (string.startsWith(EVENT_MSG_START_TAG)) {
 							int indexOfEndMessage = string
 									.indexOf(EVENT_MSG_END_TAG);
-							string = string.substring(5, indexOfEndMessage);
+							string = string.substring(EVENT_MSG_START_TAG.length(), indexOfEndMessage);
 
-							Log.d("ConnectedThread", "Received event");
-							Event ev = new EventImpl();
-							String title = "title";
-							String desc = "description";
-							String user = "user";
+							Log.d("ConnectedThread", "Received event: " + string);
+							// TODO
 							
-							ev.setTitle(title );
-							ev.setDescription(desc);
-							ev.setProfilePicURI("");
-							ev.setID(5);
-							ev.setUser(user);
-							ev.setStartTime(new Timestamp(System.currentTimeMillis()));
-							ev.setEndTime(new Timestamp(System.currentTimeMillis()));
-							
-							String eventString = ev.getDBString();
-							 		eventDataSource.createEntry(eventString);
 							 
 							 
 						} else {
@@ -707,7 +709,6 @@ public class BTService extends Service {
 				}
 			}
 
-			 eventDataSource.close();
 
 			try {
 				this.mmInStream.close();
