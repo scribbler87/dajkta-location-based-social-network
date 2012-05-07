@@ -265,8 +265,12 @@ public class PeopleActivity extends ServiceHelper {
 					User user = peopleNearby.get(i);
 					if(this.address.equals(user.getAddress())){
 						Log.d(TAG,"Setting user name for: " + user.getAddress());
-						user.setUserName(result);
-						adapter.notifyDataSetChanged();
+						if(!"".equals(result))
+						{
+							user.setUserName(result);
+							adapter.notifyDataSetChanged();
+						}
+						
 						return;
 					}
 				}
