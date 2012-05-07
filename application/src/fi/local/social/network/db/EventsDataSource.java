@@ -87,6 +87,9 @@ public class EventsDataSource implements DataSource{
 		String[] allColumnNames = dbHelper.getAllColumnNames(MySQLiteHelper.TABLE_EVENTS);
 		
 		
+		if(database == null)
+			database = dbHelper.getReadableDatabase();
+		
 		Cursor cursor = database.query(MySQLiteHelper.TABLE_EVENTS,
 				allColumnNames, null, null, null, null, null);
 
