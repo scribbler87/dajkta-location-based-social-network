@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +27,7 @@ import android.util.Log;
 import fi.local.social.network.activities.PeopleActivity;
 import fi.local.social.network.db.DataSource;
 import fi.local.social.network.db.Event;
+import fi.local.social.network.db.EventImpl;
 import fi.local.social.network.db.EventsDataSource;
 
 public class BTService extends Service {
@@ -46,6 +48,7 @@ public class BTService extends Service {
 	public static final int START_CHAT_AVTIVITY = 14;
 	public static final int CONNECTION_FAILED = 15;
 	public static final int MSG_EVENT = 16;
+	private static final String MESSAGE_ENCODING = "UTF-16";
 
 	public static BluetoothAdapter mBluetoothAdapter = null;
 
@@ -113,33 +116,33 @@ public class BTService extends Service {
 				BluetoothDevice b = BluetoothAdapter.getDefaultAdapter()
 						.getRemoteDevice(address);
 				connect(b);
-
 				break;
 
 			case MSG_CHAT_MESSAGE:
 				Bundle chatData = msg.getData();
-				String message = chatData.getString("chatMessage")
+				String message = "<MSG>" + chatData.getString("chatMessage")
 						+ "<!MSG>"; // TODO small protocoll
 				byte[] chatBytes = null;
-				try {
-					chatBytes = message.getBytes("UTF-16LE");
-				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
-				}
-
+				// try {
+				chatBytes = message.getBytes();// MESSAGE_ENCODING);
+				// } catch (UnsupportedEncodingException e) {
+				// e.printStackTrace();
+				// }
 				write(chatBytes);
 				break;
-			case MSG_EVENT:
-				Bundle eventData = msg.getData();
-				String eventMessage = eventData.getString("eventMessage");
-				byte[] eventBytes = null;
-				try {
-					eventBytes = eventMessage.getBytes("UTF-16LE");
-				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
-				}
-				write(eventBytes);
-				break;
+
+			// case MSG_EVENT:
+			// Bundle eventData = msg.getData();
+			// String eventMessage = eventData.getString("eventMessage")
+			// +"<!EVT>";
+			// byte[] eventBytes = null;
+			// try {
+			// eventBytes = eventMessage.getBytes(MESSAGE_ENCODING);
+			// } catch (UnsupportedEncodingException e) {
+			// e.printStackTrace();
+			// }
+			// write(eventBytes);
+			// break;
 
 			default:
 				super.handleMessage(msg);
@@ -400,6 +403,10 @@ public class BTService extends Service {
 				getApplicationContext());
 		List<Event> events = (List<Event>) eventsDataSource.getAllEntries();
 
+		String keke = "<EVT>keijo<!EVT>";
+		write(keke.getBytes());
+		eventsDataSource.close();
+
 	}
 
 	/**
@@ -637,6 +644,10 @@ public class BTService extends Service {
 	 * incoming and outgoing transmissions.
 	 */
 	private class ConnectedThread extends Thread {
+		private static final String EVENT_MSG_END_TAG = "<!EVT>";
+		private static final String CHAT_MSG_END_TAG = "<!MSG>";
+		private static final String CHAT_MSG_START_TAG = "<MSG>";
+		private static final String EVENT_MSG_START_TAG = "<EVT>";
 		private final BluetoothSocket mmSocket;
 		private final InputStream mmInStream;
 		private final OutputStream mmOutStream;
@@ -663,27 +674,65 @@ public class BTService extends Service {
 			Log.i(TAG, "BEGIN mConnectedThread");
 			byte[] buffer = new byte[1024];
 			String string;
-
-			String endTag = "<!MSG>";
+			 DataSource eventDataSource = new
+			 EventsDataSource(getApplicationContext());
+			 eventDataSource.open();
 			// Keep listening to the InputStream while connected
 			while (true) {
 
 				try {
 					// Read from the InputStream
 					mmInStream.read(buffer);
-					string = new String(buffer, "UTF-16LE");
-					int indexOfEndMessage = string.indexOf(endTag);
-					string = string.substring(0, indexOfEndMessage);
-					// TODO use protocoll here
-					if (!"".equals(string))
-						sendMessageToUI("chatMessage", string, MSG_CHAT_MESSAGE);
+					string = new String(buffer);// , MESSAGE_ENCODING);
+					if (string.startsWith(CHAT_MSG_START_TAG)) {
+						// TODO use protocoll here
+						// example chatmessages
+						int indexOfEndMessage = string
+								.indexOf(CHAT_MSG_END_TAG);
+						string = string.substring(5, indexOfEndMessage);
 
+						if (!string.equals("")) {
+							sendMessageToUI("chatMessage", string,
+									MSG_CHAT_MESSAGE);
+						}
+					} else {
+
+						if (string.startsWith(EVENT_MSG_START_TAG)) {
+							int indexOfEndMessage = string
+									.indexOf(EVENT_MSG_END_TAG);
+							string = string.substring(5, indexOfEndMessage);
+
+							Log.d("ConnectedThread", "Received event");
+							Event ev = new EventImpl();
+							String title = "title";
+							String desc = "description";
+							String user = "user";
+							
+							ev.setTitle(title );
+							ev.setDescription(desc);
+							ev.setProfilePicURI("");
+							ev.setID(5);
+							ev.setUser(user);
+							ev.setTimestamp(new Timestamp(System.currentTimeMillis()));
+							ev.setStartTime(new Timestamp(System.currentTimeMillis()));
+							ev.setEndTime(new Timestamp(System.currentTimeMillis()));
+							String eventString = ev.getDBString();
+							 eventDataSource.createEntry(eventString);
+						} else {
+							throw new RuntimeException(
+									"Something wrong with the messages"
+											+ string);
+						}
+					}
 				} catch (IOException e) {
 					Log.e(TAG, "disconnected", e);
 					connectionLost();
 					break;
 				}
 			}
+
+			 eventDataSource.close();
+
 			try {
 				this.mmInStream.close();
 			} catch (IOException e) {
