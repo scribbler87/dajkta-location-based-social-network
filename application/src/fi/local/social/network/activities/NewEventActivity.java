@@ -129,7 +129,7 @@ public class NewEventActivity extends ActionBarActivity {
 			eventEndTimeValue.setText(DataToRetain.endTime);
 		
 		
-		image=(ImageView)findViewById(R.id.imgView);
+		//image=(ImageView)findViewById(R.id.imgView);
 		//chooseImageBtn=(Button)findViewById(R.id.chooseImageBtn);
 		sendBtn=(Button)findViewById(R.id.sendBtn);
 		selectedImage = null;
@@ -143,7 +143,7 @@ public class NewEventActivity extends ActionBarActivity {
 		eventsDataSource = new EventsDataSource(getApplicationContext());
 		eventsDataSource.open();
 
-
+		/*
 		Bitmap bitmapTemp=(Bitmap)getLastNonConfigurationInstance();
 		if(bitmapTemp!=null){
 			image.setImageBitmap(bitmapTemp);
@@ -151,7 +151,7 @@ public class NewEventActivity extends ActionBarActivity {
 		}
 
 		//When a user clicks on the 'choose a image' button, the user is directed into the media folder to choose a image
-		/*
+		
 		chooseImageBtn.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
