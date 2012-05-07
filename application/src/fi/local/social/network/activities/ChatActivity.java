@@ -114,7 +114,7 @@ public class ChatActivity extends ServiceHelper {
 			if (chatMessage.getReceiverName().equals(PeopleActivity.RECEIVER_NAME)
 					|| chatMessage.getSenderName().equals(PeopleActivity.RECEIVER_NAME) )
 			{
-				chatList.add(chatMessage);
+				adapter.add(chatMessage);
 			}
 		}
 		Collections.sort(chatList);
@@ -137,7 +137,7 @@ public class ChatActivity extends ServiceHelper {
 			ChatMessage chatMessage = (ChatMessage) chatMessageDataSource
 					.createEntry(tmpMessage.getDBString());
 
-			chatList.add(chatMessage);
+			adapter.add(chatMessage);
 			adapter.notifyDataSetChanged();
 			clearEditField();
 
@@ -201,7 +201,7 @@ public class ChatActivity extends ServiceHelper {
 				ChatMessage chatMessage = (ChatMessage) chatMessageDataSource
 						.createEntry(tmpMessage.getDBString());
 				
-				chatList.add(chatMessage);
+				adapter.add(chatMessage);
 				adapter.notifyDataSetChanged();
 
 //				Toast.makeText(getApplicationContext(),"ReceivedMessage: " + receivedMessage,
