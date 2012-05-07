@@ -3,20 +3,25 @@ package fi.local.social.network.activities;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.android.actionbarcompat.ActionBarActivity;
-
-import fi.local.social.network.R;
-import fi.local.social.network.db.Event;
-import fi.local.social.network.db.EventsDataSource;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemClickListener;
+
+import com.example.android.actionbarcompat.ActionBarActivity;
+
+import fi.local.social.network.R;
+import fi.local.social.network.db.Event;
+import fi.local.social.network.db.EventsDataSource;
 
 public class EventsActivity extends ActionBarActivity {
 	private EventsDataSource eventsDataSource;
@@ -49,6 +54,51 @@ public class EventsActivity extends ActionBarActivity {
 
 		ListView listView=(ListView)findViewById(R.id.eventList);
 		listView.setAdapter(new EventItemAdapter(this,R.layout.event_list_item,events));
+		listView.setOnItemClickListener(new OnItemClickListener(){
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position,
+					long id) {
+				// TODO Auto-generated method stub
+				/*
+				TextView username=(TextView)view.findViewById(R.id.eventUsername);
+				TextView title=(TextView)view.findViewById(R.id.eventTitle);
+				TextView content=(TextView)view.findViewById(R.id.eventContent);
+				TextView startTime=(TextView)view.findViewById(R.id.eventFrom);
+				TextView endTime=(TextView)view.findViewById(R.id.eventTo);
+				*/
+				AlertDialog.Builder builder =new AlertDialog.Builder(EventsActivity.this);
+				Event e=events.get(position);
+				String title=e.getTitle();
+				String username=e.getUser();
+				String content=e.getDescription();
+				
+				/*builder.setMessage("Content: "+content.getText().toString()).setTitle("Title: "+title.getText().toString())
+			       .setCancelable(false)
+			       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			           public void onClick(DialogInterface dialog, int id) {
+			        	   EventsActivity.this.finish();
+			           }
+			       });*/
+//				AlertDialog alert = builder.create();
+//				alert.setTitle("Title: "+title.getText().toString());
+//				alert.setMessage("Owner: "+username.getText().toString()+
+//						         "\nContent: "+content.getText().toString()+"\nStart Time: "+startTime.getText().toString()+
+//						         "\nEnd Time: "+endTime.getText().toString());
+//				alert.setButton("OK", new DialogInterface.OnClickListener() {
+//				      public void onClick(DialogInterface dialog, int which) {
+//				 
+//				       //here you can add functions
+//				       EventsActivity.this.closeContextMenu();//finish();
+//				    } });
+//				alert.show();
+				
+				//Toast.makeText(getApplicationContext(), username.getText().toString(), Toast.LENGTH_SHORT).show();
+				//view.findViewWithTag(tag)
+				
+			}
+			
+		});
 	}
 	
 	public void onAddEventClick(View view) {
