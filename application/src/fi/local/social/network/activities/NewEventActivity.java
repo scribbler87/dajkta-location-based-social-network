@@ -1,5 +1,9 @@
 package fi.local.social.network.activities;
 
+import java.sql.Date;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
@@ -39,73 +43,83 @@ public class NewEventActivity extends ActionBarActivity {
 	private String sTitle;
 	private String sContent;
 	private String sUri;
-	private long startTime;
-	private long endTime;
 	private final int START_DATE_DIALOG_ID=100;
 	private final int END_DATE_DIALOG_ID=101;
 	private final int START_TIME_PICKER_ID=200;
 	private final int END_TIME_PICKER_ID=201;
-	private int year, month, day, hour, minute, endYear, endMonth, endDay;
-	
+	private int startYear = 2012;
+	private int startMonth =  5;
+	private int startDay = 7;
+	private int startHour = 11;
+	private int startMinute = 0;
+	private int endYear = 2012;
+	private int endMonth =  5;
+	private int endDay = 7;
+	private int endHour = 11;
+	private int endMinute = 0;
+
+	Date actDate = new Date(System.currentTimeMillis());
+
 	private TimePickerDialog.OnTimeSetListener timePickerListenerStart=
-		new TimePickerDialog.OnTimeSetListener() {
-			
-			@Override
-			public void onTimeSet(TimePicker view, int selectedHour, int selectedMinute) {
-				// TODO Auto-generated method stub
-				hour=selectedHour;
-				minute=selectedMinute;
-				eventStartTimeValue.setText(eventStartTimeValue.getText().toString()+" "+
-						String.valueOf(hour)+":"+String.valueOf(minute));
-				
-			}
-		};
+			new TimePickerDialog.OnTimeSetListener() {
+
+		@Override
+		public void onTimeSet(TimePicker view, int selectedHour, int selectedMinute) {
+			// TODO Auto-generated method stub
+			startHour=selectedHour;
+			startMinute=selectedMinute;
+			eventStartTimeValue.setText(eventStartTimeValue.getText().toString()+" "+
+					String.valueOf(startHour)+":"+String.valueOf(startMinute));
+
+		}
+	};
 
 	private TimePickerDialog.OnTimeSetListener timePickerListenerEnd=
-		new TimePickerDialog.OnTimeSetListener() {
-			
-			@Override
-			public void onTimeSet(TimePicker view, int selectedHour, int selectedMinute) {
-				// TODO Auto-generated method stub
-				hour=selectedHour;
-				minute=selectedMinute;
-				eventEndTimeValue.setText(eventEndTimeValue.getText().toString()+" "+
-						String.valueOf(hour)+":"+String.valueOf(minute));
-				
-			}
-		};
-			
+			new TimePickerDialog.OnTimeSetListener() {
+
+		@Override
+		public void onTimeSet(TimePicker view, int selectedHour, int selectedMinute) {
+			// TODO Auto-generated method stub
+			endHour=selectedHour;
+			endMinute=selectedMinute;
+			eventEndTimeValue.setText(eventEndTimeValue.getText().toString()+" "+
+					String.valueOf(endHour)+":"+String.valueOf(endMinute));
+
+		}
+	};
+
 	private DatePickerDialog.OnDateSetListener datePickerListenerStart=
-		new DatePickerDialog.OnDateSetListener() {
-		
+			new DatePickerDialog.OnDateSetListener() {
+
 		//When dialog is closed, method below gets called
 		@Override
 		public void onDateSet(DatePicker view, int selectedYear, int selectedMonth,int selectedDay) {
 			// TODO Auto-generated method stub
-			year=selectedYear;
-			month=selectedMonth;
-			day=selectedDay;
-			eventStartTimeValue.setText(""+(month+1)+"-"+day+"-"+year);
-		
+			startYear=selectedYear;
+			startMonth=selectedMonth+1;
+			startDay=selectedDay;
+			eventStartTimeValue.setText(""+(startMonth)+"-"+startDay+"-"+startYear);
+
 		}
 	};
 
 	private DatePickerDialog.OnDateSetListener datePickerListenerEnd=
-		new DatePickerDialog.OnDateSetListener() {
-		
+			new DatePickerDialog.OnDateSetListener() {
+
 		//When dialog is closed, method below gets called
 		@Override
 		public void onDateSet(DatePicker view, int selectedYear, int selectedMonth,
 				int selectedDay) {
 			// TODO Auto-generated method stub
 			endYear=selectedYear;
-			endMonth=selectedMonth;
+			endMonth=selectedMonth+1;
 			endDay=selectedDay;
-			eventEndTimeValue.setText(""+(endMonth+1)+"-"+endDay+"-"+endYear);
-		
+			eventEndTimeValue.setText(""+(endMonth)+"-"+endDay+"-"+endYear);
+
 		}
 	};
 	private EventsDataSource eventsDataSource1;
+	private GregorianCalendar calendar;
 
 
 	@Override
@@ -136,8 +150,8 @@ public class NewEventActivity extends ActionBarActivity {
 		sTitle = title.getEditableText().toString();
 		sContent = content.getEditableText().toString();
 		sUri = "";
-		startTime = 0L; // TODO initialize with the default value
-		endTime = 0L; // TODO initialize with the default value
+
+		initializeTimeValues();
 
 		// open db
 		eventsDataSource = new EventsDataSource(getApplicationContext());
@@ -161,14 +175,14 @@ public class NewEventActivity extends ActionBarActivity {
 				startActivityForResult(imageChoosingIntent, SELECT_PICTURE);
 			}
 		});
-		*/
+		 */
 
-		
+
 		Button sendBtn = (Button) findViewById(R.id.sendBtn);
 
 		// open db
 		eventsDataSource = new EventsDataSource(getApplicationContext());
-		
+
 
 		// When a user clicks on the 'Send Event' button, the newly created
 		// event would be sent to all nearby devices
@@ -186,9 +200,9 @@ public class NewEventActivity extends ActionBarActivity {
 				String sTitle = title.getEditableText().toString();
 				EditText content = (EditText) findViewById(R.id.newEventContent);
 				String sContent = content.getEditableText().toString();
-				
+
 				sTitle = title.getEditableText().toString();
-				
+
 				sContent = content.getEditableText().toString();
 
 				if (sTitle.equals("")) {
@@ -204,7 +218,7 @@ public class NewEventActivity extends ActionBarActivity {
 			}
 		});
 	}
-	
+
 	//When a user clicks on the label "date" besides "Start from", date dialog is initiated
 	public void chooseStartTime(View v){
 		showDialog(START_DATE_DIALOG_ID);
@@ -225,24 +239,26 @@ public class NewEventActivity extends ActionBarActivity {
 	protected Dialog onCreateDialog(int id){
 		switch(id){
 		case START_DATE_DIALOG_ID:
-			return new DatePickerDialog(this, datePickerListenerStart, year, month, day);
+			return new DatePickerDialog(this, datePickerListenerStart, startYear, startMonth, startDay);
 		case END_DATE_DIALOG_ID:
-			return new DatePickerDialog(this, datePickerListenerEnd, year, month, day);
+			return new DatePickerDialog(this, datePickerListenerEnd, endYear, endMonth, endDay);
 		case START_TIME_PICKER_ID:
-			return new TimePickerDialog(this, timePickerListenerStart, hour, minute,true);
+			return new TimePickerDialog(this, timePickerListenerStart, startHour, startMinute,true);
 		case END_TIME_PICKER_ID:
-			return new TimePickerDialog(this, timePickerListenerEnd, hour, minute,true);
+			return new TimePickerDialog(this, timePickerListenerEnd, endHour, endMinute,true);
 		}
 		return null;
 	}
-	
-	private void sendNewEvent() 
-	{
-		Event event = new EventImpl(startTime, endTime, sTitle, sContent, PeopleActivity.USERNAME, sUri);
-	}
+
 
 	private void sendNewEvent(String sTitle, String sContent) {
-		Event event = new EventImpl(0L, 0L, sTitle, sContent,
+		GregorianCalendar evStart = 
+				new GregorianCalendar(this.startYear,startMonth,startDay,startHour,startMinute);
+		GregorianCalendar evEnd = 
+				new GregorianCalendar(endYear, endMonth, endDay, endHour, endMinute);
+		
+		Event event = new EventImpl(evStart.getTimeInMillis(), 
+				evEnd.getTimeInMillis(), sTitle, sContent,
 				PeopleActivity.USERNAME, null);
 		eventsDataSource.createEntry(event.getDBString());
 
@@ -264,6 +280,32 @@ public class NewEventActivity extends ActionBarActivity {
 	protected void onResume() {
 		super.onResume();
 		eventsDataSource.open();
+		initializeTimeValues();
+	}
+
+	private void initializeTimeValues() {
+		calendar = new GregorianCalendar();
+		this.startYear = calendar.get(Calendar.YEAR);
+		this.startMonth = calendar.get(Calendar.MONTH);
+		
+		if(calendar.get(Calendar.AM_PM) == 0)
+			startHour = calendar.get(Calendar.HOUR);
+		else
+			startHour = calendar.get(Calendar.HOUR) + 12;
+
+		startMinute = calendar.get(Calendar.MINUTE);
+		
+		this.endYear = calendar.get(Calendar.YEAR);
+		this.endMonth = calendar.get(Calendar.MONTH);
+		
+		if(calendar.get(Calendar.AM_PM) == 0)
+			endHour = calendar.get(Calendar.HOUR);
+		else
+			endHour = calendar.get(Calendar.HOUR) + 12;
+
+		endMinute = calendar.get(Calendar.MINUTE);
+		
+		
 	}
 	//Save the text when screen rotation happens and restore it upon completion of the rotation.
 	@Override

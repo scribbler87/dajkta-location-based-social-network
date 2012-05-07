@@ -22,6 +22,11 @@ public class EventsDataSource implements DataSource{
 
 	@Override
 	public void open() throws SQLException {
+		if(database != null)
+		{
+			if(database.isOpen())
+				database.close();
+		}
 		database = dbHelper.getWritableDatabase();
 	}
 

@@ -41,36 +41,42 @@
 				        <TableRow>
 						    <TextView
 						        android:id="@+id/eventStartTime"
+						        android:textSize = "20sp"   
 						        android:layout_width="0px"
 						        android:layout_weight="0.5"
 						        android:layout_height="wrap_content"
 						        android:clickable="true"
 						        android:onClick="chooseStartTime"
-						        android:text="Start: (date " />
+						        android:text="Start:     DATE" />
 						    <TextView
 						        android:id="@+id/eventStartTimeHour"
+						         android:textSize = "20sp"
 						        android:layout_width="0px"
 						        android:layout_weight="0.5"
 						        android:layout_height="wrap_content"
 						        android:clickable="true"
 						        android:onClick="chooseStartTimeHour"
-						        android:text="time)" />
+						        android:text="TIME" />
+						    </TableRow>
+						    <TableRow>
 							<TextView
 						        android:id="@+id/eventEndTime"
+						         android:textSize = "20sp  " 
 						        android:layout_width="0px"
 						        android:layout_weight="0.5"
 						        android:layout_height="wrap_content"
 						        android:clickable="true"
 						        android:onClick="chooseEndTime"
-						        android:text="End: (date " />
+						        android:text="End:      DATE" />
 							<TextView
 						        android:id="@+id/eventEndTime"
+						         android:textSize = "20sp"   
 						        android:layout_width="0px"
 						        android:layout_weight="0.5"
 						        android:layout_height="wrap_content"
 						        android:clickable="true"
 						        android:onClick="chooseEndTimeHour"
-						        android:text="time)" />
+						        android:text="TIME" />
 				    	</TableRow>
 				    	<TableRow>
 						    <TextView
