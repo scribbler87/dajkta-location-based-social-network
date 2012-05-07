@@ -1,5 +1,6 @@
 package fi.local.social.network.activities;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -23,6 +24,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import com.example.android.actionbarcompat.ActionBarActivity;
 
 import fi.local.social.network.R;
+import fi.local.social.network.activities.EventsActivity.EventItemAdapter;
 import fi.local.social.network.db.Event;
 import fi.local.social.network.db.EventsDataSource;
 
@@ -38,18 +40,25 @@ public class EventsActivity extends ActionBarActivity {
 		setContentView(R.layout.event_list);
 
 
+		
 		events=(ArrayList<Event>)getLastNonConfigurationInstance();
 		if(events==null){
 			events=new ArrayList<Event>();
 			eventsDataSource = new EventsDataSource(getApplicationContext());
 			eventsDataSource.open();
-			events.addAll(eventsDataSource.getAllEntries());
+			System.err.println(eventsDataSource.getAllEntries().size());
+			for (Event event : eventsDataSource.getAllEntries()) {
+				System.err.println(event.toString());
+				events.add(event);
+				}
 			eventsDataSource.close();
 		}
-
+		
 		listView=(ListView)findViewById(R.id.eventList);
 		eventItemAdapter = new EventItemAdapter(this,R.layout.event_list_item,events);
 		listView.setAdapter(eventItemAdapter);
+
+
 		
 		listView.setOnItemClickListener(new OnItemClickListener(){
 			@Override
@@ -84,14 +93,21 @@ public class EventsActivity extends ActionBarActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		System.err.println("Heeeeeeeeeeere we go");
 		events=(ArrayList<Event>)getLastNonConfigurationInstance();
 		if(events==null){
+			System.err.println("Inside the if-structure");
 			events=new ArrayList<Event>();
+			eventItemAdapter.clear();
 			eventsDataSource = new EventsDataSource(getApplicationContext());
-			eventsDataSource.open();
-			events.addAll(eventsDataSource.getAllEntries());
+			eventsDataSource.open();			
+			for (Event event : eventsDataSource.getAllEntries()) {
+				eventItemAdapter.add(event);
+				}
 			eventsDataSource.close();
 			eventItemAdapter.notifyDataSetChanged();
+			System.err.println(eventItemAdapter.getCount());
+			System.err.println(events.size());
 		}
 		
 	}

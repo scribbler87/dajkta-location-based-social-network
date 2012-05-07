@@ -109,6 +109,7 @@ public class ChatActivity extends ServiceHelper {
 
 	private void filterMyMessages() {
 		List<ChatMessage> allMessages = chatMessageDataSource.getAllEntries();
+		adapter.clear();
 		for (ChatMessage chatMessage : allMessages) 
 		{
 			if (chatMessage.getReceiverName().equals(PeopleActivity.RECEIVER_NAME)
@@ -118,6 +119,7 @@ public class ChatActivity extends ServiceHelper {
 			}
 		}
 		Collections.sort(chatList);
+		adapter.notifyDataSetChanged();
 
 	}
 	
