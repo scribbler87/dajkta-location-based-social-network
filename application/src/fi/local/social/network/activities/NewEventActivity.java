@@ -58,7 +58,6 @@ public class NewEventActivity extends ActionBarActivity {
 	private int endHour = 11;
 	private int endMinute = 0;
 
-	
 	Date actDate = new Date(System.currentTimeMillis());
 
 	private TimePickerDialog.OnTimeSetListener timePickerListenerStart=
@@ -132,6 +131,18 @@ public class NewEventActivity extends ActionBarActivity {
 		eventStartTimeValue=(TextView)findViewById(R.id.eventStartTimeValue);
 		title=(EditText)findViewById(R.id.newEventTitle);
 		content=(EditText)findViewById(R.id.newEventContent);
+		
+		//Restore data when screen rotation happens
+		if(DataToRetain.title!=null)
+			title.setText(DataToRetain.title);
+		if(DataToRetain.content!=null)
+			content.setText(DataToRetain.content);
+		if(DataToRetain.startTime!=null)
+			eventStartTimeValue.setText(DataToRetain.startTime);
+		if(DataToRetain.endTime!=null)
+			eventEndTimeValue.setText(DataToRetain.endTime);
+		
+		
 		image=(ImageView)findViewById(R.id.imgView);
 		//chooseImageBtn=(Button)findViewById(R.id.chooseImageBtn);
 		sendBtn=(Button)findViewById(R.id.sendBtn);
@@ -296,5 +307,13 @@ public class NewEventActivity extends ActionBarActivity {
 		
 		
 	}
-
+	//Save the text when screen rotation happens and restore it upon completion of the rotation.
+	@Override
+    public Object onRetainNonConfigurationInstance(){
+    	DataToRetain.title=title.getText().toString();
+    	DataToRetain.content=content.getText().toString();
+    	DataToRetain.startTime=eventStartTimeValue.getText().toString();
+    	DataToRetain.endTime=eventEndTimeValue.getText().toString();
+		return null;
+    }
 }

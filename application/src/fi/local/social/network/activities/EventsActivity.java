@@ -20,12 +20,13 @@ import android.widget.TextView;
 
 public class EventsActivity extends ActionBarActivity {
 	private EventsDataSource eventsDataSource;
+	private ArrayList<Event> events;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.event_list);
-		ArrayList<Event> events= new ArrayList<Event>();
+		//ArrayList<Event> events= new ArrayList<Event>();
 		//        EventItem e1=new EventItem("Party","Party at T1 at 3:46pm on April 20th");
 		//        EventItem e2=new EventItem("Lecture","Lecture at T1 at 3:46pm on April 20th");
 		//        EventItem e3=new EventItem("Reunion","Reunion at T1 at 3:46pm on April 20th");
@@ -37,11 +38,15 @@ public class EventsActivity extends ActionBarActivity {
 		//        
 
 
-
-		eventsDataSource = new EventsDataSource(getApplicationContext());
-		eventsDataSource.open();
-		events.addAll(eventsDataSource.getAllEntries());
-		eventsDataSource.close();
+		events=(ArrayList<Event>)getLastNonConfigurationInstance();
+		if(events==null){
+			eventsDataSource = new EventsDataSource(getApplicationContext());
+			eventsDataSource.open();
+			events.addAll(eventsDataSource.getAllEntries());
+			eventsDataSource.close();
+		}
+		else
+			events=new ArrayList<Event>();
 
 
 		ListView listView=(ListView)findViewById(R.id.eventList);
@@ -85,5 +90,10 @@ public class EventsActivity extends ActionBarActivity {
 			}
 			return v;
 		}
+	}
+	//Save the text when screen rotation happens and restore it upon completion of the rotation.
+	@Override
+    public Object onRetainNonConfigurationInstance(){
+		return events;
 	}
 }

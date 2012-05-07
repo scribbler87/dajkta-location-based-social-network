@@ -82,10 +82,11 @@ public class PeopleActivity extends ServiceHelper {
 			.cacheOnDisc()
 			.build();
 		
-		// Initialize people nearby -list
-		peopleNearby = new ArrayList<User>();
+		peopleNearby=(List<User>)getLastNonConfigurationInstance();
+		if(peopleNearby==null)
+			// Initialize people nearby -list
+			peopleNearby = new ArrayList<User>();
 		
-	
 		
 		// Create list adapter
 		adapter = new PeopleListAdapter(this, R.layout.people_item, R.id.label, peopleNearby);
@@ -369,5 +370,9 @@ public class PeopleActivity extends ServiceHelper {
 			return row;
 		}
 	}
-	
+	//Save the text when screen rotation happens and restore it upon completion of the rotation.
+	@Override
+    public Object onRetainNonConfigurationInstance(){
+		return peopleNearby;
+	}
 }
