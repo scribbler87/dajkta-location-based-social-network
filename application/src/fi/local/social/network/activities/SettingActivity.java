@@ -68,6 +68,7 @@ public class SettingActivity extends ActionBarActivity {
 	private ChatMessagesDataSource chatMessDataSource;
 	private Button stopServiceButton;
 	private Uri imageURI = null;
+	private Bitmap profileImage;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -77,6 +78,7 @@ public class SettingActivity extends ActionBarActivity {
 		image = (ImageView) findViewById(R.id.imageView1);
 		saveBtn = (Button) findViewById(R.id.saveBtn);
 		nickname = (EditText) findViewById(R.id.etNickname);
+		
 
 		userDataSource = new UserDataSource(this);
 
@@ -85,7 +87,14 @@ public class SettingActivity extends ActionBarActivity {
 		image = (ImageView) findViewById(R.id.imageView1);
 		saveBtn = (Button) findViewById(R.id.saveBtn);
 		nickname = (EditText) findViewById(R.id.etNickname);
-
+		//When screen rotates, nickname and profile image restores without being lost
+		if(DataToRetain.profilePic!=null){
+			image.setImageBitmap(DataToRetain.profilePic);
+			profileImage=DataToRetain.profilePic;
+			}
+		if(DataToRetain.nickName!=null)
+			nickname.setText(DataToRetain.nickName);
+		
 		// When a user clicks on the 'Save' button, changed settings would be
 		// saved.
 		saveBtn.setOnClickListener(new OnClickListener() {
@@ -179,6 +188,8 @@ public class SettingActivity extends ActionBarActivity {
 				// Get bitmap format of the selected image
 				Bitmap yourSelectedImage = BitmapFactory
 						.decodeStream(imageStream);
+				//Save the profile image
+				profileImage=yourSelectedImage;
 				// Show the image in the ImageView
 				image.setImageBitmap(yourSelectedImage);
 			}
@@ -313,6 +324,13 @@ public class SettingActivity extends ActionBarActivity {
 	        }
 	        
 	    }
+	}
+	//Save the text when screen rotation happens and restore it upon completion of the rotation.
+	@Override
+    public Object onRetainNonConfigurationInstance(){
+		DataToRetain.nickName=nickname.getText().toString();
+		DataToRetain.profilePic=profileImage;
+		return null;
 	}
 	
 }

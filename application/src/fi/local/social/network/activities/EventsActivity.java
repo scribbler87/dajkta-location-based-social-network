@@ -40,14 +40,12 @@ public class EventsActivity extends ActionBarActivity {
 
 		events=(ArrayList<Event>)getLastNonConfigurationInstance();
 		if(events==null){
+			events=new ArrayList<Event>();
 			eventsDataSource = new EventsDataSource(getApplicationContext());
 			eventsDataSource.open();
 			events.addAll(eventsDataSource.getAllEntries());
 			eventsDataSource.close();
 		}
-		else
-			events=new ArrayList<Event>();
-
 
 		ListView listView=(ListView)findViewById(R.id.eventList);
 		listView.setAdapter(new EventItemAdapter(this,R.layout.event_list_item,events));
