@@ -23,7 +23,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import com.example.android.actionbarcompat.ActionBarActivity;
 
 import fi.local.social.network.R;
-import fi.local.social.network.activities.EventsActivity.EventItemAdapter;
 import fi.local.social.network.db.Event;
 import fi.local.social.network.db.EventsDataSource;
 
