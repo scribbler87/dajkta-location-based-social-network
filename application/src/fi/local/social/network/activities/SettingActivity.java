@@ -284,7 +284,7 @@ public class SettingActivity extends ActionBarActivity {
 				entity.addPart("name", new StringBody(name));
 				entity.addPart("file", new FileBody(new File(this.image)));
 				httppost.setEntity(entity);
-			} catch (UnsupportedEncodingException e1) {
+			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}

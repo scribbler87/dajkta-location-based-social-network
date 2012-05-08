@@ -60,10 +60,10 @@ public class ChatActivity extends ServiceHelper {
 			chatMessageDataSource = new ChatMessagesDataSource(this);
 		chatMessageDataSource.open();
 
-		filterMyMessages(); // we also receive others messages
-
 		adapter = new ArrayAdapter<ChatMessage>(this,
 				android.R.layout.simple_list_item_1, chatList);
+		
+		filterMyMessages(); // we also receive others messages
 
 		chatHistoryListView = (ListView) findViewById(R.id.listChat);
 		chatHistoryListView.setAdapter(adapter);

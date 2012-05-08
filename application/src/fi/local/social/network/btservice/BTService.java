@@ -48,8 +48,6 @@ public class BTService extends Service {
 	public static final int START_CHAT_AVTIVITY = 14;
 	public static final int CONNECTION_FAILED = 15;
 	public static final int MSG_EVENT = 16;
-	private static final String MESSAGE_ENCODING = "UTF-16";
-
 	public static BluetoothAdapter mBluetoothAdapter = null;
 	
 	private static final String EVENT_MSG_END_TAG = "<!EVT>";
@@ -130,11 +128,9 @@ public class BTService extends Service {
 						+ CHAT_MSG_END_TAG; // TODO small protocoll
 				byte[] chatBytes = null;
 				// try {
-				try {
-					chatBytes = message.getBytes("UTF-16LE");
-				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
-				}
+				
+					chatBytes = message.getBytes();
+				
 				write(chatBytes);
 				break;
 
@@ -661,7 +657,7 @@ public class BTService extends Service {
 							Event event = events.get(actEvent);
 							String eventString = event.getDBString();
 							eventString = EVENT_MSG_START_TAG + eventString + EVENT_MSG_END_TAG;
-							mmOutStream.write(eventString.getBytes("UTF-16LE"));
+							mmOutStream.write(eventString.getBytes());
 							actEvent++;
 						}
 						else
@@ -672,7 +668,7 @@ public class BTService extends Service {
 					
 					// Read from the InputStream
 					mmInStream.read(buffer);
-					string = new String(buffer,"UTF-16LE");// , MESSAGE_ENCODING);
+					string = new String(buffer);// , MESSAGE_ENCODING);
 					if (string.startsWith(CHAT_MSG_START_TAG)) {
 						// use protocoll here
 						// example chatmessages
